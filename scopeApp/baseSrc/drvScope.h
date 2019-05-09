@@ -61,7 +61,7 @@ typedef struct{
 #define aoTrLevStr	"AO_TRLEV"	// trigger level
 
 #define aoTrHOffStr	"AO_TRHOFF"	// (15) trigger hold off
-#define boRunStr	"BO_RUN"	// (20) acquire run state
+#define boRunStr	"BO_RUN"	//  acquire run state
 #define boStopStr	"BO_STOP"	// acquire stop state
 #define loEseStr	"LO_ESE"
 #define boClsStr	"BO_CLS"	//
@@ -159,12 +159,13 @@ public:
   void	afterInit();
   virtual const char* getCommand(int ix)=0;
   virtual const char** getCmndList( int cix,uint* ni);
-  virtual void getWaveform( int ch);
-  virtual void getHSParams( double hs,int* x0,int* np);
-  virtual void getChanPos( int addr);
-  virtual void setChanPos( int addr,double v);
-  virtual void saveConfig();
-  virtual void restoreConfig();
+  virtual void	getWaveform( int ch);
+  virtual void	getHSParams( double hs,int* x0,int* np);
+  virtual void	getChanPos( int addr);
+  virtual void	setChanPos( int addr,double v);
+  virtual void	saveConfig();
+  virtual void	restoreConfig();
+  virtual int	isTriggered();
   void		setChanPosition();
 
 protected:

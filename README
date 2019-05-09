@@ -9,3 +9,8 @@ which differ between instruments.
 Most of the EPICS record support is in the base class, shared by all instrument
 specific classes.  Each instrument specific class add a handfull of commands to
 reflect the functionality unique to the instrument supported.
+
+11/3/2015, zms:
+added code to drvScope.cpp needed to get traces synchronously.  This means that
+the acquisition is tropped, all enabled traces are read in, and the acquisition
+is then restarted.  It seems to be working correctly.

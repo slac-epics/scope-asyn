@@ -154,6 +154,13 @@ void drvScope::getWaveform( int ch){
  * Virtual function to be supplied by device specific class.
  *---------------------------------------------------------------------------*/
 }
+int drvScope::isTriggered(){
+/*-----------------------------------------------------------------------------
+ * Default is that the scope is triggered.  This can be overridden in derived
+ * class.
+ *---------------------------------------------------------------------------*/
+  return(1);
+}
 void drvScope::getChanPos( int addr){
 /*-----------------------------------------------------------------------------
  * This virtual method is coded to work with the tds3000 series scopes.  It
@@ -851,6 +858,7 @@ asynStatus drvScope::writeInt32( asynUser* pau,epicsInt32 v){
     case ixLoMark2:	_mix2[_markchan]=v; break;
     case ixBoGetWfA:	_getTraces(); break;
     case ixBoRdTraces:	_rdtraces=v; break;
+    case ixMbboTracMod:	setIntegerParam( addr,_mbboTracMod,v); break;
     default:		putInMessgQ( enPutInt,ix,addr,v); break;
   }
   callParamCallbacks(addr);
@@ -927,11 +935,21 @@ void drvScope::_getTraces(){
  * for the same event.
  *---------------------------------------------------------------------------*/
   static epicsTimeStamp t1,t2,t3; static int first=1;
+  int tmode,istrig=1; const char* pcmd;
   epicsTimeGetCurrent(&t1);
-  getWaveform(0);
-  getWaveform(1);
-  getWaveform(2);
-  getWaveform(3);
+  getIntegerParam( _mbboTracMod,&tmode);
+  if(tmode==enTMSync){
+    if(istrig=isTriggered()) if(pcmd=getCommand(_boStop)) command(pcmd);
+  }
+  if(istrig){
+    getWaveform(0);
+    getWaveform(1);
+    getWaveform(2);
+    getWaveform(3);
+    if(tmode==enTMSync){
+      if(pcmd=getCommand(_boRun)) command(pcmd);
+    }
+  }
   epicsTimeGetCurrent(&t2);
   _wfTime=epicsTimeDiffInSeconds(&t2,&t1);
   if(_wfTime<_wfTMin) _wfTMin=_wfTime;

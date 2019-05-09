@@ -159,6 +159,27 @@ void drvTDS::updateUser(){
 void drvTDS::getHSParams( double hs,int* x0,int* np){
   __getHSParams( hs,x0,np);
 }
+asynStatus drvTDS::trigState(){
+/*-----------------------------------------------------------------------------
+ * Gets trigger state, which gets posted.
+ *---------------------------------------------------------------------------*/
+  asynStatus stat;
+  stat=getBinary( TrigStaCmnd,_mbbiTrSta,trigSta,SIZE(trigSta));
+  return(stat);
+}
+int drvTDS::isTriggered(){
+/*-----------------------------------------------------------------------------
+ * Returns true if scope is in a triggered state, returns false otherwise.
+ *---------------------------------------------------------------------------*/
+  asynStatus stat=trigState(); int trst;
+  if(stat!=asynSuccess){
+    printf( "%s::isTriggered: failed in trigState\n",dname);
+    return(0);
+  }
+  getIntegerParam( 0,_mbbiTrSta,&trst);
+  if(trst==4) return(1);
+  return(0);
+}
 const char** drvTDS::getCmndList( int cix,uint* ni){
 /*-----------------------------------------------------------------------------
  * Overides the empty virtual function in the base class.  It returns a pointer
@@ -258,11 +279,8 @@ void drvTDS::getWaveform( int ch){
       callParamCallbacks( ch);
     }
   }
-  else{
-    np=WF_LEN;
-    for(i=0; i<WF_LEN; i++,pwf++) *pwf=1000.0;
-  }
-  doCallbacksFloat32Array( _wfbuf,np,_wfTrace,ch);
+  else for(i=0; i<WF_LEN; i++,pwf++) *pwf=1000.0;
+  doCallbacksFloat32Array( _wfbuf,WF_LEN,_wfTrace,ch);
 }
 void drvTDS::getChanScl( int ch){
 /*-----------------------------------------------------------------------------

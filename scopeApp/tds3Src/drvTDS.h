@@ -39,6 +39,7 @@ public:
   const char*	getCommand(int cix);
   const char**	getCmndList( int cix,uint* ni);
   void		getHSParams( double hs,int* x0,int* np);
+  int		isTriggered();
   void		postInit();
 
 protected:
@@ -51,15 +52,16 @@ protected:
 	ixMbboChScl,ixMbboTimDivV,ixMbboTimDivU,ixBiAcqStat,ixLiEvQ,
 	ixLiEvQty,  ixLoRecall,   ixLoStore,    ixSiSource, ixSiHead};
 
-  asynStatus putFltCmnds( int ix,int addr,float v);
-  asynStatus putIntCmnds( int ix,int addr,int v);
-  asynStatus getCmnds( int ix,int addr);
-  void setTimePerDiv( double v);
-  void getChanScl(int ch);
-  void timeDelayStr( int,int);
-  void getTrigLevl();
-  void setTrigLevl(int v);
-  void updateUser();
+  asynStatus	putFltCmnds( int ix,int addr,float v);
+  asynStatus	putIntCmnds( int ix,int addr,int v);
+  asynStatus	getCmnds( int ix,int addr);
+  void		setTimePerDiv( double v);
+  void		getChanScl(int ch);
+  void		timeDelayStr( int,int);
+  void		getTrigLevl();
+  void		setTrigLevl(int v);
+  void		updateUser();
+  asynStatus	trigState();
 
 private:
   void          _setTimePerDiv( uint vix,uint uix);

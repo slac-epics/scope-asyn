@@ -3,3 +3,9 @@ It is a consolidation of two separate implementation, one for Tektronix
 tds3000 series, the other for Rigol DS4000 and DS6000 series scopes, into
 a single support module.
 Released on 06/23/2015 by zms.
+
+11/3/2015, zms:
+Modifications made to drvScope.cpp needed to read traces synchronously.  This
+was done by: 1. stopping acquisition, 2. reading all enabled traces, and
+3. starting acquisition.
+This modification is needed for the Kicker Magnet scope.
