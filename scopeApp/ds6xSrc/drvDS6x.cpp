@@ -187,6 +187,7 @@ void drvDS6x::getChanPos( int addr){
   }
   v/=scl;
   setDoubleParam( addr,_aoChPos,v);
+  callParamCallbacks(addr);
 }
 void drvDS6x::setChanPos( int addr,double v){
 /*-----------------------------------------------------------------------------
@@ -273,8 +274,7 @@ void drvDS6x::_setTimePerDiv( uint uix){
   command( cmnd);
   setTimePerDiv(v);
 }
-int drvDS6x::_wfPreamble( char* p,int* ln,int* nb,
-		double* ym,double* yz,double* yo){
+int drvDS6x::_wfPreamble( char* p,int* ln,int* nb){
 /*-----------------------------------------------------------------------------
  * Unpacks the waveform preamble string.  Returns the length of the preamble
  * as a function value.
@@ -310,9 +310,9 @@ void drvDS6x::getWaveform( int ch){
  * and waveform data.  It gets called from the base class via the virtual
  * function mechanism.
  *---------------------------------------------------------------------------*/
-  static const char* iam="_getWaveform";
+  static const char* iam="_getWaveform"; static int ctst=0; int ctstmx=20;
   asynStatus stat=asynSuccess; int i,j,chon,len,n=0,nb,nbyte;
-  double ymult,yzr,yof; word* pwr=_wfraw; char str[32]; char* pc=_rbuf;
+  word* pwr=_wfraw; char str[32]; char* pc=_rbuf;
   byte* pb; word* pw; word wtmp; float ftmp; float* pwf=_wfbuf; 
 
   getIntegerParam( ch,_boChOn,&chon);
@@ -320,7 +320,7 @@ void drvDS6x::getWaveform( int ch){
     sprintf( str,WfPreCmnd,ch+1);
     stat=writeRd( str,_rbuf,DBUF_LEN);
     if(stat!=asynSuccess) return;
-    i=_wfPreamble( _rbuf,&len,&nbyte,&ymult,&yzr,&yof);
+    i=_wfPreamble( _rbuf,&len,&nbyte);
     if(i<=0) return;
     stat=writeRd( ixWfTrace,ch+1,_rbuf,DBUF_LEN);
     if(stat!=asynSuccess) return;
@@ -364,8 +364,12 @@ void drvDS6x::getWaveform( int ch){
       callParamCallbacks( ch);
     }
   }
-  else for(i=0; i<WF_LEN; i++,pwf++) *pwf=1000.0;
+  else{
+    n=WF_LEN;
+    for(i=0; i<WF_LEN; i++,pwf++) *pwf=1000.0;
+  }
   doCallbacksFloat32Array( _wfbuf,n,_wfTrace,ch);
+  if((!ch)&&(!((ctst++)%ctstmx))) getString( TrigStCmnd,_siTrSta);
 }
 void drvDS6x::_printWF( int nbyte,int len,int n,char* pbuf,byte* p){
 /*-----------------------------------------------------------------------------

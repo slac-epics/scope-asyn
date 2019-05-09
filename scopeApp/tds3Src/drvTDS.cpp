@@ -258,7 +258,10 @@ void drvTDS::getWaveform( int ch){
       callParamCallbacks( ch);
     }
   }
-  else for(i=0; i<WF_LEN; i++,pwf++) *pwf=1000.0;
+  else{
+    np=WF_LEN;
+    for(i=0; i<WF_LEN; i++,pwf++) *pwf=1000.0;
+  }
   doCallbacksFloat32Array( _wfbuf,np,_wfTrace,ch);
 }
 void drvTDS::getChanScl( int ch){

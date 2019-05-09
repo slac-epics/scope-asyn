@@ -21,8 +21,9 @@ DB += scopeErr.db
 DB += scopeMark.db
 EB += timeDiv.db
 DB += scope.db
-DB += ds6.db
 DB += tds.db
+DB += ds1.db
+DB += ds6.db
 DB += $(ASYN)/db/asynRecord.db
 
 include $(TOP)/configure/RULES

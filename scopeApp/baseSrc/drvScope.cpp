@@ -816,7 +816,8 @@ void drvScope::setChanPosition(){
  * gets called from time expire function at the end of slider move.
  *---------------------------------------------------------------------------*/
   setChanPos( _chSel,_chPos);
-  getFloatCh( ixAoChPos,_chSel+1,_aoChPos);
+//  getFloatCh( ixAoChPos,_chSel+1,_aoChPos);
+  getChanPos(_chSel);
   getTrigLevl();
 }
 asynStatus drvScope::writeInt32( asynUser* pau,epicsInt32 v){
@@ -869,14 +870,14 @@ asynStatus drvScope::putFltCmnds( int ix,int addr,float v){
     case ixAoChPos:	_posInProg=0;
 			setChanPos( addr,v);
 			if(addr==_chSel) _setPosSlider( v);
-			setDoubleParam( addr,jx,v);
+			setDoubleParam( addr,ix,v);
 			getTrigLevl();
 			break;
     case ixAoChScl:	if(!pcmd) break;
 			sprintf( cmnd,pcmd,addr+1);
 			sprintf( cmnd,"%s %f",cmnd,v);
 			command(cmnd);
-			setDoubleParam( addr,jx,v);
+			setDoubleParam( addr,ix,v);
 			break;
     case ixAoTimDly:	_setTimeDelayStr(v); break;
     case ixAoTrPos:	if(!pcmd) break;
@@ -886,10 +887,13 @@ asynStatus drvScope::putFltCmnds( int ix,int addr,float v){
     case ixAoTrLev:	if(!pcmd) break;
 			sprintf( cmnd,"%s %f",pcmd,v);
 			command( cmnd);
-			setDoubleParam( addr,_aoTrLev,v);
+			setDoubleParam( addr,ix,v);
 			getTrigLevl();
 			break;
-    case ixAoTrHOff:
+    case ixAoTrHOff:	if(!pcmd) break;
+			sprintf( cmnd,"%s %f",pcmd,v);
+			command( cmnd);
+			setDoubleParam( addr,ix,v); break;
     default:		stat=asynError; break;
   }
   callParamCallbacks(addr);

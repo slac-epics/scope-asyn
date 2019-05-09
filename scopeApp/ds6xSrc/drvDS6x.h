@@ -24,8 +24,8 @@
 #define aoTimDivStr	"AO_TIMDIV"	// time base scale (s/div)
 #define aoTmOfstStr	"AO_TMOFST"	// time base delay scale (s/div)
 #define aoTmDlySclStr	"AO_TMDLYSCL"	// time base delay scale (s/div)
-#define boTmXY1Str	"BO_TMXY1"	// XY mode ch 1 and 2
-#define boTmXY2Str	"BO_TMXY2"	// XY mode ch 3 and 4
+#define boTmXY1Str      "BO_TMXY1"      // XY mode ch 1 and 2
+#define boTmXY2Str      "BO_TMXY2"      // XY mode ch 3 and 4
 
 #define siTrStaStr	"SI_TRSTA"	// trigger state
 #define siSRateStr	"SI_SRATE"	// Sampling rate (smpl/sec)
@@ -76,7 +76,7 @@ protected:
   void updateUser();
 
 private:
-  int		_wfPreamble( char* p,int*,int*,double*,double*,double*);
+  int		_wfPreamble( char* p,int*,int*);
   void		_setTimePerDiv( uint uix);
   void		_printWF( int nb,int len,int n,char* pbuf,byte* p);
   char*		_getChanCmnds( int ch);
