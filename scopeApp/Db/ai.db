@@ -1,0 +1,9 @@
+#---- $(DESC) ------------------------------
+record( ai, "$(P):AI:$(ITEM)"){
+  field( DESC, "$(DESC)")
+  field( DTYP, "asynFloat64")
+  field( INP,  "@asyn($(PORT),$(N),1)AI_$(USER)")
+  field( SCAN, "I/O Intr")
+  field( PREC, "3")
+  field( EGU,  "$(EGU)")
+}

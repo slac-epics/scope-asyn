@@ -1,0 +1,9 @@
+#---- $(DESC) -----------------------------------
+record( longout, "$(P):LO:$(ITEM)"){
+  field( DESC, "$(DESC):")
+  info( asyn:READBACK, "1")
+  field( DTYP, "asynInt32")
+  field( OUT,  "@asyn($(PORT),0,1)LO_$(USER)")
+  field( LOPR, "$(LOPR)")
+  field( HOPR, "$(HOPR)")
+}

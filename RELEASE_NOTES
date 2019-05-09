@@ -1,0 +1,5 @@
+This is a new implementation of a support module for digital oscilloscopes.
+It is a consolidation of two separate implementation, one for Tektronix
+tds3000 series, the other for Rigol DS4000 and DS6000 series scopes, into
+a single support module.
+Released on 06/23/2015 by zms.

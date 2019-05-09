@@ -1,0 +1,9 @@
+#---- $(DESC) -----------------------------------
+record( bo, "$(P):BO:$(ITEM)"){
+  field( DESC, "$(DESC)")
+  info( asyn:READBACK, "1")
+  field( DTYP, "asynInt32")
+  field( OUT,  "@asyn($(PORT),$(N),1)BO_$(USER)")
+  field( ZNAM, "$(ZNAM)")
+  field( ONAM, "$(ONAM)")
+}

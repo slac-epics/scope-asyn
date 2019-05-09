@@ -1,0 +1,17 @@
+#-------- Status and Error commands -------------------------------------
+record( waveform, "$(P):WF:EV:MESSG"){
+  field( DESC, "rd event message")
+  field( SCAN, "I/O Intr")
+  field( DTYP, "asynOctetRead")
+  field( FTVL, "CHAR")
+  field( NELM, "300")
+  field( INP,  "@asyn($(PORT),0,1)WF_EVENT")
+}
+record( waveform, "$(P):WF:MESSAGE"){
+  field( DESC, "rd driver message")
+  field( SCAN, "I/O Intr")
+  field( DTYP, "asynOctetRead")
+  field( FTVL, "CHAR")
+  field( NELM, "100")
+  field( INP,  "@asyn($(PORT),0,1)WF_MESSG")
+}

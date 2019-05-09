@@ -1,0 +1,10 @@
+#---- $(DESC) ------------------------------
+record( ao, "$(P):AO:$(ITEM)"){
+  field( DESC, "$(DESC):")
+  info( asyn:READBACK, "1")
+  field( DTYP, "asynFloat64")
+  field( OUT,  "@asyn($(PORT),$(N),1)AO_$(USER)")
+  field( DRVL, "$(DRVL)")
+  field( DRVH, "$(DRVH)")
+  field( PREC, "3")
+}

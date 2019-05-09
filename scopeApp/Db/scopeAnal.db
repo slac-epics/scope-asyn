@@ -1,0 +1,25 @@
+#--- waveform analysis setup and results -------------------------
+record( bo,"$(P):BO:CH$(N):ANAL:PED"){
+  field( DESC, "Get Pedestal for CH$(N)")
+  field( DTYP, "asynInt32")
+  field( OUT,  "@asyn($(PORT),$(N),1)BO_PED")
+  field( ZNAM, "get")
+  field( ONAM, "get")
+}
+record( ai, "$(P):AI:CH$(N):AREA"){
+  field( DESC, "Summed area:")
+  field( DTYP, "asynFloat64")
+  field( INP,  "@asyn($(PORT),$(N),1)AI_AREA")
+  field( SCAN, "I/O Intr")
+  field( PREC, "3")
+  field( EGU,  "unit")
+}
+record( ai, "$(P):AI:CH$(N):PED"){
+  field( DESC, "Summed ped:")
+  field( DTYP, "asynFloat64")
+  field( INP,  "@asyn($(PORT),$(N),1)AI_PED")
+  field( SCAN, "I/O Intr")
+  field( PREC, "3")
+  field( EGU,  "unit")
+}
+

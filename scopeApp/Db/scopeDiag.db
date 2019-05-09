@@ -1,0 +1,25 @@
+record( mbbo, "$(P)debug"){
+  field( DESC, "Trigger Scope")
+  field( DTYP, "Soft Channel")
+  field( ZRVL, "0")
+  field( ONVL, "1")
+  field( TWVL, "2")
+  field( THVL, "3")
+  field( ZRST, "0")
+  field( ONST, "1")
+  field( TWST, "2")
+  field( THST, "3")
+  field( VAL, "0")
+}
+record( genSub, "$(P)gsDbgPrint"){
+  field( DESC, "debug print")
+  field( EFLG, "ALWAYS")
+  field( SNAM, "dbgPrint")
+  field( INPA, "$(P)wDataSource")
+  field( FTA,  "CHAR")
+  field( NOA,  "256")
+}
+record( bo, "$(P)doAcquire"){
+  field( DESC, "force acquire wfms")
+  field( SCAN, "Passive")
+}

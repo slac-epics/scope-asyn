@@ -1,0 +1,880 @@
+2015/06/05 13:04:41.289 asynOctetSyncIO flush
+drvScope::_write: flush stat=0
+2015/06/05 13:04:41.299 L0 -1 vxiWrite
+*CLS; :DAT:ENC RIB; :HOR:RECORDL 500; :HEAD OFF; :VERB ON; :DAT:STAR 1; :DAT:STO
+2015/06/05 13:04:41.299 asynOctetSyncIO wrote:
+*CLS; :DAT:ENC RIB; :HOR:RECORDL 500; :HEAD OFF; :VERB ON; :DAT:STAR 1; :DAT:STO
+drvScope::_write: write stat=0,*CLS; :DAT:ENC RIB; :HOR:RECORDL 500; :HEAD OFF; :VERB ON; :DAT:STAR 1; :DAT:STOP 500; HOR:DEL:STATE 1
+drvScope::putInMessgQ: tp=2,ix=24,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=25,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=0,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=0,addr=1,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=0,addr=2,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=0,addr=3,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=10,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=12,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=13,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=14,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=15,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=9,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=21,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=6,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=7,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=8,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=20,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=18,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=22,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=14,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=62,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=63,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=64,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=61,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=73,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=74,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=60,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=69,addr=0,iv=0,fv=0.00
+drvScope::putInMessgQ: tp=2,ix=68,addr=0,iv=0,fv=0.00
+iocRun: All initialization complete
+epicsThreadSleep(1)
+drvScope::getCmnds: ix=24,addr=0
+2015/06/05 13:04:41.381 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.384 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.384 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.386 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.386 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+drvScope::getIdn: cmnd=*IDN?
+2015/06/05 13:04:41.386 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *IDN?
+2015/06/05 13:04:41.390 L0 -1 vxiWrite
+*IDN?
+2015/06/05 13:04:41.390 asynOctetSyncIO wrote:
+*IDN?
+2015/06/05 13:04:41.393 L0 -1 vxiRead
+TEKTRONIX,TDS 3054B,0,CF:91.1CT FV:v3.15 TDS3GV:v1.00 TDS3FFT:v1.00 TDS3TRG:v1.0
+2015/06/05 13:04:41.393 asynOctetSyncIO read:
+TEKTRONIX,TDS 3054B,0,CF:91.1CT FV:v3.15 TDS3GV:v1.00 TDS3FFT:v1.00 TDS3TRG:v1.0
+drvScope::_wtrd: writeRead stat=0,TEKTRONIX,TDS 3054B,0,CF:91.1CT FV:v3.15 TDS3GV:v1.00 TDS3FFT:v1.00 TDS3TRG:v1.00
+
+drvScope::getCmnds: ix=25,addr=0
+2015/06/05 13:04:41.393 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.396 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.396 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.398 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.398 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.398 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, ETHER:IPADD?
+2015/06/05 13:04:41.402 L0 -1 vxiWrite
+ETHER:IPADD?
+2015/06/05 13:04:41.402 asynOctetSyncIO wrote:
+ETHER:IPADD?
+2015/06/05 13:04:41.404 L0 -1 vxiRead
+\"192.168.1.44\"\n
+2015/06/05 13:04:41.404 asynOctetSyncIO read:
+\"192.168.1.44\"\n
+drvScope::_wtrd: writeRead stat=0,"192.168.1.44"
+
+drvScope::getIpAddr: cmnd=ETHER:IPADD?,rbuf="192.168.1.44"
+
+drvScope::getCmnds: ix=0,addr=0
+2015/06/05 13:04:41.404 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.407 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.407 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.409 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.409 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.410 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, SEL:CH1?
+2015/06/05 13:04:41.413 L0 -1 vxiWrite
+SEL:CH1?
+2015/06/05 13:04:41.413 asynOctetSyncIO wrote:
+SEL:CH1?
+2015/06/05 13:04:41.415 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.415 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.415 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH1:IMP?
+2015/06/05 13:04:41.419 L0 -1 vxiWrite
+CH1:IMP?
+2015/06/05 13:04:41.419 asynOctetSyncIO wrote:
+CH1:IMP?
+2015/06/05 13:04:41.421 L0 -1 vxiRead
+MEG\n
+2015/06/05 13:04:41.421 asynOctetSyncIO read:
+MEG\n
+drvScope::_wtrd: writeRead stat=0,MEG
+
+2015/06/05 13:04:41.421 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH1:COUP?
+2015/06/05 13:04:41.426 L0 -1 vxiWrite
+CH1:COUP?
+2015/06/05 13:04:41.426 asynOctetSyncIO wrote:
+CH1:COUP?
+2015/06/05 13:04:41.427 L0 -1 vxiRead
+DC\n
+2015/06/05 13:04:41.428 asynOctetSyncIO read:
+DC\n
+drvScope::_wtrd: writeRead stat=0,DC
+
+2015/06/05 13:04:41.428 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH1:SCA?
+2015/06/05 13:04:41.433 L0 -1 vxiWrite
+CH1:SCA?
+2015/06/05 13:04:41.433 asynOctetSyncIO wrote:
+CH1:SCA?
+2015/06/05 13:04:41.435 L0 -1 vxiRead
+1.0E0\n
+2015/06/05 13:04:41.435 asynOctetSyncIO read:
+1.0E0\n
+drvScope::_wtrd: writeRead stat=0,1.0E0
+
+drvScope::getFloatCh: i=1,pix=4,val=1.00,cmnd=CH1:SCA?
+2015/06/05 13:04:41.435 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH1:POS?
+2015/06/05 13:04:41.440 L0 -1 vxiWrite
+CH1:POS?
+2015/06/05 13:04:41.440 asynOctetSyncIO wrote:
+CH1:POS?
+2015/06/05 13:04:41.442 L0 -1 vxiRead
+2.94E0\n
+2015/06/05 13:04:41.442 asynOctetSyncIO read:
+2.94E0\n
+drvScope::_wtrd: writeRead stat=0,2.94E0
+
+drvScope::getFloatCh: i=1,pix=1,val=2.94,cmnd=CH1:POS?
+drvScope::getCmnds: ix=0,addr=1
+2015/06/05 13:04:41.442 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.446 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.446 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.448 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.448 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.448 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, SEL:CH2?
+2015/06/05 13:04:41.452 L0 -1 vxiWrite
+SEL:CH2?
+2015/06/05 13:04:41.452 asynOctetSyncIO wrote:
+SEL:CH2?
+2015/06/05 13:04:41.454 L0 -1 vxiRead
+0\n
+2015/06/05 13:04:41.454 asynOctetSyncIO read:
+0\n
+drvScope::_wtrd: writeRead stat=0,0
+
+2015/06/05 13:04:41.454 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH2:IMP?
+2015/06/05 13:04:41.458 L0 -1 vxiWrite
+CH2:IMP?
+2015/06/05 13:04:41.458 asynOctetSyncIO wrote:
+CH2:IMP?
+2015/06/05 13:04:41.460 L0 -1 vxiRead
+MEG\n
+2015/06/05 13:04:41.460 asynOctetSyncIO read:
+MEG\n
+drvScope::_wtrd: writeRead stat=0,MEG
+
+2015/06/05 13:04:41.460 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH2:COUP?
+2015/06/05 13:04:41.464 L0 -1 vxiWrite
+CH2:COUP?
+2015/06/05 13:04:41.464 asynOctetSyncIO wrote:
+CH2:COUP?
+2015/06/05 13:04:41.466 L0 -1 vxiRead
+DC\n
+2015/06/05 13:04:41.466 asynOctetSyncIO read:
+DC\n
+drvScope::_wtrd: writeRead stat=0,DC
+
+2015/06/05 13:04:41.466 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH2:SCA?
+2015/06/05 13:04:41.471 L0 -1 vxiWrite
+CH2:SCA?
+2015/06/05 13:04:41.471 asynOctetSyncIO wrote:
+CH2:SCA?
+2015/06/05 13:04:41.473 L0 -1 vxiRead
+1.0E-1\n
+2015/06/05 13:04:41.473 asynOctetSyncIO read:
+1.0E-1\n
+drvScope::_wtrd: writeRead stat=0,1.0E-1
+
+drvScope::getFloatCh: i=2,pix=4,val=0.10,cmnd=CH2:SCA?
+2015/06/05 13:04:41.473 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH2:POS?
+2015/06/05 13:04:41.478 L0 -1 vxiWrite
+CH2:POS?
+2015/06/05 13:04:41.478 asynOctetSyncIO wrote:
+CH2:POS?
+2015/06/05 13:04:41.480 L0 -1 vxiRead
+1.0E0\n
+2015/06/05 13:04:41.480 asynOctetSyncIO read:
+1.0E0\n
+drvScope::_wtrd: writeRead stat=0,1.0E0
+
+drvScope::getFloatCh: i=2,pix=1,val=1.00,cmnd=CH2:POS?
+drvScope::getCmnds: ix=0,addr=2
+2015/06/05 13:04:41.480 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.483 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.483 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.485 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.485 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.486 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, SEL:CH3?
+2015/06/05 13:04:41.490 L0 -1 vxiWrite
+SEL:CH3?
+2015/06/05 13:04:41.490 asynOctetSyncIO wrote:
+SEL:CH3?
+2015/06/05 13:04:41.492 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.492 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.492 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH3:IMP?
+2015/06/05 13:04:41.496 L0 -1 vxiWrite
+CH3:IMP?
+2015/06/05 13:04:41.496 asynOctetSyncIO wrote:
+CH3:IMP?
+2015/06/05 13:04:41.498 L0 -1 vxiRead
+FIFTY\n
+2015/06/05 13:04:41.498 asynOctetSyncIO read:
+FIFTY\n
+drvScope::_wtrd: writeRead stat=0,FIFTY
+
+2015/06/05 13:04:41.499 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH3:COUP?
+2015/06/05 13:04:41.503 L0 -1 vxiWrite
+CH3:COUP?
+2015/06/05 13:04:41.503 asynOctetSyncIO wrote:
+CH3:COUP?
+2015/06/05 13:04:41.505 L0 -1 vxiRead
+DC\n
+2015/06/05 13:04:41.505 asynOctetSyncIO read:
+DC\n
+drvScope::_wtrd: writeRead stat=0,DC
+
+2015/06/05 13:04:41.505 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH3:SCA?
+2015/06/05 13:04:41.510 L0 -1 vxiWrite
+CH3:SCA?
+2015/06/05 13:04:41.510 asynOctetSyncIO wrote:
+CH3:SCA?
+2015/06/05 13:04:41.512 L0 -1 vxiRead
+1.0E0\n
+2015/06/05 13:04:41.512 asynOctetSyncIO read:
+1.0E0\n
+drvScope::_wtrd: writeRead stat=0,1.0E0
+
+drvScope::getFloatCh: i=3,pix=4,val=1.00,cmnd=CH3:SCA?
+2015/06/05 13:04:41.512 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH3:POS?
+2015/06/05 13:04:41.517 L0 -1 vxiWrite
+CH3:POS?
+2015/06/05 13:04:41.517 asynOctetSyncIO wrote:
+CH3:POS?
+2015/06/05 13:04:41.519 L0 -1 vxiRead
+-1.18E0\n
+2015/06/05 13:04:41.519 asynOctetSyncIO read:
+-1.18E0\n
+drvScope::_wtrd: writeRead stat=0,-1.18E0
+
+drvScope::getFloatCh: i=3,pix=1,val=-1.18,cmnd=CH3:POS?
+drvScope::getCmnds: ix=0,addr=3
+2015/06/05 13:04:41.519 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.522 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.522 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.524 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.524 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.525 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, SEL:CH4?
+2015/06/05 13:04:41.529 L0 -1 vxiWrite
+SEL:CH4?
+2015/06/05 13:04:41.529 asynOctetSyncIO wrote:
+SEL:CH4?
+2015/06/05 13:04:41.531 L0 -1 vxiRead
+0\n
+2015/06/05 13:04:41.531 asynOctetSyncIO read:
+0\n
+drvScope::_wtrd: writeRead stat=0,0
+
+2015/06/05 13:04:41.531 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH4:IMP?
+2015/06/05 13:04:41.535 L0 -1 vxiWrite
+CH4:IMP?
+2015/06/05 13:04:41.535 asynOctetSyncIO wrote:
+CH4:IMP?
+2015/06/05 13:04:41.537 L0 -1 vxiRead
+MEG\n
+2015/06/05 13:04:41.537 asynOctetSyncIO read:
+MEG\n
+drvScope::_wtrd: writeRead stat=0,MEG
+
+2015/06/05 13:04:41.537 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH4:COUP?
+2015/06/05 13:04:41.541 L0 -1 vxiWrite
+CH4:COUP?
+2015/06/05 13:04:41.541 asynOctetSyncIO wrote:
+CH4:COUP?
+2015/06/05 13:04:41.543 L0 -1 vxiRead
+GND\n
+2015/06/05 13:04:41.543 asynOctetSyncIO read:
+GND\n
+drvScope::_wtrd: writeRead stat=0,GND
+
+2015/06/05 13:04:41.543 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH4:SCA?
+2015/06/05 13:04:41.548 L0 -1 vxiWrite
+CH4:SCA?
+2015/06/05 13:04:41.548 asynOctetSyncIO wrote:
+CH4:SCA?
+2015/06/05 13:04:41.550 L0 -1 vxiRead
+5.0E-1\n
+2015/06/05 13:04:41.550 asynOctetSyncIO read:
+5.0E-1\n
+drvScope::_wtrd: writeRead stat=0,5.0E-1
+
+drvScope::getFloatCh: i=4,pix=4,val=0.50,cmnd=CH4:SCA?
+2015/06/05 13:04:41.550 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, CH4:POS?
+2015/06/05 13:04:41.555 L0 -1 vxiWrite
+CH4:POS?
+2015/06/05 13:04:41.555 asynOctetSyncIO wrote:
+CH4:POS?
+2015/06/05 13:04:41.557 L0 -1 vxiRead
+-3.0E0\n
+2015/06/05 13:04:41.557 asynOctetSyncIO read:
+-3.0E0\n
+drvScope::_wtrd: writeRead stat=0,-3.0E0
+
+drvScope::getFloatCh: i=4,pix=1,val=-3.00,cmnd=CH4:POS?
+drvScope::getCmnds: ix=10,addr=0
+2015/06/05 13:04:41.557 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.561 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.561 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.563 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.563 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.563 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, HOR:DEL:TIM?
+2015/06/05 13:04:41.567 L0 -1 vxiWrite
+HOR:DEL:TIM?
+2015/06/05 13:04:41.567 asynOctetSyncIO wrote:
+HOR:DEL:TIM?
+2015/06/05 13:04:41.569 L0 -1 vxiRead
+0.0E0\n
+2015/06/05 13:04:41.569 asynOctetSyncIO read:
+0.0E0\n
+drvScope::_wtrd: writeRead stat=0,0.0E0
+
+drvScope::getCmnds: ix=12,addr=0
+2015/06/05 13:04:41.569 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.572 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.572 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.574 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.574 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.574 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, HOR:MAI:SCA?
+2015/06/05 13:04:41.579 L0 -1 vxiWrite
+HOR:MAI:SCA?
+2015/06/05 13:04:41.579 asynOctetSyncIO wrote:
+HOR:MAI:SCA?
+2015/06/05 13:04:41.581 L0 -1 vxiRead
+4.0E-5\n
+2015/06/05 13:04:41.581 asynOctetSyncIO read:
+4.0E-5\n
+drvScope::_wtrd: writeRead stat=0,4.0E-5
+
+drvScope::getCmnds: ix=13,addr=0
+2015/06/05 13:04:41.581 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.584 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.584 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.586 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.586 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.586 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, HOR:TRIG:POS?
+2015/06/05 13:04:41.590 L0 -1 vxiWrite
+HOR:TRIG:POS?
+2015/06/05 13:04:41.590 asynOctetSyncIO wrote:
+HOR:TRIG:POS?
+2015/06/05 13:04:41.593 L0 -1 vxiRead
+5.0E1\n
+2015/06/05 13:04:41.593 asynOctetSyncIO read:
+5.0E1\n
+drvScope::_wtrd: writeRead stat=0,5.0E1
+
+drvScope::getCmnds: ix=14,addr=0
+2015/06/05 13:04:41.593 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.596 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.596 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.598 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.598 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.598 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, TRIG:A:LEV?
+2015/06/05 13:04:41.603 L0 -1 vxiWrite
+TRIG:A:LEV?
+2015/06/05 13:04:41.603 asynOctetSyncIO wrote:
+TRIG:A:LEV?
+2015/06/05 13:04:41.605 L0 -1 vxiRead
+3.0E-1\n
+2015/06/05 13:04:41.605 asynOctetSyncIO read:
+3.0E-1\n
+drvScope::_wtrd: writeRead stat=0,3.0E-1
+
+drvScope::getCmnds: ix=15,addr=0
+2015/06/05 13:04:41.605 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.608 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.608 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.610 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.610 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.610 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, TRIG:A:HOL?
+2015/06/05 13:04:41.616 L0 -1 vxiWrite
+TRIG:A:HOL?
+2015/06/05 13:04:41.616 asynOctetSyncIO wrote:
+TRIG:A:HOL?
+2015/06/05 13:04:41.618 L0 -1 vxiRead
+2.508E-7\n
+2015/06/05 13:04:41.618 asynOctetSyncIO read:
+2.508E-7\n
+drvScope::_wtrd: writeRead stat=0,2.508E-7
+
+drvScope::getCmnds: ix=9,addr=0
+2015/06/05 13:04:41.618 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.621 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.621 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.623 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.623 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.623 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, DAT:ENC?
+2015/06/05 13:04:41.627 L0 -1 vxiWrite
+DAT:ENC?
+2015/06/05 13:04:41.627 asynOctetSyncIO wrote:
+DAT:ENC?
+2015/06/05 13:04:41.629 L0 -1 vxiRead
+RIBINARY\n
+2015/06/05 13:04:41.629 asynOctetSyncIO read:
+RIBINARY\n
+drvScope::_wtrd: writeRead stat=0,RIBINARY
+
+drvScope::getCmnds: ix=21,addr=0
+2015/06/05 13:04:41.629 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.632 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.632 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.634 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.634 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+drvScope::getCmnds: ix=6,addr=0
+2015/06/05 13:04:41.634 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.637 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.637 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.639 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.639 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.639 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, HOR:RECORDL?
+2015/06/05 13:04:41.643 L0 -1 vxiWrite
+HOR:RECORDL?
+2015/06/05 13:04:41.644 asynOctetSyncIO wrote:
+HOR:RECORDL?
+2015/06/05 13:04:41.645 L0 -1 vxiRead
+500\n
+2015/06/05 13:04:41.645 asynOctetSyncIO read:
+500\n
+drvScope::_wtrd: writeRead stat=0,500
+
+drvScope::getCmnds: ix=7,addr=0
+2015/06/05 13:04:41.646 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.649 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.649 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.651 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.651 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.651 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, DAT:STAR?
+2015/06/05 13:04:41.654 L0 -1 vxiWrite
+DAT:STAR?
+2015/06/05 13:04:41.654 asynOctetSyncIO wrote:
+DAT:STAR?
+2015/06/05 13:04:41.656 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.656 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+drvScope::getCmnds: ix=8,addr=0
+2015/06/05 13:04:41.656 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.659 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.659 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.661 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.661 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.661 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, DAT:STOP?
+2015/06/05 13:04:41.665 L0 -1 vxiWrite
+DAT:STOP?
+2015/06/05 13:04:41.665 asynOctetSyncIO wrote:
+DAT:STOP?
+2015/06/05 13:04:41.667 L0 -1 vxiRead
+500\n
+2015/06/05 13:04:41.667 asynOctetSyncIO read:
+500\n
+drvScope::_wtrd: writeRead stat=0,500
+
+drvScope::getCmnds: ix=20,addr=0
+2015/06/05 13:04:41.667 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.670 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.670 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.672 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.672 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.672 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *ESR?
+2015/06/05 13:04:41.675 L0 -1 vxiWrite
+*ESR?
+2015/06/05 13:04:41.675 asynOctetSyncIO wrote:
+*ESR?
+2015/06/05 13:04:41.677 L0 -1 vxiRead
+32\n
+2015/06/05 13:04:41.677 asynOctetSyncIO read:
+32\n
+drvScope::_wtrd: writeRead stat=0,32
+
+drvScope::getCmnds: ix=18,addr=0
+2015/06/05 13:04:41.678 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.681 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.681 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.683 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.683 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.683 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *ESE?
+2015/06/05 13:04:41.686 L0 -1 vxiWrite
+*ESE?
+2015/06/05 13:04:41.686 asynOctetSyncIO wrote:
+*ESE?
+2015/06/05 13:04:41.688 L0 -1 vxiRead
+255\n
+2015/06/05 13:04:41.688 asynOctetSyncIO read:
+255\n
+drvScope::_wtrd: writeRead stat=0,255
+
+drvScope::getCmnds: ix=22,addr=0
+2015/06/05 13:04:41.688 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.691 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.691 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.694 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.694 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.694 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *STB?
+2015/06/05 13:04:41.697 L0 -1 vxiWrite
+*STB?
+2015/06/05 13:04:41.697 asynOctetSyncIO wrote:
+*STB?
+2015/06/05 13:04:41.699 L0 -1 vxiRead
+0\n
+2015/06/05 13:04:41.699 asynOctetSyncIO read:
+0\n
+drvScope::_wtrd: writeRead stat=0,0
+
+drvScope::getCmnds: ix=14,addr=0
+2015/06/05 13:04:41.699 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, *OPC?
+2015/06/05 13:04:41.702 L0 -1 vxiWrite
+*OPC?
+2015/06/05 13:04:41.702 asynOctetSyncIO wrote:
+*OPC?
+2015/06/05 13:04:41.704 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.704 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.704 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, TRIG:A:LEV?
+2015/06/05 13:04:41.709 L0 -1 vxiWrite
+TRIG:A:LEV?
+2015/06/05 13:04:41.709 asynOctetSyncIO wrote:
+TRIG:A:LEV?
+2015/06/05 13:04:41.711 L0 -1 vxiRead
+3.0E-1\n
+2015/06/05 13:04:41.711 asynOctetSyncIO read:
+3.0E-1\n
+drvScope::_wtrd: writeRead stat=0,3.0E-1
+
+2015/06/05 13:04:41.711 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, TRIG:A:EDG:SOU?
+2015/06/05 13:04:41.716 L0 -1 vxiWrite
+TRIG:A:EDG:SOU?
+2015/06/05 13:04:41.716 asynOctetSyncIO wrote:
+TRIG:A:EDG:SOU?
+2015/06/05 13:04:41.718 L0 -1 vxiRead
+CH3\n
+2015/06/05 13:04:41.718 asynOctetSyncIO read:
+CH3\n
+drvScope::_wtrd: writeRead stat=0,CH3
+
+drvScope::getBinary: rbuf=CH3,ni=8,str=TRIG:A:EDG:SOU?
+2015/06/05 13:04:41.718 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, TRIG:A:EDG:SLO?
+2015/06/05 13:04:41.722 L0 -1 vxiWrite
+TRIG:A:EDG:SLO?
+2015/06/05 13:04:41.722 asynOctetSyncIO wrote:
+TRIG:A:EDG:SLO?
+2015/06/05 13:04:41.724 L0 -1 vxiRead
+RISE\n
+2015/06/05 13:04:41.724 asynOctetSyncIO read:
+RISE\n
+drvScope::_wtrd: writeRead stat=0,RISE
+
+drvScope::getBinary: rbuf=RISE,ni=2,str=TRIG:A:EDG:SLO?
+2015/06/05 13:04:41.724 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, TRIG:STATE?
+2015/06/05 13:04:41.728 L0 -1 vxiWrite
+TRIG:STATE?
+2015/06/05 13:04:41.728 asynOctetSyncIO wrote:
+TRIG:STATE?
+2015/06/05 13:04:41.730 L0 -1 vxiRead
+TRIGGER\n
+2015/06/05 13:04:41.730 asynOctetSyncIO read:
+TRIGGER\n
+drvScope::_wtrd: writeRead stat=0,TRIGGER
+
+drvScope::getBinary: rbuf=TRIGGER,ni=5,str=TRIG:STATE?
+2015/06/05 13:04:41.730 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, TRIG:A:MOD?
+2015/06/05 13:04:41.734 L0 -1 vxiWrite
+TRIG:A:MOD?
+2015/06/05 13:04:41.734 asynOctetSyncIO wrote:
+TRIG:A:MOD?
+2015/06/05 13:04:41.736 L0 -1 vxiRead
+NORMAL\n
+2015/06/05 13:04:41.736 asynOctetSyncIO read:
+NORMAL\n
+drvScope::_wtrd: writeRead stat=0,NORMAL
+
+drvScope::getBinary: rbuf=NORMAL,ni=2,str=TRIG:A:MOD?
+2015/06/05 13:04:41.737 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, DATA:SOU?
+2015/06/05 13:04:41.740 L0 -1 vxiWrite
+DATA:SOU?
+2015/06/05 13:04:41.740 asynOctetSyncIO wrote:
+DATA:SOU?
+2015/06/05 13:04:41.742 L0 -1 vxiRead
+CH1\n
+2015/06/05 13:04:41.742 asynOctetSyncIO read:
+CH1\n
+drvScope::_wtrd: writeRead stat=0,CH1
+
+2015/06/05 13:04:41.742 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, HEAD?
+2015/06/05 13:04:41.745 L0 -1 vxiWrite
+HEAD?
+2015/06/05 13:04:41.745 asynOctetSyncIO wrote:
+HEAD?
+2015/06/05 13:04:41.747 L0 -1 vxiRead
+0\n
+2015/06/05 13:04:41.747 asynOctetSyncIO read:
+0\n
+drvScope::_wtrd: writeRead stat=0,0
+
+2015/06/05 13:04:41.748 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, DAT:WID?
+2015/06/05 13:04:41.751 L0 -1 vxiWrite
+DAT:WID?
+2015/06/05 13:04:41.751 asynOctetSyncIO wrote:
+DAT:WID?
+2015/06/05 13:04:41.753 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.753 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.753 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, EVQ?
+2015/06/05 13:04:41.756 L0 -1 vxiWrite
+EVQ?
+2015/06/05 13:04:41.756 asynOctetSyncIO wrote:
+EVQ?
+2015/06/05 13:04:41.758 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.758 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+2015/06/05 13:04:41.759 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, ACQ:STATE?
+2015/06/05 13:04:41.762 L0 -1 vxiWrite
+ACQ:STATE?
+2015/06/05 13:04:41.762 asynOctetSyncIO wrote:
+ACQ:STATE?
+2015/06/05 13:04:41.764 L0 -1 vxiRead
+1\n
+2015/06/05 13:04:41.764 asynOctetSyncIO read:
+1\n
+drvScope::_wtrd: writeRead stat=0,1
+
+dbpf "CHA:SC01:BO:UPDATE.SCAN","0"
+DBR_STRING:          "Passive"          
+dbpf "CHA:SC01:MBBO:TRACE:MODE",1
+DBR_STRING:          "aSync"  
+dbpf CHA:SC01:BO:TIMDLY:STATE 1
+DBR_STRING:          "on"     
+dbpf CHA:SC01:BO:RD:TRACE 0
+DBR_STRING:          "off"    
+dbpf CHA:SC01:WF:SAV:PATH "/nfs/slac/g/testfac/esa/sioc-cha-sc01/setup/config"
+DBR_CHAR[51]:        "/nfs/slac/g/testfac/esa/sioc-cha-sc01/setup/config"       
+drvScope::putInMessgQ: tp=0,ix=53,addr=0,iv=1,fv=0.00
+drvScope::putInMessgQ: tp=0,ix=11,addr=0,iv=1,fv=0.00
+drvScope::putIntCmnds:ix=53,addr=0,v=1
+drvScope::putIntCmnds:ix=11,addr=0,v=1
+2015/06/05 13:04:42.365 asynOctetSyncIO flush
+drvScope::_write: flush stat=0
+2015/06/05 13:04:42.371 L0 -1 vxiWrite
+HOR:DEL:STATE 1
+2015/06/05 13:04:42.371 asynOctetSyncIO wrote:
+HOR:DEL:STATE 1
+drvScope::_write: write stat=0,HOR:DEL:STATE 1
+epics> drvScope::putInMessgQ: tp=0,ix=28,addr=0,iv=1,fv=0.00
+drvScope::putIntCmnds:ix=28,addr=0,v=1
+2015/06/05 13:10:49.546 asynOctetSyncIO flush
+drvScope::_wtrd: flush stat=0, EVM?
+2015/06/05 13:10:49.550 L0 -1 vxiWrite
+EVM?
+2015/06/05 13:10:49.550 asynOctetSyncIO wrote:
+EVM?
+2015/06/05 13:10:49.552 L0 -1 vxiRead
+113,\"Undefined header; unrecognized command - HOR:\"\n
+2015/06/05 13:10:49.552 asynOctetSyncIO read:
+113,\"Undefined header; unrecognized command - HOR:\"\n
+drvScope::_wtrd: writeRead stat=0,113,"Undefined header; unrecognized command - HOR:"
+
+drvScope::putInMessgQ: tp=0,ix=28,addr=0,iv=0,fv=0.00
+drvScope::putIntCmnds:ix=28,addr=0,v=0
+
+

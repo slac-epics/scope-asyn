@@ -1,0 +1,10 @@
+record( waveform, "$(P):WF:CH$(N):TRACE"){
+  field( DESC, "Ch$(N) Waveform Data")
+  field( SCAN, "I/O Intr")
+  field( DTYP, "asynFloat32ArrayIn")
+  field( INP,  "@asyn($(PORT),$(N),1)WF_TRACE")
+  field( PREC, "1")
+  field( EGU,  "Divisions")
+  field( NELM, "$(NELM)")
+  field( FTVL, "FLOAT")
+}

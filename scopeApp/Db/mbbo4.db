@@ -1,0 +1,15 @@
+#---- $(DESC) -----------------------------------
+record( mbbo, "$(P):MBBO:$(ITEM)"){
+  field( DESC, "$(DESC):")
+  field( ZRVL, "0x0")
+  field( ONVL, "0x1")
+  field( TWVL, "0x2")
+  field( THVL, "0x3")
+  field( ZRST, "$(ZRST)")
+  field( ONST, "$(ONST)")
+  field( TWST, "$(TWST)")
+  field( THST, "$(THST)")
+  field( DTYP, "asynInt32")
+  field( OUT,  "@asyn($(PORT),$(N),1)MBBO_$(USER)")
+  info( asyn:READBACK, "1")
+}

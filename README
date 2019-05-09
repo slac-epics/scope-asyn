@@ -1,0 +1,11 @@
+This support module defines C++ classes which implement drivers for Tektronix
+TDS3000 scopes and Rigol DS4000 and DS6000 series scopes.
+A virtual base class is implemented to do all IO to the instrument and also
+some common functionality.  It defines a handful of virtual functions which
+are reimplemented in the instrument specific classes.
+Two instrument specific classes are defined, which inherit from the base class.
+These derived classes define the instruction set that the instrument supports,
+which differ between instruments.
+Most of the EPICS record support is in the base class, shared by all instrument
+specific classes.  Each instrument specific class add a handfull of commands to
+reflect the functionality unique to the instrument supported.

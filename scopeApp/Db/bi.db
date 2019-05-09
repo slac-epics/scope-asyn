@@ -1,0 +1,9 @@
+#---- $(DESC) -----------------------------------
+record( bi, "$(P):BI:$(ITEM)"){
+  field( DESC, "$(DESC)")
+  field( DTYP, "asynInt32")
+  field( INP,  "@asyn($(PORT),$(N),1)BI_$(USER)")
+  field( SCAN, "I/O Intr")
+  field( ZNAM, "$(ZNAM)")
+  field( ONAM, "$(ONAM)")
+}
