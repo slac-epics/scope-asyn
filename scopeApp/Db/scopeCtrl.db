@@ -1,4 +1,4 @@
-record( waveform, "$(P):WF:IDN"){
+record( waveform, "$(P):WF_IDN"){
   field( DESC, "SCPI id string")
   field( SCAN, "I/O Intr")
   field( DTYP, "asynOctetRead")
@@ -6,15 +6,15 @@ record( waveform, "$(P):WF:IDN"){
   field( NELM, "170")
   field( INP,  "@asyn($(PORT),0,1)WF_IDN")
 }
-record( bo, "$(P):BO:NAME"){
+record( bo, "$(P):BO_NAME"){
   field( DESC, "$(NAME)")
 }
-record( stringout, "$(P):SO:CMND"){
+record( stringout, "$(P):SO_CMND"){
   field( DESC, "enter a command")
   field( DTYP, "asynOctetWrite")
   field( OUT,  "@asyn($(PORT),0,1)SO_CMND")
 }
-record( waveform, "$(P):WF:REPLY"){
+record( waveform, "$(P):WF_REPLY"){
   field( DESC, "reply to CMND")
   field( SCAN, "I/O Intr")
   field( DTYP, "asynOctetRead")

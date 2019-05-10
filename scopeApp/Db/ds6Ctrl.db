@@ -1,4 +1,4 @@
-record( mbbo, "$(P):MBBO:TRIG:SOU"){
+record( mbbo, "$(P):MBBO_TRIG_SOU"){
   field( DESC, "Trig Source:")
   field( NOBT, "8")
   field( ZRVL, "0x0")

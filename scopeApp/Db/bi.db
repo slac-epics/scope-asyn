@@ -1,5 +1,5 @@
 #---- $(DESC) -----------------------------------
-record( bi, "$(P):BI:$(ITEM)"){
+record( bi, "$(P):BI_$(ITEM)"){
   field( DESC, "$(DESC)")
   field( DTYP, "asynInt32")
   field( INP,  "@asyn($(PORT),$(N),1)BI_$(USER)")

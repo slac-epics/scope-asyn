@@ -1,44 +1,44 @@
 file mbbo3.db
 {
 pattern	{           DESC,        ITEM, N,  ZRST,    ONST,  TWST,    USER}
-	{    "Trig Mode",   TRIG:MODE, 0,  Edge,   Pulse, Video,  TRMODE}
-	{   "Trig Sweep",  TRIG:SWEEP, 0,  Auto,  Normal,Single,   TRSWE}
-	{   "Trig Slope",  TRIG:SLOPE, 0,  Rise,    Fall,  Both,   TRSLO}
-	{   "Trig Coupl",    TRIG:CPL, 0,    AC,      DC,    LF,   TRCPL}
-	{    "WF Format",      WF:FMT, 0,  Byte,    Word, ASCII,   WFFMT}
-	{  "AcquireType",    ACQ:TYPE, 0,Normal,Averages, Peak,    ACQTP}
+	{    "Trig Mode",   TRIG_MODE, 0,  Edge,   Pulse, Video,  TRMODE}
+	{   "Trig Sweep",  TRIG_SWEEP, 0,  Auto,  Normal,Single,   TRSWE}
+	{   "Trig Slope",  TRIG_SLOPE, 0,  Rise,    Fall,  Both,   TRSLO}
+	{   "Trig Coupl",    TRIG_CPL, 0,    AC,      DC,    LF,   TRCPL}
+	{    "WF Format",      WF_FMT, 0,  Byte,    Word, ASCII,   WFFMT}
+	{  "AcquireType",    ACQ_TYPE, 0,Normal,Averages, Peak,    ACQTP}
 }
 file mbbo4.db
 {
 pattern	{          DESC,     ITEM, N,   ZRST,    ONST, TWST,   THST,   USER}
-	{  "Time Div U",TIM:DIV:U, 0,     ns,      us,   ms,    sec,TIMDIVU}
+	{  "Time Div U",TIM_DIV_U, 0,     ns,      us,   ms,    sec,TIMDIVU}
 }
 file bo.db
 {
 pattern	{          DESC,      ITEM, N,     ZNAM,      ONAM,    USER}
-	{   "Time Mode", TIME:MODE, 0,     Main,   Delayed,  TMMODE}
-	{ "AcquireMode",  ACQ:MODE, 0, RealTime, EqualTime, ACQMODE}
-	{  "Auto Scale",AUTO:SCALE, 0,  AutoScl,   AutoScl,   AUTOS}
+	{   "Time Mode", TIME_MODE, 0,     Main,   Delayed,  TMMODE}
+	{ "AcquireMode",  ACQ_MODE, 0, RealTime, EqualTime, ACQMODE}
+	{  "Auto Scale",AUTO_SCALE, 0,  AutoScl,   AutoScl,   AUTOS}
 	{  "Print Dump",      DUMP, 0,      Off,        On,    DUMP}
 }
 file lo.db
 {
 pattern	{             DESC,      ITEM, LOPR, HOPR,    USER}
-	{  "TBase Scale V",TIME:DIV:V,    0,    0, TIMDIVV}
-	{ "SampleAverages",  ACQ:AVRG,    1, 9999,   ACQAV}
+	{  "TBase Scale V",TIME_DIV_V,    0,    0, TIMDIVV}
+	{ "SampleAverages",  ACQ_AVRG,    1, 9999,   ACQAV}
 }
 file ao.db
 {
 pattern {             DESC,     ITEM, N,  DRVL, DRVH,  EGU,    USER}
-	{    "TBase Scale", TIME:DIV, 0,     0,    0,s/div,  TIMDIV}
-	{   "TBase Offset",TIME:OFST, 0,     0,    0,s/div,  TMOFST}
-	{"TBase Dly Scale",TIME:DSCL, 0,     0,    0,s/div,TMDLYSCL}
+	{    "TBase Scale", TIME_DIV, 0,     0,    0,s/div,  TIMDIV}
+	{   "TBase Offset",TIME_OFST, 0,     0,    0,s/div,  TMOFST}
+	{"TBase Dly Scale",TIME_DSCL, 0,     0,    0,s/div,TMDLYSCL}
 }
 file si.db
 {
 pattern	{         DESC,      ITEM, N,  USER}
-	{ "Sampl Rate", SMPL:RATE, 0, SRATE}
-	{ "Trig State",TRIG:STATE, 0, TRSTA}
+	{ "Sampl Rate", SMPL_RATE, 0, SRATE}
+	{ "Trig State",TRIG_STATE, 0, TRSTA}
 }
 file scopeTrace.db
 {

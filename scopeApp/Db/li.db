@@ -1,5 +1,5 @@
 #---- $(DESC) -----------------------------------
-record( longin, "$(P):LI:$(ITEM)"){
+record( longin, "$(P):LI_$(ITEM)"){
   field( DESC, "$(DESC):")
   field( DTYP, "asynInt32")
   field( INP,  "@asyn($(PORT),0,1)LI_$(USER)")

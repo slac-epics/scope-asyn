@@ -1,5 +1,5 @@
 #---- $(DESC) -----------------------------------
-record( mbbo, "$(P):MBBO:$(ITEM)"){
+record( mbbo, "$(P):MBBO_$(ITEM)"){
   field( DESC, "$(DESC):")
   field( ZRVL, "0x0")
   field( ONVL, "0x1")

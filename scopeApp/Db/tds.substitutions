@@ -1,18 +1,18 @@
 file bo.db
 {
 pattern	{           DESC,        ITEM, N,     ZNAM,    ONAM,    USER}
-	{ "Trigger mode",   TRIG:MODE, 0,   Normal,    Auto,  TRMODE}
-	{"Trigger slope",  TRIG:SLOPE, 0,     Fall,    Rise, TRSLOPE}
+	{ "Trigger mode",   TRIG_MODE, 0,   Normal,    Auto,  TRMODE}
+	{"Trigger slope",  TRIG_SLOPE, 0,     Fall,    Rise, TRSLOPE}
 }
 file bi.db
 {
 pattern	{           DESC,        ITEM, N,     ZNAM,    ONAM,    USER}
-	{ "Acquire Stat",    ACQ:STAT, 0,     Stop,     Run, ACQSTAT}
+	{ "Acquire Stat",    ACQ_STAT, 0,     Stop,     Run, ACQSTAT}
 }
 file lo.db
 {
 pattern	{              DESC,        ITEM, LOPR, HOPR,      USER}
-	{      "data width",  DATA:WIDTH,    0,    0,   WFWIDTH}
+	{      "data width",  DATA_WIDTH,    0,    0,   WFWIDTH}
 	{            Recall,      RECALL,    1,   10,    RECALL}
 	{             Store,       STORE,    1,   10,     STORE}
 }
@@ -25,16 +25,16 @@ pattern	{              DESC,        ITEM,      USER}
 file si.db
 {
 pattern	{           DESC,       ITEM, N,    USER}
-	{  "Data Source",DATA:SOURCE, 0,  SOURCE}
+	{  "Data Source",DATA_SOURCE, 0,  SOURCE}
 	{       "Header",     HEADER, 0,    HEAD}
 }
 file tdsMbboChScl.db
 {
 pattern {        DESC,    ITEM, N,   USER}
-        { "Ch0 Scale", CH0:SCL, 0,  CHSCL}
-        { "Ch1 Scale", CH1:SCL, 1,  CHSCL}
-        { "Ch2 Scale", CH2:SCL, 2,  CHSCL}
-        { "Ch3 Scale", CH3:SCL, 3,  CHSCL}
+        { "Ch0 Scale", CH0_SCL, 0,  CHSCL}
+        { "Ch1 Scale", CH1_SCL, 1,  CHSCL}
+        { "Ch2 Scale", CH2_SCL, 2,  CHSCL}
+        { "Ch3 Scale", CH3_SCL, 3,  CHSCL}
 }
 file scopeTrace.db
 {

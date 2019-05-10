@@ -1,4 +1,4 @@
-record( mbbi, "$(P):MBBI:TRIG:STATE"){
+record( mbbi, "$(P):MBBI_TRIG_STATE"){
   field( DESC, "Trigger State")
   field( SCAN, "I/O Intr")
   field( DTYP, "asynInt32")
@@ -15,7 +15,7 @@ record( mbbi, "$(P):MBBI:TRIG:STATE"){
   field( THST, "Save")
   field( FRST, "Trig'd")
 }
-record( mbbo, "$(P):MBBO:TRIG:SOU"){
+record( mbbo, "$(P):MBBO_TRIG_SOU"){
   field( DESC, "Trig Source:")
   field( NOBT, "8")
   field( ZRVL, "0x0")
@@ -38,7 +38,7 @@ record( mbbo, "$(P):MBBO:TRIG:SOU"){
   field( OUT,  "@asyn($(PORT),$(N),1)MBBO_TRSOU")
   info( asyn:READBACK, "1")
 }
-record( mbbo, "$(P):MBBO:TIM:DIV:V"){
+record( mbbo, "$(P):MBBO_TIM_DIV_V"){
   field( DESC, "Time Division value:")
   field( NOBT, "9")
   field( ZRVL, "0x0")
@@ -63,7 +63,7 @@ record( mbbo, "$(P):MBBO:TIM:DIV:V"){
   field( OUT,  "@asyn($(PORT),0,1)MBBO_TIMDIVV")
   info( asyn:READBACK, "1")
 }
-record( mbbo, "$(P):MBBO:TIM:DIV:U"){
+record( mbbo, "$(P):MBBO_TIM_DIV_U"){
   field( DESC, "Time Division unit:")
   field( NOBT, "4")
   field( ZRVL, "0x0")

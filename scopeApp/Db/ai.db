@@ -1,5 +1,5 @@
 #---- $(DESC) ------------------------------
-record( ai, "$(P):AI:$(ITEM)"){
+record( ai, "$(P):AI_$(ITEM)"){
   field( DESC, "$(DESC)")
   field( DTYP, "asynFloat64")
   field( INP,  "@asyn($(PORT),$(N),1)AI_$(USER)")

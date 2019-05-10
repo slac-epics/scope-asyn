@@ -1,4 +1,4 @@
-record( waveform, "$(P):WF:CH$(N):TRACE"){
+record( waveform, "$(P):WF_CH$(N)_TRACE"){
   field( DESC, "Ch$(N) Waveform Data")
   field( SCAN, "I/O Intr")
   field( DTYP, "asynFloat32ArrayIn")

@@ -1,5 +1,5 @@
 #---- $(DESC) -----------------------------------
-record( longout, "$(P):LO:$(ITEM)"){
+record( longout, "$(P):LO_$(ITEM)"){
   field( DESC, "$(DESC):")
   info( asyn:READBACK, "1")
   field( DTYP, "asynInt32")

@@ -1,68 +1,68 @@
 #----- Soft Channel records for house keeping ------
-record( calc, "$(P):CALC:1PER:SECOND"){
+record( calc, "$(P):CALC_1PER_SECOND"){
   field( DESC, "count per second")
   field( SCAN, "1 second")
   field( CALC, "A+B")
-  field( INPA, "$(P):CALC:1PER:SECOND.VAL  NPP NMS")
+  field( INPA, "$(P):CALC_1PER_SECOND.VAL  NPP NMS")
   field( INPB, "1")
   field( EGU,  "Counts")
   field( VAL, "1")
 }
-record( bi, "$(P):BI:COUNT:GETS"){
+record( bi, "$(P):BI_COUNT_GETS"){
   field( DESC, "Count Waveforms")
   field( SCAN, "I/O Intr")
   field( DTYP, "asynInt32")
   field( INP,  "@asyn($(PORT),0,1)BI_CTGETS")
   field( ZNAM, "off")
   field( ONAM, "on")
-  field( FLNK, "$(P):CALC:COUNT:GETS PP")
+  field( FLNK, "$(P):CALC_COUNT_GETS PP")
 }
-record( calc, "$(P):CALC:COUNT:GETS"){
+record( calc, "$(P):CALC_COUNT_GETS"){
   field( DESC, "count histogram gets")
   field( SCAN, "Passive")
   field( CALC, "A+B")
-  field( INPA, "$(P):CALC:COUNT:GETS.VAL  NPP NMS")
+  field( INPA, "$(P):CALC_COUNT_GETS.VAL  NPP NMS")
   field( INPB, "1")
   field( EGU,  "Counts")
   field( VAL, "1")
 }
-record( calc, "$(P):CALC:COUNT:RATE"){
+record( calc, "$(P):CALC_COUNT_RATE"){
   field( DESC, "counting rate")
   field( SCAN, "5 second")
   field( CALC, "A/(B>0?B:1)")
-  field( INPA, "$(P):CALC:COUNT:GETS.VAL  NPP NMS")
-  field( INPB, "$(P):CALC:1PER:SECOND.VAL NPP NMS")
+  field( INPA, "$(P):CALC_COUNT_GETS.VAL  NPP NMS")
+  field( INPB, "$(P):CALC_1PER_SECOND.VAL NPP NMS")
   field( PREC, "1")
   field( EGU,  "ct/s")
 }
-record( calc, "$(P):CALC:CLR:RATE"){
+record( calc, "$(P):CALC_CLR_RATE"){
   field( DESC, "reset rate counters")
   field( CALC, "1-A")
-  field( INPA, "$(P):CALC:CLR:RATE.VAL NPP NMS")
+  field( INPA, "$(P):CALC_CLR_RATE.VAL NPP NMS")
   field( VAL,  "0")
-  field( FLNK, "$(P):DFO:CLR:RATE")
+  field( FLNK, "$(P):DFO_CLR_RATE")
 }
-record( dfanout,"$(P):DFO:CLR:RATE"){
+record( dfanout,"$(P):DFO_CLR_RATE"){
   field( DESC, "reset rate:")
   field( DOL,  "0.0")
-  field( OUTA, "$(P):CALC:COUNT:GETS.VAL PP NMS")
-  field( OUTB, "$(P):CALC:1PER:SECOND.VAL PP NMS")
+  field( OUTA, "$(P):CALC_COUNT_GETS.VAL PP NMS")
+  field( OUTB, "$(P):CALC_1PER_SECOND.VAL PP NMS")
   field( VAL,  "0.0")
 }
-record( stringin, "$(P):SI:START:TIME"){
+record( stringin, "$(P):SI_START_TIME"){
   field( DESC, "start date and time")
   field( DTYP, "Soft Timestamp")
   field( PINI, "YES")
   field( INP,  "@%m/%d/%Y %H:%M:%S")
 }
-record( stringin, "$(P):SI:CURR:TIME"){
+record( stringin, "$(P):SI_CURR_TIME"){
   field( DESC, "current date and time")
   field( DTYP, "Soft Timestamp")
   field( SCAN, "1 second")
   field( INP,  "@%m/%d/%Y %H:%M:%S")
 }
 #--- records to control and perform analysis ---------------------
-record( mbbo, "$(P):MBBO:MARK:CHAN"){
+record( mbbo, "$(P):MBBO_MARK_CHAN"){
   field( DESC, "Set marker for channel:")
   field( DTYP, "asynInt32")
   field( OUT,  "@asyn($(PORT),0,1)MBBO_MCHAN")
@@ -77,19 +77,19 @@ record( mbbo, "$(P):MBBO:MARK:CHAN"){
   info( asyn:READBACK, "1")
 }
 #----------------- scope commands -------------------------------------
-record( calc, "$(P):CALC:COUNT"){
+record( calc, "$(P):CALC_COUNT"){
   field( DESC, "Counter")
   field( SCAN, "$(SCAN)")
   field( CALC, "(A<B)?(A+C):D")
-  field( INPA, "$(P):CALC:COUNT.VAL  NPP NMS")
+  field( INPA, "$(P):CALC_COUNT.VAL  NPP NMS")
   field( INPB, "$(MAX)")
   field( INPC, "1")
   field( INPD, "0")
   field( EGU,  "Counts")
-  field( FLNK, "$(P):BO:GET:WF:ALL")
+  field( FLNK, "$(P):BO_GET_WF_ALL")
 }
 #--- Save/Restore scope configuration ---------
-record( waveform, "$(P):WF:SAV:PATH"){
+record( waveform, "$(P):WF_SAV_PATH"){
   field( DESC, "save/restore file path")
   field( DTYP, "asynOctetWrite")
   field( INP,  "@asyn($(PORT),0,1)WF_FPATH")
@@ -97,7 +97,7 @@ record( waveform, "$(P):WF:SAV:PATH"){
   field( NELM, "128")
 }
 #---------------- data acquisition setup ---------------------------------------
-record( waveform, "$(P):WF:X:AXIS"){
+record( waveform, "$(P):WF_X_AXIS"){
   field( DESC, "to paint graph x axis")
   field( NELM, "600")
   field( FTVL, "CHAR")

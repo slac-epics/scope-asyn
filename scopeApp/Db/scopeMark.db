@@ -1,5 +1,5 @@
 #--- records to control and perform analysis ---------------------
-record( mbbo, "$(P):MBBO:MARK:CHAN"){
+record( mbbo, "$(P):MBBO_MARK_CHAN"){
   field( DESC, "Set marker for channel:")
   field( DTYP, "asynInt32")
   field( OUT,  "@asyn($(PORT),$(N),1)MBBO_MCHAN")
@@ -12,7 +12,7 @@ record( mbbo, "$(P):MBBO:MARK:CHAN"){
   field( TWST, "Chan3")
   field( THST, "Chan4")
 }
-record( longout, "$(P):LO:MARK:1"){
+record( longout, "$(P):LO_MARK_1"){
   field( DESC, "Marker 1 index:")
   field( DTYP, "asynInt32")
   field( OUT,  "@asyn($(PORT),$(N),1)LO_MARK1")
@@ -21,7 +21,7 @@ record( longout, "$(P):LO:MARK:1"){
   field( LOPR, "0")
   field( HOPR, "500")
 }
-record( longout, "$(P):LO:MARK:2"){
+record( longout, "$(P):LO_MARK_2"){
   field( DESC, "Marker 2 index:")
   field( DTYP, "asynInt32")
   field( OUT,  "@asyn($(PORT),$(N),1)LO_MARK2")

@@ -1,5 +1,5 @@
 #---- $(DESC) -----------------------------------
-record( bo, "$(P):BO:$(ITEM)"){
+record( bo, "$(P):BO_$(ITEM)"){
   field( DESC, "$(DESC)")
   info( asyn:READBACK, "1")
   field( DTYP, "asynInt32")
