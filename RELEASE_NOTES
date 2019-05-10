@@ -9,3 +9,6 @@ Modifications made to drvScope.cpp needed to read traces synchronously.  This
 was done by: 1. stopping acquisition, 2. reading all enabled traces, and
 3. starting acquisition.
 This modification is needed for the Kicker Magnet scope.
+
+scope-asyn R1.3.1 Garth Brown (gwbrown) 10-May-2019:
+	Migrate to LCLS EPICS environment. Replace most : with _ in PV names to be consistent with naming conventions.
