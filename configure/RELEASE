@@ -1,16 +1,72 @@
+-include $(TOP)/RELEASE_SITE
 # RELEASE - Location of external support modules
 #
 # IF YOU MAKE ANY CHANGES to this file you must subsequently
 # do a "gnumake rebuild" in this application's top level
 # directory.
-#---------------------------------------------------------------------
+#
+# The build process does not check dependencies against files
+# that are outside this application, thus you should do a
+# "gnumake rebuild" in the top level directory after EPICS_BASE
+# or any other external module pointed to below is rebuilt.
+#
+# Host- or target-specific settings can be given in files named
+#  RELEASE.$(EPICS_HOST_ARCH).Common
+#  RELEASE.Common.$(T_A)
+#  RELEASE.$(EPICS_HOST_ARCH).$(T_A)
+#
+# This file is parsed by both GNUmake and an EPICS Perl script,
+# so it can ONLY contain definititions of paths to other support
+# modules, variable definitions that are used in module paths,
+# and include statements that pull in other RELEASE files.
+# Variables may be used before their values have been set.
+# Build variables that are NOT used in paths should be set in
+# the CONFIG_SITE file.
 
-include $(TOP)/../../../RELEASE_SITE
-TEMPLATE_TOP=$(EPICS_BASE)/templates/makeBaseApp/top
+# Variables and paths to dependent modules:
+#MODULES = /path/to/modules
+#MYMODULE = $(MODULES)/my-module
 
-EPICS_MODULES=$(EPICS_SITE_TOP)/modules
+ASYN_MODULE_VERSION=R4.31-1.0.0
+AUTOSAVE_MODULE_VERSION=R5.8-2.1.0
+CAPUTLOG_MODULE_VERSION=R3.5-1.0.0
+IOCADMIN_MODULE_VERSION=R3.1.15-1.10.0
+#MISCUTILS_MODULE_VERSION=R2.2.5
+pva2pva_MODULE_VERSION          = R1.0.0-0.3.1
+pvAccessCPP_MODULE_VERSION      = R6.0.0-0.3.0
+pvDatabaseCPP_MODULE_VERSION    = R4.3.0-0.0.3
+pvDataCPP_MODULE_VERSION        = R7.0.0-0.0.1
+#SEQ_MODULE_VERSION=R2.2.4-1.0
+#SSCAN_MODULE_VERSION=R2.10.2-1.0.0
+#STD_MODULE_VERSION=R3.2-1.0.2
 
-ASYN=$(EPICS_MODULES)/asyn/R4.26
-UTIL=$(EPICS_MODULES)/utils/R1.0
+# Let's add in support for the cexpsh()
+# This can be called from the EPICS shell
+# Please look at the README file in
+# CEXP module
+CEXP_MODULE_VERSION=R1.1.2
 
-EPICS_BASE=$(EPICS_SITE_TOP)/base
+# ============================================================
+#  Module Location
+# ============================================================
+
+ASYN=$(EPICS_MODULES)/asyn/$(ASYN_MODULE_VERSION)
+AUTOSAVE=$(EPICS_MODULES)/autosave/$(AUTOSAVE_MODULE_VERSION)
+CAPUTLOG=$(EPICS_MODULES)/caPutLog/$(CAPUTLOG_MODULE_VERSION)
+IOCADMIN=$(EPICS_MODULES)/iocAdmin/$(IOCADMIN_MODULE_VERSION)
+pva2pva     = $(EPICS_MODULES)/pva2pva/$(pva2pva_MODULE_VERSION)
+pvDatabaseCPP = $(EPICS_MODULES)/pvDatabaseCPP/$(pvDatabaseCPP_MODULE_VERSION)
+pvAccessCPP = $(EPICS_MODULES)/pvAccessCPP/$(pvAccessCPP_MODULE_VERSION)
+pvDataCPP   = $(EPICS_MODULES)/pvDataCPP/$(pvDataCPP_MODULE_VERSION)
+
+CEXP=$(EPICS_MODULES)/cexpsh/$(CEXP_MODULE_VERSION)
+
+# If using the sequencer, point SNCSEQ at its top directory:
+#SNCSEQ = $(MODULES)/seq-ver
+
+# EPICS_BASE should appear last so earlier modules can override stuff:
+# =====================================================================
+# Set EPICS_BASE last so it appears last in the DB, DBD, INCLUDE, and LIB search paths
+# ====================================================================
+EPICS_BASE=$(BASE_SITE_TOP)/$(BASE_MODULE_VERSION)
+
