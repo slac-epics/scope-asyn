@@ -1,9 +1,10 @@
 #---- $(DESC) -----------------------------------
 record( bo, "$(P):BO_$(ITEM)"){
-  field( DESC, "$(DESC)")
-  info( asyn:READBACK, "1")
-  field( DTYP, "asynInt32")
-  field( OUT,  "@asyn($(PORT),$(N),1)BO_$(USER)")
-  field( ZNAM, "$(ZNAM)")
-  field( ONAM, "$(ONAM)")
+field( DESC, "$(DESC)")
+info( asyn:READBACK, "1")
+field( DTYP, "asynInt32")
+field( OUT,  "@asyn($(PORT),$(N),1)BO_$(USER)")
+field( ZNAM, "$(ZNAM)")
+field( ONAM, "$(ONAM)")
+info(autosaveFields, "$(AUTOSAVE=)")
 }
