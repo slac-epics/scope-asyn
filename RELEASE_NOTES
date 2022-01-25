@@ -10,5 +10,8 @@ was done by: 1. stopping acquisition, 2. reading all enabled traces, and
 3. starting acquisition.
 This modification is needed for the Kicker Magnet scope.
 
+scope-asyn R1.3.2 Garth Brown (gwbrown) 25-Jan-2022:
+	Use latest asyn version
+
 scope-asyn R1.3.1 Garth Brown (gwbrown) 10-May-2019:
 	Migrate to LCLS EPICS environment. Replace most : with _ in PV names to be consistent with naming conventions.

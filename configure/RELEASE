@@ -27,7 +27,7 @@
 #MODULES = /path/to/modules
 #MYMODULE = $(MODULES)/my-module
 
-ASYN_MODULE_VERSION=R4.35-0.0.1
+ASYN_MODULE_VERSION=R4.39-1.0.1
 
 # ============================================================
 #  Module Location
