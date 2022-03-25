@@ -19,10 +19,10 @@
 static drvScope*	_this;
 static const char *dname="drvScope";
 
-extern "C"{
+extern "C" {
 static void pollerThreadC( void* pPvt){
-drvScope* _this=(drvScope*)pPvt;
-_this->pollerThread();
+    drvScope* _this=(drvScope*)pPvt;
+    _this->pollerThread();
 }
 }
 
@@ -30,7 +30,7 @@ void myTimer::_expired( const epicsTime&){
 /*-----------------------------------------------------------------------------
  * Invoked when timer expires.
  *---------------------------------------------------------------------------*/
-_this->setChanPosition();
+    _this->setChanPosition();
 }
 
 void drvScope::pollerThread(){
@@ -39,24 +39,31 @@ void drvScope::pollerThread(){
  * Reads a list of registers and it does callbacks to all
  * clients that have registered with registerDevCallback
  *---------------------------------------------------------------------------*/
-static const char* iam="pollerThread"; msgq_t msgq; int stat;
-printf( "%s::%s:================================\n",dname,iam);
-while(1){
-	stat=_pmq->tryReceive( &msgq,sizeof(msgq));
-	if(stat==-1){
-	if(_rdtraces) _getTraces();
-	epicsThreadSleep( _pollT);
-	}
-	else switch(msgq.type){
-	case enPutInt:    putIntCmnds( msgq.ix,msgq.addr,msgq.ival);
-						break;
-	case enQuery:     getCmnds( msgq.ix,msgq.addr);
-			break;
-	case enPutFlt:    putFltCmnds(msgq.ix,msgq.addr,msgq.fval);
-			break;
-	}
+
+    //static const char* iam = "pollerThread"; 
+    msgq_t msgq;
+    int stat;
+
+    while(1){
+        stat = _pmq->tryReceive( &msgq,sizeof(msgq));
+        if (stat == -1) {
+            if (_rdtraces) {
+                _getTraces();
+            }
+            epicsThreadSleep( _pollT);
+        } else {
+            switch(msgq.type){
+                case enPutInt: putIntCmnds( msgq.ix,msgq.addr,msgq.ival);
+                               break;
+                case enQuery:  getCmnds( msgq.ix,msgq.addr);
+                               break;
+                case enPutFlt: putFltCmnds(msgq.ix,msgq.addr,msgq.fval);
+                               break;
+            }
+        }
+    }
 }
-}
+
 void drvScope::_evMessage(){
 /*-----------------------------------------------------------------------------
  * Gets next event message from the instrument and posts it in a db record.
@@ -72,73 +79,79 @@ _rbuf[MSGNB-1]=0;
 setStringParam( _wfEvent,_rbuf);
 callParamCallbacks();
 }
+
 void drvScope::message( const char* m){
 /*-----------------------------------------------------------------------------
  * Constructs and posts a message.
  *---------------------------------------------------------------------------*/
-int len;
-char _time[64];
-epicsTimeStamp etime;
+    int len;
+    char _time[64];
+    epicsTimeStamp etime;
 
-epicsTimeGetCurrent( &etime);
-epicsTimeToStrftime(_time, sizeof(_time), "%Y-%m-%d %H:%M:%S", &etime);
-strncpy( _mbuf,_time,MSGNB); _mbuf[MSGNB-1]=0;
-if(strlen(_mbuf)<(MSGNB-20)){
-	strcat( _mbuf," ");
-	len=strlen(_mbuf);
-	strncat( _mbuf,m,MSGNB-len-1);
-	_mbuf[MSGNB-1]=0;
+    epicsTimeGetCurrent( &etime);
+    epicsTimeToStrftime(_time, sizeof(_time), "%Y-%m-%d %H:%M:%S", &etime);
+    strncpy( _mbuf,_time,MSGNB); _mbuf[MSGNB-1]=0;
+    if(strlen(_mbuf)<(MSGNB-20)){
+        strcat( _mbuf," ");
+        len=strlen(_mbuf);
+        strncat( _mbuf,m,MSGNB-len-1);
+        _mbuf[MSGNB-1]=0;
+    }
+    setStringParam( _wfMessg,_mbuf);
+    callParamCallbacks();
 }
-setStringParam( _wfMessg,_mbuf);
-callParamCallbacks();
-}
+
 void drvScope::putInMessgQ( int tp,int ix,int addr,int iv,float fv){
 /*-----------------------------------------------------------------------------
  * Construct a message and put in the message queue.
  *---------------------------------------------------------------------------*/
-int stat; msgq_t messg;
-messg.type=tp;
-messg.ix=ix;
-messg.addr=addr;
-messg.ival=iv;
-messg.fval=fv;
-stat=_pmq->trySend( &messg,sizeof(messg));
-if(!stat) _mqSent++; else _mqFailed++;
-setIntegerParam( _liMsgQS,_mqSent);
-setIntegerParam( _liMsgQF,_mqFailed);
-callParamCallbacks(0);
+    int stat; msgq_t messg;
+    messg.type=tp;
+    messg.ix=ix;
+    messg.addr=addr;
+    messg.ival=iv;
+    messg.fval=fv;
+    stat=_pmq->trySend( &messg,sizeof(messg));
+    if(!stat) _mqSent++; else _mqFailed++;
+    setIntegerParam( _liMsgQS,_mqSent);
+    setIntegerParam( _liMsgQF,_mqFailed);
+    callParamCallbacks(0);
 }
+
 asynStatus drvScope::writeRd( int cix,int ch,char* buf,int blen){
 /*-----------------------------------------------------------------------------
  * A protected write-read function that can be called from specific class.
  * Where, cix is an index to list of commands, ch is {1,2,3,4} and data read
  * are returned in buf or length blen bytes.
  *---------------------------------------------------------------------------*/
-const char* pcmd=getCommand( cix); char cmnd[32];
-if(!pcmd) return(asynError);
-sprintf( cmnd,pcmd,ch);
-return(_wtrd( cmnd,strlen(cmnd),buf,blen));
+    const char* pcmd=getCommand( cix); char cmnd[32];
+    if(!pcmd) return(asynError);
+    sprintf( cmnd,pcmd,ch);
+    return(_wtrd( cmnd,strlen(cmnd),buf,blen));
 }
+
 asynStatus drvScope::writeRd( const char* cmnd,char* buf,int blen){
 /*-----------------------------------------------------------------------------
  * A protected write-read function that can be called from specific class,
  * which sends a  command cmnd to the scope. ch is {1,2,3,4} and data read
  * are returned in buf or length blen bytes.
  *---------------------------------------------------------------------------*/
-return(_wtrd( cmnd,strlen(cmnd),buf,blen));
+    return(_wtrd( cmnd,strlen(cmnd),buf,blen));
 }
+
 asynStatus drvScope::_write( const char* pw,size_t nw){
 /*-----------------------------------------------------------------------------
  * Here we perform an "atomic" write.  Parameters:
  *  pw  buffer that has data to be written,
  *  nw  number of bytes of data in pwb,
  *---------------------------------------------------------------------------*/
-asynStatus stat=asynSuccess; size_t nbw;
+    asynStatus stat=asynSuccess; size_t nbw;
 
-stat=pasynOctetSyncIO->flush( _aPvt);
-stat=pasynOctetSyncIO->write( _aPvt,pw,nw,1,&nbw);
-return(stat);
+    stat=pasynOctetSyncIO->flush( _aPvt);
+    stat=pasynOctetSyncIO->write( _aPvt,pw,nw,1,&nbw);
+    return(stat);
 }
+
 asynStatus drvScope::_wtrd( const char* pw,size_t nw,char* pr,size_t nr){
 /*-----------------------------------------------------------------------------
  * Here we perform an "atomic" write and read operation sequence.  Parameters:
@@ -147,165 +160,179 @@ asynStatus drvScope::_wtrd( const char* pw,size_t nw,char* pr,size_t nr){
  *  pr  buffer into which data will be read in,
  *  nr  size of read buffer in bytes,
  *---------------------------------------------------------------------------*/
-asynStatus stat=asynSuccess; int eom; size_t nbw,nbr;
+    asynStatus stat=asynSuccess; int eom; size_t nbw,nbr;
 
-stat=pasynOctetSyncIO->flush( _aPvt);
-stat=pasynOctetSyncIO->writeRead( _aPvt,pw,nw,pr,nr,1,&nbw,&nbr,&eom);
-return(stat);
+    stat=pasynOctetSyncIO->flush( _aPvt);
+    stat=pasynOctetSyncIO->writeRead( _aPvt,pw,nw,pr,nr,1,&nbw,&nbr,&eom);
+    return(stat);
 }
+
 /*--- virtual methods -------------------------------------------------------*/
 void drvScope::getWaveform( int ch){
 /*-----------------------------------------------------------------------------
  * Virtual function to be supplied by device specific class.
  *---------------------------------------------------------------------------*/
 }
+
 int drvScope::isTriggered(){
 /*-----------------------------------------------------------------------------
  * Default is that the scope is triggered.  This can be overridden in derived
  * class.
  *---------------------------------------------------------------------------*/
-return(1);
+    return(1);
 }
+
 void drvScope::getChanPos( int addr){
 /*-----------------------------------------------------------------------------
  * This virtual method is coded to work with the tds3000 series scopes.  It
  * needs to be reimplemented for other scope types, e.g. Rigol.
  * addr is parameter library index or addr+1 channel
  *---------------------------------------------------------------------------*/
-getFloatCh( ixAoChPos,addr+1,_aoChPos);
+    getFloatCh( ixAoChPos,addr+1,_aoChPos);
 }
+
 void drvScope::setChanPos( int addr,double v){
 /*-----------------------------------------------------------------------------
  * This virtual method is coded to work with the tds3000 series scopes.  It
  * needs to be reimplemented for other scope types, e.g. Rigol.
  * addr is parameter library index or addr+1 channel
  *---------------------------------------------------------------------------*/
-const char* pcmd=getCommand( ixAoChPos); char cmnd[32];
-if(!pcmd) return;
-sprintf( cmnd,pcmd,addr+1);
-sprintf( cmnd,"%s %f",cmnd,v);
-command(cmnd);
+    const char* pcmd=getCommand( ixAoChPos); char cmnd[32];
+    if(!pcmd) return;
+    sprintf( cmnd,pcmd,addr+1);
+    sprintf( cmnd,"%s %f",cmnd,v);
+    command(cmnd);
 }
+
 void drvScope::timeDelayStr( int m,int uix){}
 void drvScope::setTimePerDiv( double v){}
 void drvScope::getChanScl(int ch){}
 void drvScope::getTrigLevl(){}
 void drvScope::setTrigLevl( int v){}
 const char* drvScope::getCommand( int ix){return(NULL);}
+
 const char** drvScope::getCmndList( int cix,uint* ni){
-  *ni=0;
-return(NULL);
+    *ni=0;
+    return(NULL);
 }
+
 void drvScope::getHSParams( double hs,int* x0,int* np){
-  *x0=0; *np=500;
+    *x0=0; *np=500;
 }
+
 void drvScope::saveConfig(){
 /*-----------------------------------------------------------------------------
  * This virtual function is reimplemented in a derived class as needed.  It
  * gets an instrument configuration string and writes it to a disk file.
  *---------------------------------------------------------------------------*/
-const char* pcmd=getCommand( ixBoSave); asynStatus stat;
-if(!pcmd) return;
-stat=command( pcmd);
-if(stat!=asynSuccess){
-	errlogPrintf( "%s::saveConfig:command: failed\n",dname);
-	return;
+    const char* pcmd=getCommand( ixBoSave); asynStatus stat;
+    if(!pcmd) return;
+    stat=command( pcmd);
+    if(stat!=asynSuccess){
+        errlogPrintf( "%s::saveConfig:command: failed\n",dname);
+        return;
+    }
+    FILE* fd=fopen( _fname,"w");
+    if(!fd){
+        errlogPrintf( "%s::saveConfig:fopen: failed to open %s\n",dname,_fname);
+        return;
+    }
+    int st=fputs( _rbuf,fd);
+    if(st==EOF) errlogPrintf( "%s::saveConfig:fputs: failed\n",dname);
+    fclose(fd);
 }
-FILE* fd=fopen( _fname,"w");
-if(!fd){
-	errlogPrintf( "%s::saveConfig:fopen: failed to open %s\n",dname,_fname);
-	return;
-}
-int st=fputs( _rbuf,fd);
-if(st==EOF) errlogPrintf( "%s::saveConfig:fputs: failed\n",dname);
-fclose(fd);
-}
+
 void drvScope::restoreConfig(){
 /*-----------------------------------------------------------------------------
  * This virtual function is reimplemented in a derived class as needed.  It
  * gets instrument configuration string from a disk file and sends it to
  * the instrument.
  *---------------------------------------------------------------------------*/
-FILE* fd=fopen( _fname,"r");
-if(!fd){
-	errlogPrintf( "%s::restoreConfig:fopen: failed to open %s\n",dname,_fname);
-	return;
-}
-char* p=fgets( _rbuf,DBUF_LEN,fd);
-if(!p){
-	errlogPrintf( "%s::restoreConfig:fgets: failed\n",dname);
-	return;
-}
-asynStatus stat=_write( _rbuf,strlen(_rbuf));
-if(stat!=asynSuccess){
-	errlogPrintf( "%s::restoreConfig: failed to write instrument\n",dname);
-	return;
-}
-const char* pcmd=getCommand( ixBoInit);
-if(pcmd){
-	stat=command(pcmd);
-	if(stat!=asynSuccess)
-	errlogPrintf( "%s::restoreConfig: failed to initialize\n",dname);
-	update();
-}
+    FILE* fd=fopen( _fname,"r");
+    if(!fd){
+        errlogPrintf( "%s::restoreConfig:fopen: failed to open %s\n",dname,_fname);
+        return;
+    }
+    char* p=fgets( _rbuf,DBUF_LEN,fd);
+    if(!p){
+        errlogPrintf( "%s::restoreConfig:fgets: failed\n",dname);
+        return;
+    }
+    asynStatus stat=_write( _rbuf,strlen(_rbuf));
+    if(stat!=asynSuccess){
+        errlogPrintf( "%s::restoreConfig: failed to write instrument\n",dname);
+        return;
+    }
+    const char* pcmd=getCommand( ixBoInit);
+    if(pcmd){
+        stat=command(pcmd);
+        if(stat!=asynSuccess)
+        errlogPrintf( "%s::restoreConfig: failed to initialize\n",dname);
+        update();
+    }
 }
 /*--- end virtual methods ---------------------------------------------------*/
+
+
 int drvScope::_opc(){
 /*-----------------------------------------------------------------------------
  * OPC query and returns as a function value result returned.
  *---------------------------------------------------------------------------*/
-asynStatus stat=asynSuccess; int ct=0,i=0,v=0; char* p;
-_rbuf[0]=0;
-while(1){
-	stat=_wtrd("*OPC?",5,_rbuf,DBUF_LEN);
-	if(stat==asynSuccess){
-	p=strchr( _rbuf,'\n');
-	if(p) *p=0;
-	v=atoi(_rbuf);
-	if(v==1) break;
-	if((++ct)>10){ v=0; break;}
-	epicsThreadSleep(0.01);
-	}
-	else if((++i)>1){
-	errlogPrintf( "%s::_opc: failed in _wtrd after %d tries\n",dname,i);
-	break;
-	}
+    asynStatus stat=asynSuccess; int ct=0,i=0,v=0; char* p;
+    _rbuf[0]=0;
+    while(1){
+        stat=_wtrd("*OPC?",5,_rbuf,DBUF_LEN);
+        if(stat==asynSuccess){
+        p=strchr( _rbuf,'\n');
+        if(p) *p=0;
+        v=atoi(_rbuf);
+        if(v==1) break;
+        if((++ct)>10){ v=0; break;}
+        epicsThreadSleep(0.01);
+        }
+        else if((++i)>1){
+        errlogPrintf( "%s::_opc: failed in _wtrd after %d tries\n",dname,i);
+        break;
+        }
+    }
+    return(v);
 }
-return(v);
-}
+
 void drvScope::_getIdn(){
 /*---------------------------------------------------------------------------*/
-asynStatus stat=asynSuccess; char* p; const char* cmnd=getCommand( ixWfIdn);
-if(cmnd){
-	stat=_wtrd( cmnd,strlen(cmnd),_rbuf,DBUF_LEN);
-	if(stat==asynSuccess){
-	p=strchr( _rbuf,'\n');
-	if(p) *p=0;
-	stat=setStringParam( _wfIdn,_rbuf);
-	}
+    asynStatus stat=asynSuccess; char* p; const char* cmnd=getCommand( ixWfIdn);
+    if(cmnd){
+        stat=_wtrd( cmnd,strlen(cmnd),_rbuf,DBUF_LEN);
+        if(stat==asynSuccess){
+        p=strchr( _rbuf,'\n');
+        if(p) *p=0;
+        stat=setStringParam( _wfIdn,_rbuf);
+        }
+    }
 }
-}
+
 void drvScope::_getIpAddr(){
 /*---------------------------------------------------------------------------*/
-asynStatus stat=asynSuccess; char* p0; char* p;
-const char* cmnd=getCommand(ixSiIpAddr);
-if(!cmnd) return;
-stat=_wtrd( cmnd,strlen(cmnd),_rbuf,DBUF_LEN);
-if(stat==asynSuccess){
-	p0=_rbuf;
-	p0=strchr( p0,'"');
-	if(p0){
-	p=strchr( ++p0,'"');
-	if(p) *p=0;
-	}
-	else{
-	p0=_rbuf;
-	p=strchr( p0,'\n');
-	if(p) *p=0;
-	}
-	stat=setStringParam( _siIpAddr,p0);
+    asynStatus stat=asynSuccess; char* p0; char* p;
+    const char* cmnd=getCommand(ixSiIpAddr);
+    if(!cmnd) return;
+    stat=_wtrd( cmnd,strlen(cmnd),_rbuf,DBUF_LEN);
+    if(stat==asynSuccess){
+        p0=_rbuf;
+        p0=strchr( p0,'"');
+        if(p0){
+        p=strchr( ++p0,'"');
+        if(p) *p=0;
+        }
+        else{
+        p0=_rbuf;
+        p=strchr( p0,'\n');
+        if(p) *p=0;
+        }
+        stat=setStringParam( _siIpAddr,p0);
+    }
 }
-}
+
 void drvScope::timeDelayStr( float td){
 /*-----------------------------------------------------------------------------
  *---------------------------------------------------------------------------*/
@@ -318,96 +345,103 @@ else{ uix=3; m=(int)(td+0.5);}
 m*=sign;
 timeDelayStr(m,uix);
 }
+
 void drvScope::_setTimeDelayStr(float v){
 /*-----------------------------------------------------------------------------
  *---------------------------------------------------------------------------*/
-char str[32];
-timeDelayStr(v);
-const char* pcmd=getCommand( ixAoTimDly);
-if(!pcmd) return;
-sprintf( str,"%s %g",pcmd,v);
-command( str);
+    char str[32];
+    timeDelayStr(v);
+    const char* pcmd=getCommand( ixAoTimDly);
+    if(!pcmd) return;
+    sprintf( str,"%s %g",pcmd,v);
+    command( str);
 }
+
 char* drvScope::_makeQuery( const char* cmnd){
 /*-----------------------------------------------------------------------------
  * Appends '?' to cmnd as needed and returns pointer to the query string.
  *---------------------------------------------------------------------------*/
-if(!cmnd) return(NULL);
-int len=strlen(cmnd);
-if(len>CMND_LEN-2) return(0);
-strcpy( _cmnd,cmnd);
-if(!strchr( cmnd,'?')) strcat( _cmnd,"?");
-return(_cmnd);
+    if(!cmnd) return(NULL);
+    int len=strlen(cmnd);
+    if(len>CMND_LEN-2) return(0);
+    strcpy( _cmnd,cmnd);
+    if(!strchr( cmnd,'?')) strcat( _cmnd,"?");
+    return(_cmnd);
 }
+
 asynStatus drvScope::getString( int cix,int pix){
 /*-----------------------------------------------------------------------------
  * Issues a query for a string value and puts the obtained value in
  * parameter library at index pix.
  *---------------------------------------------------------------------------*/
-const char* cmnd=getCommand(cix);
-if(!cmnd) return(asynError);
-char str[32]; int len=strlen(cmnd);
-if(len>30) return(asynError);
-strcpy( str,cmnd);
-return(getString( str,pix));
+    const char* cmnd=getCommand(cix);
+    if(!cmnd) return(asynError);
+    char str[32]; int len=strlen(cmnd);
+    if(len>30) return(asynError);
+    strcpy( str,cmnd);
+    return(getString( str,pix));
 }
+
 asynStatus drvScope::getString( const char* cmnd,int pix){
 /*-----------------------------------------------------------------------------
  * Issues a query for a string value and puts the obtained value in
  * parameter library at index pix.
  *---------------------------------------------------------------------------*/
-asynStatus stat=asynSuccess; char str[32];
-strcpy( str,cmnd);
-if(!strchr( str,'?')) strcat( str,"?");
-stat=_wtrd( str,strlen(str),_rbuf,DBUF_LEN);
-if(stat==asynSuccess){
-	char* p=strchr( _rbuf,'\n');
-	if(p) *p=0;
-	stat=setStringParam( pix,_rbuf);
+    asynStatus stat=asynSuccess; char str[32];
+    strcpy( str,cmnd);
+    if(!strchr( str,'?')) strcat( str,"?");
+    stat=_wtrd( str,strlen(str),_rbuf,DBUF_LEN);
+    if(stat==asynSuccess){
+        char* p=strchr( _rbuf,'\n');
+        if(p) *p=0;
+        stat=setStringParam( pix,_rbuf);
+    }
+    return(stat);
 }
-return(stat);
-}
+
 asynStatus drvScope::command( const char* cmnd){
 /*-----------------------------------------------------------------------------
  * Issues a command and puts the reply string, if any, in parameter library.
  *---------------------------------------------------------------------------*/
-asynStatus stat=asynSuccess; char* p;
-if(!cmnd) return(asynError);
-int len=strlen(cmnd);
-if(strchr(cmnd,'?')){
-	stat=_wtrd( cmnd,len,_rbuf,DBUF_LEN);
-	if(stat==asynSuccess){
-	p=strchr( _rbuf,'\n');
-	if(p) *p=0;
-	stat=setStringParam( _wfReply,_rbuf);
-	}
+    asynStatus stat=asynSuccess; char* p;
+    if(!cmnd) return(asynError);
+    int len=strlen(cmnd);
+    if(strchr(cmnd,'?')){
+        stat=_wtrd( cmnd,len,_rbuf,DBUF_LEN);
+        if(stat==asynSuccess){
+        p=strchr( _rbuf,'\n');
+        if(p) *p=0;
+        stat=setStringParam( _wfReply,_rbuf);
+        }
+    }
+    else{
+        stat=_write( cmnd,len);
+    }
+    return(stat);
 }
-else{
-	stat=_write( cmnd,len);
-}
-return(stat);
-}
+
 asynStatus drvScope::command( const char* cmnd,char* prd,int n){
 /*-----------------------------------------------------------------------------
  * Issues a command cmnd and if it is a query, returns result in prd buffer
  * which is n byte long.
  *---------------------------------------------------------------------------*/
-asynStatus stat=asynSuccess; char* p;
-if(!cmnd) return(asynError);
-int len=strlen(cmnd);
-if(strchr(cmnd,'?')){
-	stat=_wtrd( cmnd,len,prd,n);
-	if(stat==asynSuccess){
-	p=strchr( prd,'\n');
-	if(p) *p=0;
-	stat=setStringParam( _wfReply,prd);
-	}
+    asynStatus stat=asynSuccess; char* p;
+    if(!cmnd) return(asynError);
+    int len=strlen(cmnd);
+    if(strchr(cmnd,'?')){
+        stat=_wtrd( cmnd,len,prd,n);
+        if(stat==asynSuccess){
+        p=strchr( prd,'\n');
+        if(p) *p=0;
+        stat=setStringParam( _wfReply,prd);
+        }
+    }
+    else{
+        stat=_write( cmnd,len);
+    }
+    return(stat);
 }
-else{
-	stat=_write( cmnd,len);
-}
-return(stat);
-}
+
 asynStatus drvScope::getInt( int cix,int pix){
 /*-----------------------------------------------------------------------------
  * Issues a query for an integer value and puts the obtained value in
@@ -417,6 +451,7 @@ asynStatus stat=asynSuccess; const char* cmnd=getCommand(cix);
 stat=getInt(cmnd,pix);
 return(stat);
 }
+
 asynStatus drvScope::getInt( const char* cmnd,int pix){
 /*-----------------------------------------------------------------------------
  * Issues a query for an integer value and puts the obtained value in
@@ -430,6 +465,7 @@ if(stat==asynSuccess){
 }
 return(stat);
 }
+
 asynStatus drvScope::getFloat( int cix,int pix){
 /*-----------------------------------------------------------------------------
  * Issues a query for an integer value and puts the obtained value in
@@ -439,6 +475,7 @@ const char* cmnd=getCommand(cix);
 if(!cmnd) return(asynError);
 return(getFloat( cmnd,pix));
 }
+
 asynStatus drvScope::getFloat( const char* cmnd,int pix){
 /*-----------------------------------------------------------------------------
  * Issues a query for an integer value and puts the obtained value in
@@ -456,6 +493,7 @@ if(stat==asynSuccess){
 }
 return(stat);
 }
+
 int drvScope::_find( const char* item,const char** list,int n){
 /*-----------------------------------------------------------------------------
  * Returns an index in list where item matches an element in the list.
@@ -468,6 +506,7 @@ while(strncmp(item,list[i],m)){
 }
 return(i);
 }
+
 asynStatus drvScope::getBinary( int cix,int pix){
 /*-----------------------------------------------------------------------------
  * Issues a query for an integer value and puts the obtained value in
@@ -481,6 +520,7 @@ const char** list=getCmndList( cix,&ni);
 if(!list) return(asynError);
 return(getBinary( cmnd,pix,list,ni));
 }
+
 asynStatus drvScope::getBinary( const char* cmnd,int pix,
 			const char** list,int ni){
 /*-----------------------------------------------------------------------------
@@ -499,6 +539,7 @@ val=_find(_rbuf,list,ni);
 stat=setIntegerParam( pix,val);
 return(stat);
 }
+
 asynStatus drvScope::getIntCh( int cix,int i,int pix){
 /*-----------------------------------------------------------------------------
  * Issues a query for an integer value for channel i and puts the obtained
@@ -508,6 +549,7 @@ const char* cmnd=getCommand(cix);
 if(!cmnd) return(asynError);
 return(getIntCh( cmnd,i,pix));
 }
+
 asynStatus drvScope::getIntCh( const char* cmnd,int i,int pix){
 /*-----------------------------------------------------------------------------
  * Issues a query for an integer value for channel i and puts the obtained
@@ -525,6 +567,7 @@ if(stat==asynSuccess){
 }
 return(stat);
 }
+
 asynStatus drvScope::getFloatCh( int cix,int i,int pix){
 /*-----------------------------------------------------------------------------
  * Issues a query for an float value for channel i and puts the obtained
@@ -534,6 +577,7 @@ const char* cmnd=getCommand(cix);
 if(!cmnd) return(asynError);
 return(getFloatCh( cmnd,i,pix));
 }
+
 asynStatus drvScope::getFloatCh( const char* cmnd,int i,int pix){
 /*-----------------------------------------------------------------------------
  * Issues a query for an float value for channel i and puts the obtained
@@ -552,6 +596,7 @@ if(stat==asynSuccess){
 }
 return(stat);
 }
+
 asynStatus drvScope::getBinaryCh( int cix,int i,int pix){
 /*-----------------------------------------------------------------------------
  * Issues a query for an integer value for channel i and puts the obtained
@@ -564,6 +609,7 @@ uint ni; const char** list=getCmndList( cix,&ni);
 if(!list) return(asynError);
 return(getBinaryCh( cmnd,i,pix,list,ni));
 }
+
 asynStatus drvScope::getBinaryCh( const char* cmnd,int i,int pix,
 			const char** list,int ni){
 /*-----------------------------------------------------------------------------
@@ -582,6 +628,7 @@ val=_find(_rbuf,list,ni);
 if(val>=0) stat=setIntegerParam( i-1,pix,val);
 return(stat);
 }
+
 void drvScope::setBinaryCh( int ix,int ch,int cix){
 /*-----------------------------------------------------------------------------
  * ix is a bit position that was selected, this corresponds to an index
@@ -595,6 +642,7 @@ if(list){
 	setBinaryCh( ix,ch,cmnd,list,ni);
 }
 }
+
 void drvScope::setBinaryCh( int ix,int ch,const char* cmnd,
 			const char** list,int ni){
 /*-----------------------------------------------------------------------------
@@ -608,6 +656,7 @@ sprintf( str,cmnd,ch+1); strcat( str," ");
 strcat( str,list[ix]);
 command(str);
 }
+
 void drvScope::setBinary( int ix,int cix){
 /*-----------------------------------------------------------------------------
  * ix is a bit position that was selected, this corresponds to an index
@@ -621,6 +670,7 @@ if(list){
 	setBinary( ix,cmnd,list,ni);
 }
 }
+
 void drvScope::setBinary( int ix,const char* cmnd,const char** list,int ni){
 /*-----------------------------------------------------------------------------
  * ix is a bit position that was selected, this corresponds to an index
@@ -632,6 +682,7 @@ if(ix<0||ix>=ni) return;
 sprintf( str,"%s %s",cmnd,list[ix]);
 command(str);
 }
+
 void drvScope::setInt( int cix,int v,int pix){
 /*-----------------------------------------------------------------------------
  * Constructs a string command to set an integer value and sends it.
@@ -640,6 +691,7 @@ const char* cmnd=getCommand(cix);
 if(!cmnd) return;
 setInt( cix,cmnd,v,pix);
 }
+
 void drvScope::setInt( int cix,const char* cmnd,int v,int pix){
 /*-----------------------------------------------------------------------------
  * Constructs a string command to set an integer value and sends it.
@@ -650,6 +702,7 @@ command(str);
 if(!pix) return;
 getInt( cix,pix);
 }
+
 void drvScope::_setPosSlider( double v){
 /*-----------------------------------------------------------------------------
  * Set slider position to v division.
@@ -659,6 +712,7 @@ setIntegerParam( 0,_loChPos,0);
 setIntegerParam( 0,_loChPos,v*100);
 callParamCallbacks(0);
 }
+
 void drvScope::_selectChan( int ch){
 /*-----------------------------------------------------------------------------
  * Select channel ch, used to control channel trace position with a slider.
@@ -682,6 +736,7 @@ getDoubleParam( ch,_aoChPos,&y);
 _setPosSlider(y);
 _chSel=ch;
 }
+
 void drvScope::_selectChannel(){
 /*-----------------------------------------------------------------------------
  * The first enabled channel is selected to be controlled by the pos slider
@@ -694,6 +749,7 @@ for( i=0; i<MAX_ADDR; i++){
 	_selectChan(i);
 }
 }
+
 asynStatus drvScope::getCmnds( int ix,int addr){
 /*-----------------------------------------------------------------------------
  * This routine is called from the pollerThread routine, when it receives
@@ -740,6 +796,7 @@ switch( jx){
 callParamCallbacks( addr);
 return(stat);
 }
+
 asynStatus drvScope::writeOctet( asynUser* paUser,const char* v,
 			size_t nc,size_t* nActual){
 /*-----------------------------------------------------------------------------
@@ -759,6 +816,7 @@ stat=asynPortDriver::writeOctet( paUser,v,nc,nActual);
 callParamCallbacks();
 return(stat);
 }
+
 asynStatus drvScope::putIntCmnds( int ix,int addr,int v){
 /*-----------------------------------------------------------------------------
  * This routine is called from the pollerThread routine, when it receives
@@ -823,6 +881,7 @@ switch( jx){
 callParamCallbacks(addr);
 return(stat);
 }
+
 void drvScope::setChanPosition(){
 /*-----------------------------------------------------------------------------
  * gets called from time expire function at the end of slider move.
@@ -832,6 +891,7 @@ setChanPos( _chSel,_chPos);
 getChanPos(_chSel);
 getTrigLevl();
 }
+
 asynStatus drvScope::writeInt32( asynUser* pau,epicsInt32 v){
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.  Here we service
@@ -869,6 +929,7 @@ switch( jx){
 callParamCallbacks(addr);
 return(stat);
 }
+
 asynStatus drvScope::putFltCmnds( int ix,int addr,float v){
 /*-----------------------------------------------------------------------------
  * This routine is called from the pollerThread routine, when it receives
@@ -912,6 +973,7 @@ switch( jx){
 callParamCallbacks(addr);
 return(stat);
 }
+
 asynStatus drvScope::writeFloat64( asynUser* pau,epicsFloat64 v){
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.  Here we service
@@ -932,6 +994,7 @@ switch( ix){
 }
 return(stat);
 }
+
 void drvScope::_getTraces(){
 /*-----------------------------------------------------------------------------
  * Initiate getting waveform trace data for all channels.  Traces will be
@@ -939,41 +1002,51 @@ void drvScope::_getTraces(){
  * _tracemode variable.  Synchronous mode is when all four traces are obtained
  * for the same event.
  *---------------------------------------------------------------------------*/
-static epicsTimeStamp t1,t2,t3; static int first=1;
-int tmode,istrig=1; const char* pcmd;
-epicsTimeGetCurrent(&t1);
-getIntegerParam( _mbboTracMod,&tmode);
-if(tmode==enTMSync){
-	if((istrig=isTriggered())) if((pcmd=getCommand(_boStop))) command(pcmd);
+    static epicsTimeStamp t1,t2,t3; 
+    static int first=1;
+    int tmode,istrig=1; 
+    const char* pcmd;
+
+    epicsTimeGetCurrent(&t1);
+
+    getIntegerParam( _mbboTracMod,&tmode);
+    if(tmode==enTMSync){
+        if((istrig=isTriggered())) if((pcmd=getCommand(_boStop))) command(pcmd);
+    }
+
+    if(istrig){
+        getWaveform(0);
+        getWaveform(1);
+        getWaveform(2);
+        getWaveform(3);
+        if(tmode==enTMSync){
+            if((pcmd=getCommand(_boRun))) command(pcmd);
+        }
+    }
+
+    epicsTimeGetCurrent(&t2);
+    _wfTime=epicsTimeDiffInSeconds(&t2,&t1);
+
+    if(_wfTime<_wfTMin) _wfTMin=_wfTime;
+    if(_wfTime>_wfTMax) _wfTMax=_wfTime;
+
+    if(!first){
+        _wfPeriod=epicsTimeDiffInSeconds(&t1,&t3);
+        if(_wfPeriod>0.0) _wfRate=1.0/_wfPeriod;
+    }
+
+    first=0;
+    setDoubleParam( _aiWfTime,_wfTime);
+    setDoubleParam( _aiWfTMin,_wfTMin);
+    setDoubleParam( _aiWfTMax,_wfTMax);
+    setDoubleParam( _aiWfPeriod,_wfPeriod);
+    setDoubleParam( _aiWfRate,_wfRate);
+    t3=t1;
+    setIntegerParam( _biCtGets,0);
+    setIntegerParam( _biCtGets,1);
+    callParamCallbacks(0);
 }
-if(istrig){
-	getWaveform(0);
-	getWaveform(1);
-	getWaveform(2);
-	getWaveform(3);
-	if(tmode==enTMSync){
-	if((pcmd=getCommand(_boRun))) command(pcmd);
-	}
-}
-epicsTimeGetCurrent(&t2);
-_wfTime=epicsTimeDiffInSeconds(&t2,&t1);
-if(_wfTime<_wfTMin) _wfTMin=_wfTime;
-if(_wfTime>_wfTMax) _wfTMax=_wfTime;
-if(!first){
-	_wfPeriod=epicsTimeDiffInSeconds(&t1,&t3);
-	if(_wfPeriod>0.0) _wfRate=1.0/_wfPeriod;
-}
-first=0;
-setDoubleParam( _aiWfTime,_wfTime);
-setDoubleParam( _aiWfTMin,_wfTMin);
-setDoubleParam( _aiWfTMax,_wfTMax);
-setDoubleParam( _aiWfPeriod,_wfPeriod);
-setDoubleParam( _aiWfRate,_wfRate);
-t3=t1;
-setIntegerParam( _biCtGets,0);
-setIntegerParam( _biCtGets,1);
-callParamCallbacks(0);
-}
+
 void drvScope::_errUpdate(){
 /*-----------------------------------------------------------------------------
  * Requests update from Error and Status registers.
@@ -982,6 +1055,7 @@ getInt( ixLoEse, _loEse);
 getInt( ixLiEsr, _liEsr);
 getInt( ixLiStb, _liStb);
 }
+
 void drvScope::_getChanOn( int ch){
 /*-----------------------------------------------------------------------------
  * Requests read channel on state and other channel parameters as needed.
@@ -1000,6 +1074,7 @@ getChanPos( ch-1);
 getDoubleParam( i,_aoChPos,&dv);
 if(i==_chSel) _setPosSlider(dv);
 }
+
 void drvScope::update(){
 /*----------------------------------------------------------------------------
  * This is called at startup and periodically to stay in sync with user
@@ -1024,38 +1099,44 @@ getFloat( ixAoTrHOff,_aoTrHOff);
 callParamCallbacks(0);
 firsttime=0;
 }
-void drvScope::updateUser(){}
+
+void drvScope::updateUser() {
+/*----------------------------------------------------------------------------
+ *--------------------------------------------------------------------------*/
+}
+
 void drvScope::afterInit(){
 /*----------------------------------------------------------------------------
  *--------------------------------------------------------------------------*/
 const char* pcmd=getCommand(ixBoInit);
-if(pcmd) command(pcmd);
-putInMessgQ( enQuery,_wfIdn,0,0);
-putInMessgQ( enQuery,_siIpAddr,0,0);
-for( int i=0; i<MAX_ADDR; i++){
-	putInMessgQ( enQuery,_boChOn,i,0);
+    if(pcmd) command(pcmd);
+    putInMessgQ( enQuery,_wfIdn,0,0);
+    putInMessgQ( enQuery,_siIpAddr,0,0);
+    for( int i=0; i<MAX_ADDR; i++){
+        putInMessgQ( enQuery,_boChOn,i,0);
+    }
+    putInMessgQ( enQuery,_aoTimDly,0,0);
+    putInMessgQ( enQuery,_aiTimDiv,0,0);
+    putInMessgQ( enQuery,_aoTrPos,0,0);
+    putInMessgQ( enQuery,_aoTrLev,0,0);
+    putInMessgQ( enQuery,_aoTrHOff,0,0);
+    putInMessgQ( enQuery,_siWfFmt,0,0);
+    putInMessgQ( enQuery,_siOpc,0,0);
+    putInMessgQ( enQuery,_loWfNpts,0,0);
+    putInMessgQ( enQuery,_loWfStart,0,0);
+    putInMessgQ( enQuery,_loWfStop,0,0);
+    putInMessgQ( enQuery,_liEsr,0,0);
+    putInMessgQ( enQuery,_loEse,0,0);
+    putInMessgQ( enQuery,_liStb,0,0);
+    putInMessgQ( enQuery,_aoTrLev,0,0);
 }
-putInMessgQ( enQuery,_aoTimDly,0,0);
-putInMessgQ( enQuery,_aiTimDiv,0,0);
-putInMessgQ( enQuery,_aoTrPos,0,0);
-putInMessgQ( enQuery,_aoTrLev,0,0);
-putInMessgQ( enQuery,_aoTrHOff,0,0);
-putInMessgQ( enQuery,_siWfFmt,0,0);
-putInMessgQ( enQuery,_siOpc,0,0);
-putInMessgQ( enQuery,_loWfNpts,0,0);
-putInMessgQ( enQuery,_loWfStart,0,0);
-putInMessgQ( enQuery,_loWfStop,0,0);
-putInMessgQ( enQuery,_liEsr,0,0);
-putInMessgQ( enQuery,_loEse,0,0);
-putInMessgQ( enQuery,_liStb,0,0);
-putInMessgQ( enQuery,_aoTrLev,0,0);
-}
+
 drvScope::drvScope(const char* port,const char* udp,int nparms):
-asynPortDriver( port,MAX_ADDR,nparms,
-	asynInt32Mask|asynFloat64Mask|asynFloat32ArrayMask|
-		asynOctetMask|asynDrvUserMask,
-	asynInt32Mask|asynFloat64Mask|asynFloat32ArrayMask|asynOctetMask,
-	ASYN_CANBLOCK|ASYN_MULTIDEVICE,1,0,0){
+        asynPortDriver(port, MAX_ADDR, nparms,
+                asynInt32Mask | asynFloat64Mask | asynFloat32ArrayMask |
+                asynOctetMask | asynDrvUserMask,
+                asynInt32Mask | asynFloat64Mask | asynFloat32ArrayMask | asynOctetMask,
+                ASYN_CANBLOCK | ASYN_MULTIDEVICE,1,0,0) {
 /*------------------------------------------------------------------------------
  * Constructor for the drvScope class. Calls constructor for the asynPortDriver
  * base class. Where
@@ -1081,10 +1162,13 @@ _udpp=(char*)(_port+strlen(port)+1);
 strcpy((char*)_port,port);
 strcpy((char*)_udpp,udp);
 _ncmnds=0; _pollT=0.1; _markchan=0; _chSel=_posInProg=0; _tracemode=0;
+
 for( i=0; i<NCHAN; i++){
 	_analize[i]=_mix1[i]=_mix2[i]=0; _area[i]=_pedestal[i]=0.0;
 }
+
 _rdtraces=0;
+
 status=pasynOctetSyncIO->connect( udp,0,&_aPvt,0);
 if(status!=asynSuccess)
 	printf( "%s::%s:connect: failed to connect to port %s\n",
@@ -1093,6 +1177,7 @@ else{
 	printf( "%s::%s:connect: connected to port %s\n",dname,dname,udp);
 	st=1;
 }
+
 createParam( boChOnStr,	asynParamInt32,		&_boChOn);
 createParam( aoChPosStr,	asynParamFloat64,	&_aoChPos);
 createParam( boChImpStr,	asynParamInt32,		&_boChImp);
@@ -1173,18 +1258,27 @@ createParam( aiWfPerStr,	asynParamFloat64,	&_aiWfPeriod);
 createParam( aiWfRateStr,	asynParamFloat64,	&_aiWfRate);
 
 _firstix=_boChOn;
+
 setStringParam( _siName,dname);
 setIntegerParam( _biState,st);
 setIntegerParam( _boRdTraces,_rdtraces);
 setDoubleParam( _aoPTMO,_pollT);
-if(st) message( "Constructor drvScope success");
+
+if (st) message( "Constructor drvScope success");
 else message( "Constructor drvScope failed");
+
 callParamCallbacks( 0);
-_pmq=new epicsMessageQueue( NMSGQ,MSGQNB);
-errlogPrintf( "%s::%s: messageQueue created, id=0x%p\n",dname,dname,_pmq);
+
+_pmq = new epicsMessageQueue( NMSGQ,MSGQNB);
+//errlogPrintf( "%s::%s: messageQueue created, id=0x%p\n",dname,dname,_pmq);
+
 epicsThreadCreate(dname,epicsThreadPriorityHigh,
 				epicsThreadGetStackSize(epicsThreadStackMedium),
 				(EPICSTHREADFUNC)pollerThreadC,this);
+
 epicsTimerQueueActive& _tmq=epicsTimerQueueActive::allocate(true);
+
 _chPosTimer=new myTimer( "chPosTimer",_tmq);
+
 }
+

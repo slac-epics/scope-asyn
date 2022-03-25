@@ -120,6 +120,7 @@ float fval;           // possible floating point value
 #define aiWfTMaxStr	"AI_WFTMAX"	// max time to get traces
 #define aiWfPerStr	"AI_WFPER"	// get traces period
 #define aiWfRateStr	"AI_WFRATE"	// get traces rate
+
 #define NBASE_PARAM	65		// number of parameters in base class.
 
 typedef unsigned char	byte;
@@ -145,159 +146,158 @@ const char* name;
 epicsTimer& timer;
 };
 
-class drvScope: public asynPortDriver{
+class drvScope: public asynPortDriver {
 public:
-friend class Utils;
-drvScope(const char* port,const char* udp,int nparms);
-virtual ~drvScope(){}
+    friend class Utils;
+    drvScope(const char* port,const char* udp,int nparms);
+    virtual ~drvScope(){}
 
-virtual asynStatus writeOctet( asynUser* paU,const char* val,size_t nc,
-		size_t* nActual);
-virtual asynStatus writeInt32( asynUser* pau,epicsInt32 v);
-virtual asynStatus writeFloat64( asynUser* pau,epicsFloat64 v);
-void	pollerThread();
-void	afterInit();
-virtual const char* getCommand(int ix)=0;
-virtual const char** getCmndList( int cix,uint* ni);
-virtual void	getWaveform( int ch);
-virtual void	getHSParams( double hs,int* x0,int* np);
-virtual void	getChanPos( int addr);
-virtual void	setChanPos( int addr,double v);
-virtual void	saveConfig();
-virtual void	restoreConfig();
-virtual int	isTriggered();
-void		setChanPosition();
+    virtual asynStatus writeOctet( asynUser* paU,const char* val,size_t nc,
+            size_t* nActual);
+    virtual asynStatus writeInt32( asynUser* pau,epicsInt32 v);
+    virtual asynStatus writeFloat64( asynUser* pau,epicsFloat64 v);
+    void	pollerThread();
+    void	afterInit();
+    virtual const char* getCommand(int ix)=0;
+    virtual const char** getCmndList( int cix,uint* ni);
+    virtual void	getWaveform( int ch);
+    virtual void	getHSParams( double hs,int* x0,int* np);
+    virtual void	getChanPos( int addr);
+    virtual void	setChanPos( int addr,double v);
+    virtual void	saveConfig();
+    virtual void	restoreConfig();
+    virtual int	isTriggered();
+    void		setChanPosition();
 
 protected:
+    int	_boChOn,     _aoChPos,    _boChImp,    _mbboChCpl,  _aoChScl,
+        _wfTrace,    _loWfNpts,   _loWfStart,  _loWfStop,   _siWfFmt,
+        _aoTimDly,   _boTimDlySt, _aiTimDiv,   _aoTrPos,    _aoTrLev,
+        _aoTrHOff,   _boRun,      _boStop,     _loEse,      _boCls,
+        _liEsr,      _siOpc,      _liStb,      _boReset,    _wfIdn,
+        _siIpAddr,   _boInit,     _boSave,     _boEvMsg,    _siTimDly,
+        _siTimDiv,
+        _siName,     _boGetWf,    _boGetWfA,   _biCtGets,   _boUpdt,
+        _soCmnd,     _wfReply,    _aoPTMO,     _boAnal,     _boAPed,
+        _aiArea,     _aiPed,      _mbboMChan,  _loMark1,    _loMark2,
+        _wfEvent,    _wfMessg,    _boChSel,    _loChPos,    _loTrLev,
+        _liMsgQS,    _liMsgQF,    _mbboTracMod,_liXNpts,    _biState,
+        _boErUpdt,   _wfFPath,    _boRestore,  _boRdTraces, _aiWfTime,
+        _aiWfTMin,   _aiWfTMax,   _aiWfPeriod, _aiWfRate;
 
-int	_boChOn,     _aoChPos,    _boChImp,    _mbboChCpl,  _aoChScl,
-	_wfTrace,    _loWfNpts,   _loWfStart,  _loWfStop,   _siWfFmt,
-	_aoTimDly,   _boTimDlySt, _aiTimDiv,   _aoTrPos,    _aoTrLev,
-	_aoTrHOff,   _boRun,      _boStop,     _loEse,      _boCls,
-	_liEsr,      _siOpc,      _liStb,      _boReset,    _wfIdn,
-	_siIpAddr,   _boInit,     _boSave,     _boEvMsg,    _siTimDly,
-	_siTimDiv,
-	_siName,     _boGetWf,    _boGetWfA,   _biCtGets,   _boUpdt,
-	_soCmnd,     _wfReply,    _aoPTMO,     _boAnal,     _boAPed,
-	_aiArea,     _aiPed,      _mbboMChan,  _loMark1,    _loMark2,
-	_wfEvent,    _wfMessg,    _boChSel,    _loChPos,    _loTrLev,
-	_liMsgQS,    _liMsgQF,    _mbboTracMod,_liXNpts,    _biState,
-	_boErUpdt,   _wfFPath,    _boRestore,  _boRdTraces, _aiWfTime,
-	_aiWfTMin,   _aiWfTMax,   _aiWfPeriod, _aiWfRate;
+    enum{	ixBoChOn,     ixAoChPos,    ixBoChImp,    ixMbboChCpl,  ixAoChScl,
+        ixWfTrace,    ixLoWfNpts,   ixLoWfStart,  ixLoWfStop,   ixSiWfFmt,
+        ixAoTimDly,   ixBoTimDlySt, ixAiTimDiv,   ixAoTrPos,    ixAoTrLev,
+        ixAoTrHOff,   ixBoRun,      ixBoStop,     ixLoEse,      ixBoCls,
+        ixLiEsr,      ixSiOPC,      ixLiStb,      ixBoReset,    ixWfIdn,
+        ixSiIpAddr,   ixBoInit,     ixBoSave,     ixBoEvMsg,    ixSiTimDly,
+        ixSiTimDiv,
+        ixSiName,     ixBoGetWf,    ixBoGetWfA,   ixBiCtGets,   ixBoUpdt,
+        ixSoCmnd,     ixWfReply,    ixAoPTMO,     ixBoAnal,     ixBoAPed,
+        ixAiArea,     ixAiPed,      ixMbboMChan,  ixLoMark1,    ixLoMark2,
+        ixWfEvent,    ixWfMessg,    ixBoChSel,    ixLoChPos,    ixLoTrLev,
+        ixLiMsgQS,    ixLiMsgQF,    ixMbboTracMod,ixLiXNpts,    ixBiState,
+        ixBoErUpdt,   ixWfFPath,    ixBoRestore,  ixBoRdTraces, ixAiWfTime,
+        ixAiWfTMin,   ixAiWfTMax,   ixAiWfPeriod, ixAiWfRate};
 
-enum{	ixBoChOn,     ixAoChPos,    ixBoChImp,    ixMbboChCpl,  ixAoChScl,
-	ixWfTrace,    ixLoWfNpts,   ixLoWfStart,  ixLoWfStop,   ixSiWfFmt,
-	ixAoTimDly,   ixBoTimDlySt, ixAiTimDiv,   ixAoTrPos,    ixAoTrLev,
-	ixAoTrHOff,   ixBoRun,      ixBoStop,     ixLoEse,      ixBoCls,
-	ixLiEsr,      ixSiOPC,      ixLiStb,      ixBoReset,    ixWfIdn,
-	ixSiIpAddr,   ixBoInit,     ixBoSave,     ixBoEvMsg,    ixSiTimDly,
-	ixSiTimDiv,
-	ixSiName,     ixBoGetWf,    ixBoGetWfA,   ixBiCtGets,   ixBoUpdt,
-	ixSoCmnd,     ixWfReply,    ixAoPTMO,     ixBoAnal,     ixBoAPed,
-	ixAiArea,     ixAiPed,      ixMbboMChan,  ixLoMark1,    ixLoMark2,
-	ixWfEvent,    ixWfMessg,    ixBoChSel,    ixLoChPos,    ixLoTrLev,
-	ixLiMsgQS,    ixLiMsgQF,    ixMbboTracMod,ixLiXNpts,    ixBiState,
-	ixBoErUpdt,   ixWfFPath,    ixBoRestore,  ixBoRdTraces, ixAiWfTime,
-	ixAiWfTMin,   ixAiWfTMax,   ixAiWfPeriod, ixAiWfRate};
+    //#define FRST_COMMAND _boChOn
+    //#define LAST_COMMAND _boRdTraces
+    //#define N_PARAMS (&LAST_COMMAND - &FRST_COMMAND + 1)
+    #define N_PARAMS NBASE_PARAM
 
-//#define FRST_COMMAND _boChOn
-//#define LAST_COMMAND _boRdTraces
-//#define N_PARAMS (&LAST_COMMAND - &FRST_COMMAND + 1)
-#define N_PARAMS NBASE_PARAM
+    virtual asynStatus putFltCmnds( int ix,int addr,float v);
+    virtual asynStatus putIntCmnds( int ix,int addr,int v);
+    virtual asynStatus getCmnds( int ix,int addr);
+    virtual void setTimePerDiv( double v);
+    virtual void getChanScl( int ch);
+    virtual void getTrigLevl();
+    virtual void setTrigLevl(int v);
+    virtual void timeDelayStr( int m,int uix);
+    virtual void updateUser();
 
-virtual asynStatus putFltCmnds( int ix,int addr,float v);
-virtual asynStatus putIntCmnds( int ix,int addr,int v);
-virtual asynStatus getCmnds( int ix,int addr);
-virtual void setTimePerDiv( double v);
-virtual void getChanScl( int ch);
-virtual void getTrigLevl();
-virtual void setTrigLevl(int v);
-virtual void timeDelayStr( int m,int uix);
-virtual void updateUser();
+    void          putInMessgQ( int tp,int ix,int addr,int iv,float fv=0.0);
+    void		message( const char* m);
+    asynStatus	writeRd( int cix,int ch,char* buf,int blen);
+    asynStatus	writeRd( const char* cmnd,char* buf,int blen);
+    asynStatus	command( const char* cmnd);
+    asynStatus	command( const char* cmnd,char* prd,int len);
+    asynStatus	getInt( int cix,int pix);
+    asynStatus	getInt( const char* cmnd,int pix);
+    asynStatus	getFloat( int cix,int pix);
+    asynStatus	getFloat( const char* cmnd,int pix);
+    asynStatus	getBinary( int cix,int pix);
+    asynStatus	getBinary( const char* cmnd,int pix,
+                const char** list,int ni);
+    asynStatus	getString( int cix,int pix);
+    asynStatus	getString( const char* cmnd,int pix);
+    asynStatus	getIntCh( int cix,int ch,int pix);
+    asynStatus	getIntCh( const char* cmnd,int ch,int pix);
+    asynStatus	getFloatCh( int cix,int ch,int pix);
+    asynStatus	getFloatCh( const char* cmnd,int ch,int pix);
+    asynStatus	getBinaryCh( int cix,int ch,int pix);
+    asynStatus	getBinaryCh( const char* cmnd,int ch,int pix,
+                const char** list,int ni);
+    void		setBinaryCh( int ix,int ch,int cix);
+    void		setBinaryCh( int ix,int ch,
+                const char* cmnd,const char** list,int ni);
+    void		setBinary( int ix,int cix);
+    void		setBinary( int ix,const char* cmnd,const char** list,int ni);
+    void		setInt( int cix,int v,int pix=0);
+    void		setInt( int cix,const char* cmnd,int v,int pix=0);
+    void		timeDelayStr( float td);
+    void		update();
 
-void          putInMessgQ( int tp,int ix,int addr,int iv,float fv=0.0);
-void		message( const char* m);
-asynStatus	writeRd( int cix,int ch,char* buf,int blen);
-asynStatus	writeRd( const char* cmnd,char* buf,int blen);
-asynStatus	command( const char* cmnd);
-asynStatus	command( const char* cmnd,char* prd,int len);
-asynStatus	getInt( int cix,int pix);
-asynStatus	getInt( const char* cmnd,int pix);
-asynStatus	getFloat( int cix,int pix);
-asynStatus	getFloat( const char* cmnd,int pix);
-asynStatus	getBinary( int cix,int pix);
-asynStatus	getBinary( const char* cmnd,int pix,
-			const char** list,int ni);
-asynStatus	getString( int cix,int pix);
-asynStatus	getString( const char* cmnd,int pix);
-asynStatus	getIntCh( int cix,int ch,int pix);
-asynStatus	getIntCh( const char* cmnd,int ch,int pix);
-asynStatus	getFloatCh( int cix,int ch,int pix);
-asynStatus	getFloatCh( const char* cmnd,int ch,int pix);
-asynStatus	getBinaryCh( int cix,int ch,int pix);
-asynStatus	getBinaryCh( const char* cmnd,int ch,int pix,
-			const char** list,int ni);
-void		setBinaryCh( int ix,int ch,int cix);
-void		setBinaryCh( int ix,int ch,
-			const char* cmnd,const char** list,int ni);
-void		setBinary( int ix,int cix);
-void		setBinary( int ix,const char* cmnd,const char** list,int ni);
-void		setInt( int cix,int v,int pix=0);
-void		setInt( int cix,const char* cmnd,int v,int pix=0);
-void		timeDelayStr( float td);
-void		update();
-
-int		_analize[NCHAN];	// analysis on/off flags
-int		_doPeds[NCHAN];		// flag to do pedestals
-double	_area[NCHAN];		// integrated value
-double	_pedestal[NCHAN];	// pedestal value subtracted
-int		_mix1[NCHAN];		// marker 1 for integration
-int		_mix2[NCHAN];		// marker 2 for integration
-char		_fname[FNAME];		// file path for save/restore
+    int		_analize[NCHAN];	// analysis on/off flags
+    int		_doPeds[NCHAN];		// flag to do pedestals
+    double	_area[NCHAN];		// integrated value
+    double	_pedestal[NCHAN];	// pedestal value subtracted
+    int		_mix1[NCHAN];		// marker 1 for integration
+    int		_mix2[NCHAN];		// marker 2 for integration
+    char		_fname[FNAME];		// file path for save/restore
 
 private:
-epicsMessageQueue* _pmq;
-myTimer*	_chPosTimer;
-void		_evMessage();
-asynStatus	_write( const char* pw,size_t nw);
-asynStatus	_wtrd( const char* pw,size_t nw,char* pr,size_t nr);
-int           _opc();
-char*		_makeQuery( const char* cmnd);
-const char*	_getCmnd( int pix);
-void		_getIdn();
-void		_getIpAddr();
-void		_setTimeDelayStr(float v);
-void		_getTraces();
-int		_find( const char* item,const char** list,int n);
-void		_errUpdate();
-void		_getChanOn( int ch);
-void		_setPosSlider( double v);
-void		_selectChannel();
-void		_selectChan( int ch);
-void		_getTrigLevel();
-void		_setTrigLevel( int v);
+    epicsMessageQueue* _pmq;
+    myTimer*	_chPosTimer;
+    void		_evMessage();
+    asynStatus	_write( const char* pw,size_t nw);
+    asynStatus	_wtrd( const char* pw,size_t nw,char* pr,size_t nr);
+    int           _opc();
+    char*		_makeQuery( const char* cmnd);
+    const char*	_getCmnd( int pix);
+    void		_getIdn();
+    void		_getIpAddr();
+    void		_setTimeDelayStr(float v);
+    void		_getTraces();
+    int		_find( const char* item,const char** list,int n);
+    void		_errUpdate();
+    void		_getChanOn( int ch);
+    void		_setPosSlider( double v);
+    void		_selectChannel();
+    void		_selectChan( int ch);
+    void		_getTrigLevel();
+    void		_setTrigLevel( int v);
 
-asynUser*	_aPvt;
-const char*	_port;
-const char*	_udpp;
-int		_ncmnds;
-double	_pollT;
-char		_name[NAME_LEN];
-char		_mbuf[MSGNB];
-char		_cmnd[CMND_LEN];
-char		_rbuf[DBUF_LEN];
-char		_wbuf[DBUF_LEN];
-int		_firstix;
-int		_markchan;		// selected marker channel
-int		_chSel;			// selected channel
-double	_chPos;		// trace position from slider
-int           _mqSent;
-int           _mqFailed;
-int		_tracemode;		// 0 async, 1 sync
-int		_rdtraces;		// read traces flag
-int		_posInProg;		// when true position slider moving
-double	_wfTime, _wfTMin, _wfTMax;
-double	_wfPeriod, _wfRate;
+    asynUser*	_aPvt;
+    const char*	_port;
+    const char*	_udpp;
+    int		_ncmnds;
+    double	_pollT;
+    char		_name[NAME_LEN];
+    char		_mbuf[MSGNB];
+    char		_cmnd[CMND_LEN];
+    char		_rbuf[DBUF_LEN];
+    char		_wbuf[DBUF_LEN];
+    int		_firstix;
+    int		_markchan;		// selected marker channel
+    int		_chSel;			// selected channel
+    double	_chPos;		// trace position from slider
+    int           _mqSent;
+    int           _mqFailed;
+    int		_tracemode;		// 0 async, 1 sync
+    int		_rdtraces;		// read traces flag
+    int		_posInProg;		// when true position slider moving
+    double	_wfTime, _wfTMin, _wfTMax;
+    double	_wfPeriod, _wfRate;
 };
 
 #endif	// _drvScope_h

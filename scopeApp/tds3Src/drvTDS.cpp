@@ -16,47 +16,47 @@
 
 #include "drvTDS.h"
 
-const char* ChOnCmnd     ="SEL:CH%d";
-const char* ChPosCmnd    ="CH%d:POS";
-const char* ChImpCmnd    ="CH%d:IMP";
-const char* ChCplCmnd    ="CH%d:COUP";
-const char* ChSclCmnd    ="CH%d:SCA";
-const char* WfDatCmnd    ="DAT:SOU CH%d; :WAVF?";
-const char* WfNptCmnd    ="HOR:RECORDL";
-const char* WfWidCmnd    ="DAT:WID";
-const char* WfStrtCmnd   ="DAT:STAR";
-const char* WfStopCmnd   ="DAT:STOP";
-const char* WfFormCmnd   ="DAT:ENC";
-const char* TmDlyOfsCmnd ="HOR:DEL:TIM";
-const char* TmDlyEnCmnd  ="HOR:DEL:STATE";
-const char* TmSclCmnd    ="HOR:MAI:SCA";
-const char* TrigPosCmnd  ="HOR:TRIG:POS";
-const char* TrigLevCmnd  ="TRIG:A:LEV";
-const char* TrigHoldCmnd ="TRIG:A:HOL";
-const char* TrigModeCmnd ="TRIG:A:MOD";
-const char* TrigSouCmnd  ="TRIG:A:EDG:SOU";
-const char* TrigSloCmnd  ="TRIG:A:EDG:SLO";
-const char* AcqStateCmnd ="ACQ:STATE";
-const char* TrigStaCmnd  ="TRIG:STATE?";
-const char* RunCmnd      ="ACQ:STATE RUN";
-const char* StopCmnd     ="ACQ:STATE STOP";
-const char* EseCmnd      ="*ESE";
-const char* ClsCmnd      ="*CLS";
-const char* EsrCmnd      ="*ESR?";
-const char* ECodeCmnd    ="EVENT?";
-const char* EvqCmnd      ="EVQ?";
-const char* OpcCmnd      ="*OPC";
-const char* StbCmnd      ="*STB?";
-const char* ResetCmnd    ="*RST";
-const char* RecallCmnd   ="*RCL %d";
-const char* SaveCmnd     ="*SAV %d";
-const char* IdnCmnd      ="*IDN?";
-const char* IPAddrCmnd   ="ETHER:IPADD?";
-const char* WfSouCmnd    ="DATA:SOU";
-const char* InitCmnd     ="*CLS; :DAT:ENC RIB; :HOR:RECORDL 500; :HEAD OFF; :VERB ON; :DAT:STAR 1; :DAT:STOP 500; HOR:DEL:STATE 1";
-const char* HeaderCmnd   ="HEAD?";
-const char* GetConfCmnd  ="*LRN?";
-const char* ErrMsgCmnd   ="EVM?";
+const char* ChOnCmnd       = "SEL:CH%d";
+const char* ChPosCmnd      = "CH%d:POS";
+const char* ChImpCmnd      = "CH%d:IMP";
+const char* ChCplCmnd      = "CH%d:COUP";
+const char* ChSclCmnd      = "CH%d:SCA";
+const char* WfDatCmnd      = "DAT:SOU CH%d; :WAVF?";
+const char* WfNptCmnd      = "HOR:RECORDL";
+const char* WfWidCmnd      = "DAT:WID";
+const char* WfStrtCmnd     = "DAT:STAR";
+const char* WfStopCmnd     = "DAT:STOP";
+const char* WfFormCmnd     = "DAT:ENC";
+const char* TmDlyOfsCmnd   = "HOR:DEL:TIM";
+const char* TmDlyEnCmnd    = "HOR:DEL:STATE";
+const char* TmSclCmnd      = "HOR:MAI:SCA";
+const char* TrigPosCmnd    = "HOR:TRIG:POS";
+const char* TrigLevCmnd    = "TRIG:A:LEV";
+const char* TrigHoldCmnd   = "TRIG:A:HOL";
+const char* TrigModeCmnd   = "TRIG:A:MOD";
+const char* TrigSouCmnd    = "TRIG:A:EDG:SOU";
+const char* TrigSloCmnd    = "TRIG:A:EDG:SLO";
+const char* AcqStateCmnd   = "ACQ:STATE";
+const char* TrigStaCmnd    = "TRIG:STATE?";
+const char* RunCmnd        = "ACQ:STATE RUN";
+const char* StopCmnd       = "ACQ:STATE STOP";
+const char* EseCmnd        = "*ESE";
+const char* ClsCmnd        = "*CLS";
+const char* EsrCmnd        = "*ESR?";
+const char* ECodeCmnd      = "EVENT?";
+const char* EvqCmnd        = "EVQ?";
+const char* OpcCmnd        = "*OPC";
+const char* StbCmnd        = "*STB?";
+const char* ResetCmnd      = "*RST";
+const char* RecallCmnd     = "*RCL %d";
+const char* SaveCmnd       = "*SAV %d";
+const char* IdnCmnd        = "*IDN?";
+const char* IPAddrCmnd     = "ETHER:IPADD?";
+const char* WfSouCmnd      = "DATA:SOU";
+const char* InitCmnd       = "*CLS; :DAT:ENC RIB; :HOR:RECORDL 500; :HEAD OFF; :VERB ON; :DAT:STAR 1; :DAT:STOP 500; HOR:DEL:STATE 1";
+const char* HeaderCmnd     = "HEAD?";
+const char* GetConfCmnd    = "*LRN?";
+const char* ErrMsgCmnd     = "EVM?";
 
 // cmnds is a list of commands understood by the instrument that we implement.
 // The order is important and must agree with the order of enumerated names
@@ -108,6 +108,7 @@ static const int hsc[]={   1,   2,   4,  10};
 static const int hsx[]={ 225, 200, 150,   0};
 static const int hnp[]={  51, 101, 201, 500};
 
+
 static drvTDS*	_this;
 static const char *dname="drvTDS";
 
@@ -136,6 +137,7 @@ void drvTDS::postInit(){
 /*-----------------------------------------------------------------------------
  * After IOC init.
  *---------------------------------------------------------------------------*/
+    printf("$$$$$$$$$$$$$$ drvTDS::postInit\n");
   putInMessgQ( enQuery,_mbboTrSou,0,0);
   putInMessgQ( enQuery,_boTrSlo,0,0);
   putInMessgQ( enQuery,_mbbiTrSta,0,0);
@@ -147,18 +149,22 @@ void drvTDS::postInit(){
   putInMessgQ( enQuery,_biAcqStat,0,0);
   drvScope::afterInit();
 }
+
 void drvTDS::updateUser(){
 /*-----------------------------------------------------------------------------
  * This is a re-implementation of a virtual function in the base class.
  *---------------------------------------------------------------------------*/
+    printf("**********drvTDS::updateUser()**************\n");
   getBinary( TrigSouCmnd,_mbboTrSou,trigSou,SIZE(trigSou));
   getBinary( TrigSloCmnd,_boTrSlo,trigSlo,SIZE(trigSlo));
   getBinary( TrigStaCmnd,_mbbiTrSta,trigSta,SIZE(trigSta));
   getBinary( TrigModeCmnd,_boTrMode,trgMode,SIZE(trgMode));
 }
+
 void drvTDS::getHSParams( double hs,int* x0,int* np){
   __getHSParams( hs,x0,np);
 }
+
 asynStatus drvTDS::trigState(){
 /*-----------------------------------------------------------------------------
  * Gets trigger state, which gets posted.
@@ -167,6 +173,7 @@ asynStatus drvTDS::trigState(){
   stat=getBinary( TrigStaCmnd,_mbbiTrSta,trigSta,SIZE(trigSta));
   return(stat);
 }
+
 int drvTDS::isTriggered(){
 /*-----------------------------------------------------------------------------
  * Returns true if scope is in a triggered state, returns false otherwise.
@@ -180,6 +187,7 @@ int drvTDS::isTriggered(){
   if(trst==4) return(1);
   return(0);
 }
+
 const char** drvTDS::getCmndList( int cix,uint* ni){
 /*-----------------------------------------------------------------------------
  * Overides the empty virtual function in the base class.  It returns a pointer
@@ -192,6 +200,7 @@ const char** drvTDS::getCmndList( int cix,uint* ni){
   if(listIx[cix]) *ni=itemSz[cix];
   return(listIx[cix]);
 }
+
 const char* drvTDS::getCommand( int cix){
 /*-----------------------------------------------------------------------------
  * Overrides the virtual function in the base class.  This function returns
@@ -202,6 +211,7 @@ const char* drvTDS::getCommand( int cix){
   if(!strlen(cmnds[cix])) return(NULL);
   return(cmnds[cix]);
 }
+
 int drvTDS::_wfPreamble( char* p,int* ln,int* nb,
 		double* ym,double* yz,double* yo){
 /*-----------------------------------------------------------------------------
@@ -226,14 +236,15 @@ int drvTDS::_wfPreamble( char* p,int* ln,int* nb,
   }
   j=i; i+=2+wd;
   strncpy( chs,&ids[1],3); chs[3]=0; sscanf( chs,"Ch%d",&chn);
-//printf( "_wfPreamble: nbyt=%d,nbit=%d,enc=%s,bfmt=%s\n",nbyt,nbit,enc,bfmt);
-//printf( "_wfPreamble: bord=%s,len=%d,ids=%s,ptfm=%s\n",bord,len,ids,ptfm);
-//printf( "_wfPreamble: xinc=%g,ptof=%d,xzr=%g,xunt=%s\n",xinc,ptof,xzr,xunt);
-//printf( "_wfPreamble: ymult=%g,yzr=%g,yof=%g,yunt=%s\n",ymult,yzr,yof,yunt);
-//printf( "_wfPreamble: j=%d,i=%d,wd=%d\n",j,i,wd);
+printf( "_wfPreamble: nbyt=%d,nbit=%d,enc=%s,bfmt=%s\n",nbyt,nbit,enc,bfmt);
+printf( "_wfPreamble: bord=%s,len=%d,ids=%s,ptfm=%s\n",bord,len,ids,ptfm);
+printf( "_wfPreamble: xinc=%g,ptof=%d,xzr=%g,xunt=%s\n",xinc,ptof,xzr,xunt);
+printf( "_wfPreamble: ymult=%g,yzr=%g,yof=%g,yunt=%s\n",ymult,yzr,yof,yunt);
+printf( "_wfPreamble: j=%d,i=%d,wd=%d\n",j,i,wd);
   *ln=len; *nb=nbyt; *ym=ymult; *yz=yzr; *yo=yof;
   return(i);
 }
+
 void drvTDS::getWaveform( int ch){
 /*-----------------------------------------------------------------------------
  * Requests waveform data for channel ch (0..3).  This gets waveform preamble
@@ -244,9 +255,12 @@ void drvTDS::getWaveform( int ch){
   char* pb; short* pw; float ftmp; float* pwf=_wfbuf;
 
   getIntegerParam( ch,_boChOn,&chon);
-  if(chon){
+  if (chon) {
     stat=writeRd( ixWfTrace,ch+1,_rbuf,DBUF_LEN);
-    if(stat!=asynSuccess) return;
+    if(stat != asynSuccess) {
+        printf("getWaveform: ch=%d, stat=%d, rbuf=%s\n", ch, stat, _rbuf);
+        return;
+    }
     getDoubleParam( ch, _aoChPos,&pos);
     getDoubleParam( ch,_aoChScl,&vdiv);
     getDoubleParam( 0,_aiTimDiv,&hs);
@@ -278,16 +292,23 @@ void drvTDS::getWaveform( int ch){
       setDoubleParam( ch,_aiPed,_pedestal[ch]);
       callParamCallbacks( ch);
     }
+  } else {
+    printf("getWaveform: ch=%d not on\n");
+    for (i=0; i<WF_LEN; i++,pwf++) {
+        *pwf = 1000.0;
+    }
   }
-  else for(i=0; i<WF_LEN; i++,pwf++) *pwf=1000.0;
-  doCallbacksFloat32Array( _wfbuf,WF_LEN,_wfTrace,ch);
+  
+    doCallbacksFloat32Array( _wfbuf,WF_LEN,_wfTrace,ch);
 }
+
 void drvTDS::getChanScl( int ch){
 /*-----------------------------------------------------------------------------
  * Re-implemntation of a virtual function in base class.
  *---------------------------------------------------------------------------*/
   getBinaryCh( ChSclCmnd,ch,_mbboChScl,chanScl,SIZE(chanScl));
 }
+
 void drvTDS::timeDelayStr( int m,int uix){
 /*-----------------------------------------------------------------------------
  * This routine is a re-implementation of a virtual in base class.  Here we
@@ -298,6 +319,7 @@ void drvTDS::timeDelayStr( int m,int uix){
   sprintf( str,"%d %s",m,timDivU[uix]);
   setStringParam( _siTimDly,str);
 }
+
 void drvTDS::getTrigLevl(){
 /*-----------------------------------------------------------------------------
  * Setup slider for the trigger level value.
@@ -314,6 +336,7 @@ void drvTDS::getTrigLevl(){
   sv=(y+levl/scl)*100;
   setIntegerParam( 0,_loTrLev,sv);
 }
+
 void drvTDS::setTrigLevl( int v){
 /*-----------------------------------------------------------------------------
  * trigger level request from a slider.  v is slider value.
@@ -329,6 +352,7 @@ void drvTDS::setTrigLevl( int v){
   command( cmnd);
   setDoubleParam( 0,_aoTrLev,levl);
 }
+
 void drvTDS::setTimePerDiv( double v){
 /*-----------------------------------------------------------------------------
  * v is an analog time/div value.  This is parsed and two integer values are
@@ -363,6 +387,7 @@ void drvTDS::setTimePerDiv( double v){
   __getHSParams( v,&x0,&np);		// EDM needs to know how many x point
   setIntegerParam( _liXNpts,np);	// of data to dislay.
 }
+
 void drvTDS::_setTimePerDiv( uint vix,uint uix){
 /*-----------------------------------------------------------------------------
  * Either of the two time per division mbbo records changed.  Indeces to the
@@ -387,6 +412,7 @@ void drvTDS::_setTimePerDiv( uint vix,uint uix){
   command( cmnd);
   setTimePerDiv(v);
 }
+
 asynStatus drvTDS::getCmnds( int ix,int addr){
 /*-----------------------------------------------------------------------------
  * This virtual function reimplements the one in the base class.
@@ -396,24 +422,25 @@ asynStatus drvTDS::getCmnds( int ix,int addr){
  * addr is channel or address
  *---------------------------------------------------------------------------*/
   asynStatus stat=asynSuccess; int jx=ix-_firstix,v; char cmnd[32];
+    printf("drvTDS::getCmnds(): jx=%d\n", jx);
 //  _opc();
   switch( jx){
-    case ixBoTrMode:	getBinary( TrigModeCmnd,ix,trgMode,2); break;
-    case ixMbboTrSou:	getBinary( TrigSouCmnd,ix,trigSou,SIZE(trigSou)); break;
-    case ixBoTrSlo:	getBinary( TrigSloCmnd,ix,trigSlo,2); break;
-    case ixMbbiTrSta:	getBinary( TrigStaCmnd,ix,trigSta,5); break;
-    case ixMbboChScl:	getBinaryCh( ChSclCmnd,addr+1,ix,
-				chanScl,SIZE(chanScl)); break;
-    case ixSiSource:	stat=getString( WfSouCmnd,ix); break;
-    case ixLoWfWid:	stat=getInt( WfWidCmnd,ix); break;
-    case ixLiEvQ:       stat=getInt( EvqCmnd,ix); break;
-    case ixBiAcqStat:   stat=getInt( AcqStateCmnd,ix); break;
-    case ixSiHead:      stat=getString(HeaderCmnd,ix); break;
-    default:            stat=drvScope::getCmnds(ix,addr); break;
+    case ixBoTrMode:    getBinary(TrigModeCmnd, ix, trgMode, 2); break;
+    case ixMbboTrSou:   getBinary(TrigSouCmnd, ix, trigSou, SIZE(trigSou)); break;
+    case ixBoTrSlo:     getBinary(TrigSloCmnd, ix, trigSlo, 2); break;
+    case ixMbbiTrSta:   getBinary(TrigStaCmnd, ix, trigSta, 5); break;
+    case ixMbboChScl:   getBinaryCh(ChSclCmnd, addr+1, ix, chanScl, SIZE(chanScl)); break;
+    case ixSiSource:    stat = getString(WfSouCmnd, ix); break;
+    case ixLoWfWid:     stat = getInt(WfWidCmnd, ix); break;
+    case ixLiEvQ:       stat = getInt(EvqCmnd, ix); break;
+    case ixBiAcqStat:   stat = getInt(AcqStateCmnd, ix); break;
+    case ixSiHead:      stat = getString(HeaderCmnd, ix); break;
+    default:            stat = drvScope::getCmnds(ix, addr); break;
   } 
   callParamCallbacks( addr);
   return(stat);
 }
+
 asynStatus drvTDS::putIntCmnds( int ix,int addr,int v){
 /*-----------------------------------------------------------------------------
  * This is a reimplementation of a virtual function in the base class.
@@ -455,6 +482,7 @@ asynStatus drvTDS::putIntCmnds( int ix,int addr,int v){
   callParamCallbacks(addr);
   return(stat);
 }
+
 asynStatus drvTDS::putFltCmnds( int ix,int addr,float v){
 /*-----------------------------------------------------------------------------
  * This routine is a reimplementation of a virtual function in base class.
@@ -471,6 +499,7 @@ asynStatus drvTDS::putFltCmnds( int ix,int addr,float v){
   callParamCallbacks(addr);
   return(stat);
 }
+
 asynStatus drvTDS::writeInt32( asynUser* pau,epicsInt32 v){
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.  Here we service
@@ -490,6 +519,7 @@ asynStatus drvTDS::writeInt32( asynUser* pau,epicsInt32 v){
   callParamCallbacks(addr);
   return(stat);
 }
+
 asynStatus drvTDS::writeFloat64( asynUser* pau,epicsFloat64 v){
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.  Here we service
@@ -508,8 +538,9 @@ asynStatus drvTDS::writeFloat64( asynUser* pau,epicsFloat64 v){
   }
   return(stat);
 }
+
 drvTDS::drvTDS(const char* port,const char* udp,int np):
-			drvScope( port,udp,np){
+			drvScope(port, udp, np) {
 /*------------------------------------------------------------------------------
  * Constructor for the drvTDS class. Calls the base class constructor, which
  * in tern calls the asynPortDriver constructor.
@@ -535,6 +566,7 @@ drvTDS::drvTDS(const char* port,const char* udp,int np):
   createParam( loStoreStr,      asynParamInt32,         &_loStore);
   createParam( siSourceStr,	asynParamOctet,         &_siSource);
   createParam( siHeadStr,       asynParamOctet,         &_siHead);
+
   _firstix=_loWfWid;
 
   setStringParam( _siName,dname);
@@ -543,6 +575,8 @@ drvTDS::drvTDS(const char* port,const char* udp,int np):
    message( "Constructor drvTDS success");
   callParamCallbacks( 0);
 }
+
+
 // Configuration routines.  Called directly, or from the iocsh function below
 extern "C" {
 
@@ -552,8 +586,8 @@ int drvTDSConfigure( const char* port,const char* udp){
  *  port The name of the asyn port driver to be created.
  *  udp is the IO port.
  *---------------------------------------------------------------------------*/
-  int np=N_PARAMS+NTDS_PARAM;
-  _this=new drvTDS(port,udp,np);
+  int np = N_PARAMS + NTDS_PARAM;
+  _this = new drvTDS(port, udp, np);
   return(asynSuccess);
 }
 
@@ -566,9 +600,12 @@ static const iocshFuncDef initFuncDef = {"drvTDSConfigure",2,initArgs};
 static void initCallFunc(const iocshArgBuf *args){
   drvTDSConfigure(args[0].sval, args[1].sval);
 }
+
 void drvTDSRegister(void){
   iocshRegister(&initFuncDef,initCallFunc);
   initHookRegister(&inithooks);
 }
+
 epicsExportRegistrar(drvTDSRegister);
 }
+

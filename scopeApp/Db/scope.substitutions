@@ -1,43 +1,44 @@
 file bo.db
 {
-pattern	{       DESC,        ITEM, N,     ZNAM,    ONAM,    USER, AUTOSAVE}
-	{       "Ch0 On",      CH0_ON, 0,      Off,      On,    CHON, }
-	{       "Ch1 On",      CH1_ON, 1,      Off,      On,    CHON, }
-	{       "Ch2 On",      CH2_ON, 2,      Off,      On,    CHON, }
-	{       "Ch3 On",      CH3_ON, 3,      Off,      On,    CHON, }
-	{"Ch0 Impedance",     CH0_IMP, 0, "50 Ohm", "1 Meg",   CHIMP, }
-	{"Ch1 Impedance",     CH1_IMP, 1, "50 Ohm", "1 Meg",   CHIMP, }
-	{"Ch2 Impedance",     CH2_IMP, 2, "50 Ohm", "1 Meg",   CHIMP, }
-	{"Ch3 Impedance",     CH3_IMP, 3, "50 Ohm", "1 Meg",   CHIMP, }
-	{ "Ch0 Analysis", CH0_ANAL_ON, 0,      Off,      On,    ANAL, }
-	{ "Ch1 Analysis", CH1_ANAL_ON, 1,      Off,      On,    ANAL, }
-	{ "Ch2 Analysis", CH2_ANAL_ON, 2,      Off,      On,    ANAL, }
-	{ "Ch3 Analysis", CH3_ANAL_ON, 3,      Off,      On,    ANAL, }
-	{   "Ch0 Select",  CH0_SELECT, 0,      Off,      On,   CHSEL, }
-	{   "Ch1 Select",  CH1_SELECT, 1,      Off,      On,   CHSEL, }
-	{   "Ch2 Select",  CH2_SELECT, 2,      Off,      On,   CHSEL, }
-	{   "Ch3 Select",  CH3_SELECT, 3,      Off,      On,   CHSEL, }
-	{ TimeDelayState,TIMDLY_STATE, 0,      off,      on,TIMDLYST, VAL}
-	{  "Acquire Run",         RUN, 0,      Run,     Run,     RUN, }
-	{ "Acquire Stop",        STOP, 0,     Stop,    Stop,    STOP, }
-	{ "Clear Errors",         CLS, 0,      off,      on,     CLS, }
-	{        "Reset",       RESET, 0,    Reset,   Reset,   RESET, }
-	{   "Init scope",        INIT, 0,      off,      on,    INIT, }
-	{"Get Ch0 Trace",   CH0_GETWF, 0,      off,      on,   GETWF, }
-	{"Get Ch1 Trace",   CH1_GETWF, 1,      off,      on,   GETWF, }
-	{"Get Ch2 Trace",   CH2_GETWF, 2,      off,      on,   GETWF, }
-	{"Get Ch3 Trace",   CH3_GETWF, 3,      off,      on,   GETWF, }
-	{   "Get Traces",  GET_WF_ALL, 0,      off,      on,GETWFALL, }
-	{       "Update",      UPDATE, 0       off,      on,    UPDT, SCAN}
-	{   "Err Update",  ERR_UPDATE, 0       off,      on,   EUPDT, }
-	{ "Ch0 Pedestal",CH0_ANAL_PED, 0,      off,      on,     PED, }
-	{ "Ch1 Pedestal",CH1_ANAL_PED, 1,      off,      on,     PED, }
-	{ "Ch2 Pedestal",CH2_ANAL_PED, 2,      off,      on,     PED, }
-	{ "Ch3 Pedestal",CH3_ANAL_PED, 3,      off,      on,     PED, }
-	{ " Read Traces",    RD_TRACE, 0,      off,      on, RDTRACE, VAL}
-	{  "Save config",   SAVE_CONF, 0,     Save,    Save,    SAVE, }
-	{"Restor config",  RESTR_CONF, 0,  Restore, Restore,   RESTR, }
-	{"get Ev Messag",  GET_EV_MSG, 0,      Get,     Get,   EVMSG, }
+pattern	
+    {                 DESC,         ITEM, N,     ZNAM,    ONAM,    USER, AUTOSAVE}
+	{             "Ch0 On",       CH0_ON, 0,      Off,      On,    CHON, }
+	{             "Ch1 On",       CH1_ON, 1,      Off,      On,    CHON, }
+	{             "Ch2 On",       CH2_ON, 2,      Off,      On,    CHON, }
+	{             "Ch3 On",       CH3_ON, 3,      Off,      On,    CHON, }
+	{      "Ch0 Impedance",      CH0_IMP, 0, "50 Ohm", "1 Meg",   CHIMP, }
+	{      "Ch1 Impedance",      CH1_IMP, 1, "50 Ohm", "1 Meg",   CHIMP, }
+	{      "Ch2 Impedance",      CH2_IMP, 2, "50 Ohm", "1 Meg",   CHIMP, }
+	{      "Ch3 Impedance",      CH3_IMP, 3, "50 Ohm", "1 Meg",   CHIMP, }
+	{       "Ch0 Analysis",  CH0_ANAL_ON, 0,      Off,      On,    ANAL, }
+	{       "Ch1 Analysis",  CH1_ANAL_ON, 1,      Off,      On,    ANAL, }
+	{       "Ch2 Analysis",  CH2_ANAL_ON, 2,      Off,      On,    ANAL, }
+	{       "Ch3 Analysis",  CH3_ANAL_ON, 3,      Off,      On,    ANAL, }
+	{         "Ch0 Select",   CH0_SELECT, 0,      Off,      On,   CHSEL, }
+	{         "Ch1 Select",   CH1_SELECT, 1,      Off,      On,   CHSEL, }
+	{         "Ch2 Select",   CH2_SELECT, 2,      Off,      On,   CHSEL, }
+	{         "Ch3 Select",   CH3_SELECT, 3,      Off,      On,   CHSEL, }
+	{   "Time Delay State", TIMDLY_STATE, 0,      off,      on,TIMDLYST, VAL}
+	{        "Acquire Run",          RUN, 0,      Run,     Run,     RUN, }
+	{       "Acquire Stop",         STOP, 0,     Stop,    Stop,    STOP, }
+	{       "Clear Errors",          CLS, 0,      off,      on,     CLS, }
+	{              "Reset",        RESET, 0,    Reset,   Reset,   RESET, }
+	{         "Init scope",         INIT, 0,      off,      on,    INIT, }
+	{      "Get Ch0 Trace",    CH0_GETWF, 0,      off,      on,   GETWF, }
+	{      "Get Ch1 Trace",    CH1_GETWF, 1,      off,      on,   GETWF, }
+	{      "Get Ch2 Trace",    CH2_GETWF, 2,      off,      on,   GETWF, }
+	{      "Get Ch3 Trace",    CH3_GETWF, 3,      off,      on,   GETWF, }
+	{         "Get Traces",   GET_WF_ALL, 0,      off,      on,GETWFALL, }
+	{             "Update",       UPDATE, 0       off,      on,    UPDT, SCAN}
+	{         "Err Update",   ERR_UPDATE, 0       off,      on,   EUPDT, }
+	{       "Ch0 Pedestal", CH0_ANAL_PED, 0,      off,      on,     PED, }
+	{       "Ch1 Pedestal", CH1_ANAL_PED, 1,      off,      on,     PED, }
+	{       "Ch2 Pedestal", CH2_ANAL_PED, 2,      off,      on,     PED, }
+	{       "Ch3 Pedestal", CH3_ANAL_PED, 3,      off,      on,     PED, }
+	{       " Read Traces",     RD_TRACE, 0,      off,      on, RDTRACE, VAL}
+	{        "Save config",    SAVE_CONF, 0,     Save,    Save,    SAVE, }
+	{      "Restor config",   RESTR_CONF, 0,  Restore, Restore,   RESTR, }
+	{      "get Ev Messag",   GET_EV_MSG, 0,      Get,     Get,   EVMSG, }
 }
 file bi.db
 {
