@@ -33,6 +33,20 @@ pattern
     {           DESC,        ITEM, N,        USER}
     {  "Data Source", DATA_SOURCE, 0,      SOURCE}
     {       "Header",      HEADER, 0,        HEAD}
+    {"Meas. 1 Units", MEAS1_UNITS, 0, MEAS1_UNITS}
+    {"Meas. 2 Units", MEAS2_UNITS, 0, MEAS2_UNITS}
+    {"Meas. 3 Units", MEAS3_UNITS, 0, MEAS3_UNITS}
+    {"Meas. 4 Units", MEAS4_UNITS, 0, MEAS4_UNITS}
+}
+
+file ai.db 
+{
+pattern 
+    {           DESC,  ITEM, N,  USER, EGU}
+    {"Measurement 1", MEAS1, 0, MEAS1,  ""}
+    {"Measurement 2", MEAS2, 0, MEAS2,  ""}
+    {"Measurement 3", MEAS3, 0, MEAS3,  ""}
+    {"Measurement 4", MEAS4, 0, MEAS4,  ""}
 }
 
 file tdsMbboChScl.db

@@ -57,6 +57,8 @@ const char* InitCmnd       = "*CLS; :DAT:ENC RIB; :HOR:RECORDL 500; :HEAD OFF; :
 const char* HeaderCmnd     = "HEAD?";
 const char* GetConfCmnd    = "*LRN?";
 const char* ErrMsgCmnd     = "EVM?";
+const char* MeasValCmnd    = "MEASU:MEAS%d:VAL?";
+const char* MeasUnitsCmnd  = "MEASU:MEAS%d:UNI?";
 
 // cmnds is a list of commands understood by the instrument that we implement.
 // The order is important and must agree with the order of enumerated names
@@ -68,7 +70,8 @@ static const char* cmnds[]={
   TmDlyOfsCmnd, TmDlyEnCmnd,  TmSclCmnd,   TrigPosCmnd,TrigLevCmnd,
   TrigHoldCmnd, RunCmnd,      StopCmnd,    EseCmnd,    ClsCmnd,
   EsrCmnd,      OpcCmnd,      StbCmnd,     ResetCmnd,  IdnCmnd,
-  IPAddrCmnd,   InitCmnd,     GetConfCmnd, ErrMsgCmnd};
+  IPAddrCmnd,   InitCmnd,     GetConfCmnd, ErrMsgCmnd, MeasValCmnd,
+  MeasUnitsCmnd};
 
 // some of the commands listed above return or require specific keywords.  What
 // follows are lists of these keywords for some of the commands.
@@ -300,6 +303,50 @@ void drvTDS::getWaveform( int ch){
   }
   
     doCallbacksFloat32Array( _wfbuf,WF_LEN,_wfTrace,ch);
+}
+
+void drvTDS::getMeasurements() {
+/*-----------------------------------------------------------------------------
+ *---------------------------------------------------------------------------*/
+    for (int i=0; i<_num_meas; i++) {
+        _getMeasData(i, _aiMeas1+i);
+    }
+}
+
+void drvTDS::_getMeasData(int meas_num, int param){
+/*-----------------------------------------------------------------------------
+ *---------------------------------------------------------------------------*/
+    asynStatus stat = asynSuccess;
+    char str[64];
+    double val;
+
+    // Measurement number starts at 1
+    meas_num += 1;
+    
+    if (meas_num > _num_meas) {
+        return;
+    }
+   
+    // Get measurement value 
+    sprintf(str, MeasValCmnd, meas_num);
+    stat = writeRd(str, _rbuf, DBUF_LEN);
+    if(stat != asynSuccess) {
+        printf("drvTDS::getMeasData: stat=%d, cmd=%s, rbuf=%s\n", stat, str, _rbuf);
+        return;
+    }
+    val = atof(_rbuf);
+    setDoubleParam(param, val);
+
+    // Get measurement units
+    sprintf(str, MeasUnitsCmnd, meas_num);
+    stat = writeRd(str, _rbuf, DBUF_LEN);
+    if(stat != asynSuccess) {
+        printf("drvTDS::getMeasData: stat=%d, cmd=%s, rbuf=%s\n", stat, str, _rbuf);
+        return;
+    }
+    setStringParam(param, _rbuf);
+
+    callParamCallbacks();
 }
 
 void drvTDS::getChanScl( int ch){
@@ -540,7 +587,8 @@ asynStatus drvTDS::writeFloat64( asynUser* pau,epicsFloat64 v){
 }
 
 drvTDS::drvTDS(const char* port,const char* udp,int np):
-			drvScope(port, udp, np) {
+			drvScope( port,udp,np),
+             _num_meas(4) {
 /*------------------------------------------------------------------------------
  * Constructor for the drvTDS class. Calls the base class constructor, which
  * in tern calls the asynPortDriver constructor.
@@ -566,6 +614,15 @@ drvTDS::drvTDS(const char* port,const char* udp,int np):
   createParam( loStoreStr,      asynParamInt32,         &_loStore);
   createParam( siSourceStr,	asynParamOctet,         &_siSource);
   createParam( siHeadStr,       asynParamOctet,         &_siHead);
+
+  createParam(aiMeas1Str,       asynParamFloat64,       &_aiMeas1);
+  createParam(aiMeas2Str,       asynParamFloat64,       &_aiMeas2);
+  createParam(aiMeas3Str,       asynParamFloat64,       &_aiMeas3);
+  createParam(aiMeas4Str,       asynParamFloat64,       &_aiMeas4);
+  createParam(siMeas1UnitsStr,  asynParamOctet,         &_siMeas1Units);
+  createParam(siMeas2UnitsStr,  asynParamOctet,         &_siMeas2Units);
+  createParam(siMeas3UnitsStr,  asynParamOctet,         &_siMeas3Units);
+  createParam(siMeas4UnitsStr,  asynParamOctet,         &_siMeas4Units);
 
   _firstix=_loWfWid;
 

@@ -120,6 +120,7 @@ float fval;           // possible floating point value
 #define aiWfTMaxStr	"AI_WFTMAX"	// max time to get traces
 #define aiWfPerStr	"AI_WFPER"	// get traces period
 #define aiWfRateStr	"AI_WFRATE"	// get traces rate
+#define boMeasEnabledStr "BO_MEAS_EN"  // when true, read measurements from scope
 
 #define NBASE_PARAM	65		// number of parameters in base class.
 
@@ -161,6 +162,7 @@ public:
     virtual const char* getCommand(int ix)=0;
     virtual const char** getCmndList( int cix,uint* ni);
     virtual void	getWaveform( int ch);
+    virtual void	getMeasurements();
     virtual void	getHSParams( double hs,int* x0,int* np);
     virtual void	getChanPos( int addr);
     virtual void	setChanPos( int addr,double v);
@@ -183,7 +185,7 @@ protected:
         _wfEvent,    _wfMessg,    _boChSel,    _loChPos,    _loTrLev,
         _liMsgQS,    _liMsgQF,    _mbboTracMod,_liXNpts,    _biState,
         _boErUpdt,   _wfFPath,    _boRestore,  _boRdTraces, _aiWfTime,
-        _aiWfTMin,   _aiWfTMax,   _aiWfPeriod, _aiWfRate;
+        _aiWfTMin,   _aiWfTMax,   _aiWfPeriod, _aiWfRate, _boMeasEnabled;
 
     enum{	ixBoChOn,     ixAoChPos,    ixBoChImp,    ixMbboChCpl,  ixAoChScl,
         ixWfTrace,    ixLoWfNpts,   ixLoWfStart,  ixLoWfStop,   ixSiWfFmt,
@@ -198,7 +200,7 @@ protected:
         ixWfEvent,    ixWfMessg,    ixBoChSel,    ixLoChPos,    ixLoTrLev,
         ixLiMsgQS,    ixLiMsgQF,    ixMbboTracMod,ixLiXNpts,    ixBiState,
         ixBoErUpdt,   ixWfFPath,    ixBoRestore,  ixBoRdTraces, ixAiWfTime,
-        ixAiWfTMin,   ixAiWfTMax,   ixAiWfPeriod, ixAiWfRate};
+        ixAiWfTMin,   ixAiWfTMax,   ixAiWfPeriod, ixAiWfRate,   ixBoMeasEnabled};
 
     //#define FRST_COMMAND _boChOn
     //#define LAST_COMMAND _boRdTraces
@@ -295,6 +297,7 @@ private:
     int           _mqFailed;
     int		_tracemode;		// 0 async, 1 sync
     int		_rdtraces;		// read traces flag
+    int     _measEnabled;
     int		_posInProg;		// when true position slider moving
     double	_wfTime, _wfTMin, _wfTMax;
     double	_wfPeriod, _wfRate;

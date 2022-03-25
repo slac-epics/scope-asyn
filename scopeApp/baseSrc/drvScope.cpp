@@ -50,6 +50,9 @@ void drvScope::pollerThread(){
             if (_rdtraces) {
                 _getTraces();
             }
+            if (_measEnabled) {
+                getMeasurements();
+            }
             epicsThreadSleep( _pollT);
         } else {
             switch(msgq.type){
@@ -169,6 +172,12 @@ asynStatus drvScope::_wtrd( const char* pw,size_t nw,char* pr,size_t nr){
 
 /*--- virtual methods -------------------------------------------------------*/
 void drvScope::getWaveform( int ch){
+/*-----------------------------------------------------------------------------
+ * Virtual function to be supplied by device specific class.
+ *---------------------------------------------------------------------------*/
+}
+
+void drvScope::getMeasurements() {
 /*-----------------------------------------------------------------------------
  * Virtual function to be supplied by device specific class.
  *---------------------------------------------------------------------------*/
@@ -923,6 +932,7 @@ switch( jx){
 	case ixLoMark2:	_mix2[_markchan]=v; break;
 	case ixBoGetWfA:	_getTraces(); break;
 	case ixBoRdTraces:	_rdtraces=v; break;
+	case ixBoMeasEnabled: _measEnabled = v; break;
 	case ixMbboTracMod:	setIntegerParam( addr,_mbboTracMod,v); break;
 	default:		putInMessgQ( enPutInt,ix,addr,v); break;
 }
@@ -1136,7 +1146,8 @@ drvScope::drvScope(const char* port,const char* udp,int nparms):
                 asynInt32Mask | asynFloat64Mask | asynFloat32ArrayMask |
                 asynOctetMask | asynDrvUserMask,
                 asynInt32Mask | asynFloat64Mask | asynFloat32ArrayMask | asynOctetMask,
-                ASYN_CANBLOCK | ASYN_MULTIDEVICE,1,0,0) {
+                ASYN_CANBLOCK | ASYN_MULTIDEVICE,1,0,0),
+                _measEnabled(0) {
 /*------------------------------------------------------------------------------
  * Constructor for the drvScope class. Calls constructor for the asynPortDriver
  * base class. Where
@@ -1256,12 +1267,14 @@ createParam( aiWfTMinStr,	asynParamFloat64,	&_aiWfTMin);
 createParam( aiWfTMaxStr,	asynParamFloat64,	&_aiWfTMax);
 createParam( aiWfPerStr,	asynParamFloat64,	&_aiWfPeriod);
 createParam( aiWfRateStr,	asynParamFloat64,	&_aiWfRate);
+createParam(boMeasEnabledStr,  asynParamInt32,	&_boMeasEnabled);
 
 _firstix=_boChOn;
 
 setStringParam( _siName,dname);
 setIntegerParam( _biState,st);
 setIntegerParam( _boRdTraces,_rdtraces);
+setIntegerParam(_boMeasEnabled, _measEnabled);
 setDoubleParam( _aoPTMO,_pollT);
 
 if (st) message( "Constructor drvScope success");

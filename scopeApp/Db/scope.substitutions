@@ -39,6 +39,7 @@ pattern
 	{        "Save config",    SAVE_CONF, 0,     Save,    Save,    SAVE, }
 	{      "Restor config",   RESTR_CONF, 0,  Restore, Restore,   RESTR, }
 	{      "get Ev Messag",   GET_EV_MSG, 0,      Get,     Get,   EVMSG, }
+	{"Measurements enable",      MEAS_EN, 0,  Disable,  Enable, MEAS_EN, VAL}
 }
 file bi.db
 {
