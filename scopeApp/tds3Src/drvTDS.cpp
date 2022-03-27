@@ -107,28 +107,28 @@ static int itemSz[]={
 	0,0,2,3,13, 0,0,0,0,5,  0,0,0,0,0,  0,0,0,0,0,
 	0,0,0,0,0,  0,0,0,0};
 
-static const int hsc[]={   1,   2,   4,  10};
-static const int hsx[]={ 225, 200, 150,   0};
-static const int hnp[]={  51, 101, 201, 500};
+static const int hsc[]={  1,   2,   4,  10};
+static const int hsx[]={225, 200, 150,   0};
+static const int hnp[]={ 51, 101, 201, 500};
 
 
 static drvTDS*	_this;
 static const char *dname="drvTDS";
 
-static void __getHSParams( double hs,int* x0,int* np){
+static void __getHSParams(double hs,int* x0,int* np){
 /*-----------------------------------------------------------------------------
  * Returns starting point in x0 and number of points in np where data should
  * be extracted from the raw waveform data.  hs is the horizontal scale in
  * seconds.
  *---------------------------------------------------------------------------*/
   int ix,h=((hs*1e9)+0.5);
-  for( ix=0; ix<4&&(hsc[ix]!=h); ix++);
+  for(ix=0; ix<4&&(hsc[ix]!=h); ix++);
   if(ix>=4) ix=3;
   *x0=hsx[ix];
   *np=hnp[ix];
 }
 
-static void inithooks( initHookState state){
+static void inithooks(initHookState state){
 /*--------------------------------------------------------------------------*/
   switch(state){
     case initHookAtEnd: _this->postInit(); break;
@@ -141,15 +141,15 @@ void drvTDS::postInit(){
  * After IOC init.
  *---------------------------------------------------------------------------*/
     printf("$$$$$$$$$$$$$$ drvTDS::postInit\n");
-  putInMessgQ( enQuery,_mbboTrSou,0,0);
-  putInMessgQ( enQuery,_boTrSlo,0,0);
-  putInMessgQ( enQuery,_mbbiTrSta,0,0);
-  putInMessgQ( enQuery,_boTrMode,0,0);
-  putInMessgQ( enQuery,_siSource,0,0);
-  putInMessgQ( enQuery,_siHead,0,0);
-  putInMessgQ( enQuery,_loWfWid,0,0);
-  putInMessgQ( enQuery,_liEvQ,0,0);
-  putInMessgQ( enQuery,_biAcqStat,0,0);
+  putInMessgQ(enQuery,_mbboTrSou,0,0);
+  putInMessgQ(enQuery,_boTrSlo,0,0);
+  putInMessgQ(enQuery,_mbbiTrSta,0,0);
+  putInMessgQ(enQuery,_boTrMode,0,0);
+  putInMessgQ(enQuery,_siSource,0,0);
+  putInMessgQ(enQuery,_siHead,0,0);
+  putInMessgQ(enQuery,_loWfWid,0,0);
+  putInMessgQ(enQuery,_liEvQ,0,0);
+  putInMessgQ(enQuery,_biAcqStat,0,0);
   drvScope::afterInit();
 }
 
@@ -158,14 +158,14 @@ void drvTDS::updateUser(){
  * This is a re-implementation of a virtual function in the base class.
  *---------------------------------------------------------------------------*/
     printf("**********drvTDS::updateUser()**************\n");
-  getBinary( TrigSouCmnd,_mbboTrSou,trigSou,SIZE(trigSou));
-  getBinary( TrigSloCmnd,_boTrSlo,trigSlo,SIZE(trigSlo));
-  getBinary( TrigStaCmnd,_mbbiTrSta,trigSta,SIZE(trigSta));
-  getBinary( TrigModeCmnd,_boTrMode,trgMode,SIZE(trgMode));
+  getBinary(TrigSouCmnd,_mbboTrSou,trigSou,SIZE(trigSou));
+  getBinary(TrigSloCmnd,_boTrSlo,trigSlo,SIZE(trigSlo));
+  getBinary(TrigStaCmnd,_mbbiTrSta,trigSta,SIZE(trigSta));
+  getBinary(TrigModeCmnd,_boTrMode,trgMode,SIZE(trgMode));
 }
 
-void drvTDS::getHSParams( double hs,int* x0,int* np){
-  __getHSParams( hs,x0,np);
+void drvTDS::getHSParams(double hs,int* x0,int* np){
+  __getHSParams(hs,x0,np);
 }
 
 asynStatus drvTDS::trigState(){
@@ -173,7 +173,7 @@ asynStatus drvTDS::trigState(){
  * Gets trigger state, which gets posted.
  *---------------------------------------------------------------------------*/
   asynStatus stat;
-  stat=getBinary( TrigStaCmnd,_mbbiTrSta,trigSta,SIZE(trigSta));
+  stat=getBinary(TrigStaCmnd,_mbbiTrSta,trigSta,SIZE(trigSta));
   return(stat);
 }
 
@@ -183,15 +183,15 @@ int drvTDS::isTriggered(){
  *---------------------------------------------------------------------------*/
   asynStatus stat=trigState(); int trst;
   if(stat!=asynSuccess){
-    printf( "%s::isTriggered: failed in trigState\n",dname);
+    printf("%s::isTriggered: failed in trigState\n",dname);
     return(0);
   }
-  getIntegerParam( 0,_mbbiTrSta,&trst);
+  getIntegerParam(0,_mbbiTrSta,&trst);
   if(trst==4) return(1);
   return(0);
 }
 
-const char** drvTDS::getCmndList( int cix,uint* ni){
+const char** drvTDS::getCmndList(int cix,uint* ni){
 /*-----------------------------------------------------------------------------
  * Overides the empty virtual function in the base class.  It returns a pointer
  * to a list of command items choices for the cix index.  If list is not null,
@@ -204,7 +204,7 @@ const char** drvTDS::getCmndList( int cix,uint* ni){
   return(listIx[cix]);
 }
 
-const char* drvTDS::getCommand( int cix){
+const char* drvTDS::getCommand(int cix){
 /*-----------------------------------------------------------------------------
  * Overrides the virtual function in the base class.  This function returns
  * a pointer to a command string for the index cix into the list commands.
@@ -215,7 +215,7 @@ const char* drvTDS::getCommand( int cix){
   return(cmnds[cix]);
 }
 
-int drvTDS::_wfPreamble( char* p,int* ln,int* nb,
+int drvTDS::_wfPreamble(char* p,int* ln,int* nb,
 		double* ym,double* yz,double* yo){
 /*-----------------------------------------------------------------------------
  * Unpacks the waveform preamble string.  Returns the length of the preamble
@@ -224,31 +224,31 @@ int drvTDS::_wfPreamble( char* p,int* ln,int* nb,
   int i=0,j,n,wd; int nbyt,nbit,len,ptof,chn; char chs[16];
   char enc[20],bfmt[20],bord[20],ids[80],ptfm[20],xunt[20],yunt[20];
   double xinc,xzr,ymult,yzr,yof;
-  n=sscanf( p,"%d;%d;%19[^;];%19[^;];%19[^;];%d;%79[^;];%19[^;];"
+  n=sscanf(p,"%d;%d;%19[^;];%19[^;];%19[^;];%d;%79[^;];%19[^;];"
 		"%lg;%d;%lg;%19[^;];%lg;%lg;%lg;%19[^;];%n",
 		&nbyt,&nbit,enc,bfmt,bord,&len,ids,ptfm,
 		&xinc,&ptof,&xzr,xunt,&ymult,&yzr,&yof,yunt,&i);
   if(n!=16){
     if(n!=5){
-      printf( "_wfPreamble: n=%d, failed to unpack preamble\n",n); return(-1);}
+      printf("_wfPreamble: n=%d, failed to unpack preamble\n",n); return(-1);}
     return(0);
   }
-  if((n=sscanf( &p[i],"#%1d",&wd))!=1){
-    printf( "_wfPreamble: n=%d, failed to get width\n",n);
+  if((n=sscanf(&p[i],"#%1d",&wd))!=1){
+    printf("_wfPreamble: n=%d, failed to get width\n",n);
     return(-1);
   }
   j=i; i+=2+wd;
-  strncpy( chs,&ids[1],3); chs[3]=0; sscanf( chs,"Ch%d",&chn);
-printf( "_wfPreamble: nbyt=%d,nbit=%d,enc=%s,bfmt=%s\n",nbyt,nbit,enc,bfmt);
-printf( "_wfPreamble: bord=%s,len=%d,ids=%s,ptfm=%s\n",bord,len,ids,ptfm);
-printf( "_wfPreamble: xinc=%g,ptof=%d,xzr=%g,xunt=%s\n",xinc,ptof,xzr,xunt);
-printf( "_wfPreamble: ymult=%g,yzr=%g,yof=%g,yunt=%s\n",ymult,yzr,yof,yunt);
-printf( "_wfPreamble: j=%d,i=%d,wd=%d\n",j,i,wd);
+  strncpy(chs,&ids[1],3); chs[3]=0; sscanf(chs,"Ch%d",&chn);
+printf("_wfPreamble: nbyt=%d,nbit=%d,enc=%s,bfmt=%s\n",nbyt,nbit,enc,bfmt);
+printf("_wfPreamble: bord=%s,len=%d,ids=%s,ptfm=%s\n",bord,len,ids,ptfm);
+printf("_wfPreamble: xinc=%g,ptof=%d,xzr=%g,xunt=%s\n",xinc,ptof,xzr,xunt);
+printf("_wfPreamble: ymult=%g,yzr=%g,yof=%g,yunt=%s\n",ymult,yzr,yof,yunt);
+printf("_wfPreamble: j=%d,i=%d,wd=%d\n",j,i,wd);
   *ln=len; *nb=nbyt; *ym=ymult; *yz=yzr; *yo=yof;
   return(i);
 }
 
-void drvTDS::getWaveform( int ch){
+void drvTDS::getWaveform(int ch){
 /*-----------------------------------------------------------------------------
  * Requests waveform data for channel ch (0..3).  This gets waveform preamble
  * and waveform data.
@@ -257,26 +257,26 @@ void drvTDS::getWaveform( int ch){
   double hs,pos,vdiv,ymult,yzr,yof; float* pwr=_wfraw;
   char* pb; short* pw; float ftmp; float* pwf=_wfbuf;
 
-  getIntegerParam( ch,_boChOn,&chon);
+  getIntegerParam(ch,_boChOn,&chon);
   if (chon) {
-    stat=writeRd( ixWfTrace,ch+1,_rbuf,DBUF_LEN);
+    stat=writeRd(ixWfTrace,ch+1,_rbuf,DBUF_LEN);
     if(stat != asynSuccess) {
         printf("getWaveform: ch=%d, stat=%d, rbuf=%s\n", ch, stat, _rbuf);
         return;
     }
-    getDoubleParam( ch, _aoChPos,&pos);
-    getDoubleParam( ch,_aoChScl,&vdiv);
-    getDoubleParam( 0,_aiTimDiv,&hs);
-    i=_wfPreamble( _rbuf,&len,&nbyte,&ymult,&yzr,&yof);
+    getDoubleParam(ch, _aoChPos,&pos);
+    getDoubleParam(ch,_aoChScl,&vdiv);
+    getDoubleParam(0,_aiTimDiv,&hs);
+    i=_wfPreamble(_rbuf,&len,&nbyte,&ymult,&yzr,&yof);
     if(i<=0) return;
     if(vdiv<0) vdiv=1.0;
     pb=(&_rbuf[i]);
     pw=(short*)pb;
-    __getHSParams( hs,&x0,&np);
+    __getHSParams(hs,&x0,&np);
     n=WF_LEN;
     n=len<n?len:n;
     n=n<0?0:n;
-    for( i=j=0; i<n; i++,pb++,pw++){
+    for(i=j=0; i<n; i++,pb++,pw++){
       if(nbyte==1) ftmp=(*pb); else ftmp=(*pw);
       if(i>=x0&&j<=np){
 	*pwr=(ftmp-yof)*ymult+yzr;
@@ -286,14 +286,14 @@ void drvTDS::getWaveform( int ch){
     }
     if(_analize[ch]){
       _area[ch]=0.0;
-      for( i=_mix1[ch]; i<=_mix2[ch]; i++){
+      for(i=_mix1[ch]; i<=_mix2[ch]; i++){
 	_area[ch]+=_wfraw[i];
       }
-      if(_doPeds[ch]){ _doPeds[ch]=0; _pedestal[ch]=_area[ch];}
+      if(_doPeds[ch]){_doPeds[ch]=0; _pedestal[ch]=_area[ch];}
       else _area[ch]-=_pedestal[ch];
-      setDoubleParam( ch,_aiArea,_area[ch]);
-      setDoubleParam( ch,_aiPed,_pedestal[ch]);
-      callParamCallbacks( ch);
+      setDoubleParam(ch,_aiArea,_area[ch]);
+      setDoubleParam(ch,_aiPed,_pedestal[ch]);
+      callParamCallbacks(ch);
     }
   } else {
     printf("getWaveform: ch=%d not on\n");
@@ -302,7 +302,7 @@ void drvTDS::getWaveform( int ch){
     }
   }
   
-    doCallbacksFloat32Array( _wfbuf,WF_LEN,_wfTrace,ch);
+    doCallbacksFloat32Array(_wfbuf,WF_LEN,_wfTrace,ch);
 }
 
 void drvTDS::getMeasurements() {
@@ -349,22 +349,22 @@ void drvTDS::_getMeasData(int meas_num, int param){
     callParamCallbacks();
 }
 
-void drvTDS::getChanScl( int ch){
+void drvTDS::getChanScl(int ch){
 /*-----------------------------------------------------------------------------
  * Re-implemntation of a virtual function in base class.
  *---------------------------------------------------------------------------*/
-  getBinaryCh( ChSclCmnd,ch,_mbboChScl,chanScl,SIZE(chanScl));
+  getBinaryCh(ChSclCmnd,ch,_mbboChScl,chanScl,SIZE(chanScl));
 }
 
-void drvTDS::timeDelayStr( int m,int uix){
+void drvTDS::timeDelayStr(int m,int uix){
 /*-----------------------------------------------------------------------------
  * This routine is a re-implementation of a virtual in base class.  Here we
  * construct a string and push it to the db record.
  *---------------------------------------------------------------------------*/
   char str[32];
   if((uix<0)||(uix>=SIZE(timDivU))) return;
-  sprintf( str,"%d %s",m,timDivU[uix]);
-  setStringParam( _siTimDly,str);
+  sprintf(str,"%d %s",m,timDivU[uix]);
+  setStringParam(_siTimDly,str);
 }
 
 void drvTDS::getTrigLevl(){
@@ -372,35 +372,35 @@ void drvTDS::getTrigLevl(){
  * Setup slider for the trigger level value.
  *---------------------------------------------------------------------------*/
   int ch,sv,en; double levl,y,scl;
-  getIntegerParam( 0,_mbboTrSou,&ch);
+  getIntegerParam(0,_mbboTrSou,&ch);
   if(ch<0||ch>=MAX_ADDR) return;
-  getIntegerParam( ch,_boChOn,&en);
+  getIntegerParam(ch,_boChOn,&en);
   if(!en) return;
-  getDoubleParam( 0,_aoTrLev,&levl);
-  getDoubleParam( ch,_aoChPos,&y);
-  getDoubleParam( ch,_aoChScl,&scl);
+  getDoubleParam(0,_aoTrLev,&levl);
+  getDoubleParam(ch,_aoChPos,&y);
+  getDoubleParam(ch,_aoChScl,&scl);
   if(-0.000001<scl&&scl<0.000001) scl=1.0;
   sv=(y+levl/scl)*100;
-  setIntegerParam( 0,_loTrLev,sv);
+  setIntegerParam(0,_loTrLev,sv);
 }
 
-void drvTDS::setTrigLevl( int v){
+void drvTDS::setTrigLevl(int v){
 /*-----------------------------------------------------------------------------
  * trigger level request from a slider.  v is slider value.
  *---------------------------------------------------------------------------*/
   int ch; double levl,y,scl; char cmnd[32]; const char* pcmd;
-  getIntegerParam( 0,_mbboTrSou,&ch);
+  getIntegerParam(0,_mbboTrSou,&ch);
   if(ch<0||ch>=MAX_ADDR) return;
   pcmd=TrigLevCmnd;
-  getDoubleParam( ch,_aoChPos,&y);
-  getDoubleParam( ch,_aoChScl,&scl);
+  getDoubleParam(ch,_aoChPos,&y);
+  getDoubleParam(ch,_aoChScl,&scl);
   levl=(v/100.0-y)*scl;
-  sprintf( cmnd,"%s %f",pcmd,levl);
-  command( cmnd);
-  setDoubleParam( 0,_aoTrLev,levl);
+  sprintf(cmnd,"%s %f",pcmd,levl);
+  command(cmnd);
+  setDoubleParam(0,_aoTrLev,levl);
 }
 
-void drvTDS::setTimePerDiv( double v){
+void drvTDS::setTimePerDiv(double v){
 /*-----------------------------------------------------------------------------
  * v is an analog time/div value.  This is parsed and two integer values are
  * calculated, one is "mantissa" like 1,2,4,10,20,40,100,200,400, while the
@@ -410,10 +410,10 @@ void drvTDS::setTimePerDiv( double v){
  * v=1e-6, therefore calculating wrong mantisa and exponent.
  *---------------------------------------------------------------------------*/
   int mix,uix,m,np=0; char str[16];
-  if(v<0.9e-6){ uix=0; m=(int)((v*1000.0)*1000000.0+0.5);}
-  else if(v<0.9e-3){ uix=1; m=(int)(v*1000000.0+0.5);}
-  else if(v<0.9){ uix=2; m=(int)(v*1000.0+0.5);}
-  else{ uix=3; m=(int)(v+0.5);}
+  if(v<0.9e-6){uix=0; m=(int)((v*1000.0)*1000000.0+0.5);}
+  else if(v<0.9e-3){uix=1; m=(int)(v*1000000.0+0.5);}
+  else if(v<0.9){uix=2; m=(int)(v*1000.0+0.5);}
+  else{uix=3; m=(int)(v+0.5);}
   if(m<=1) mix=0;
   else if(m<=2) mix=1;
   else if(m<=4) mix=2;
@@ -426,16 +426,16 @@ void drvTDS::setTimePerDiv( double v){
   uint ni=SIZE(timDivU); int x0;
   const char** list=timDivU;
   if(list){
-    sprintf( str,"%d %s/div",m,list[uix]);
-    setIntegerParam( _mbboTimDivV,mix);
+    sprintf(str,"%d %s/div",m,list[uix]);
+    setIntegerParam(_mbboTimDivV,mix);
   }
-  setIntegerParam( _mbboTimDivU,uix);
-  setStringParam( _siTimDiv,str);
-  __getHSParams( v,&x0,&np);		// EDM needs to know how many x point
-  setIntegerParam( _liXNpts,np);	// of data to dislay.
+  setIntegerParam(_mbboTimDivU,uix);
+  setStringParam(_siTimDiv,str);
+  __getHSParams(v,&x0,&np);		// EDM needs to know how many x point
+  setIntegerParam(_liXNpts,np);	// of data to dislay.
 }
 
-void drvTDS::_setTimePerDiv( uint vix,uint uix){
+void drvTDS::_setTimePerDiv(uint vix,uint uix){
 /*-----------------------------------------------------------------------------
  * Either of the two time per division mbbo records changed.  Indeces to the
  * value (vix) and unit (uix) are used to calculate the new analog value of
@@ -452,15 +452,15 @@ void drvTDS::_setTimePerDiv( uint vix,uint uix){
     case 2:     v=m*1.0e-3; break;
     case 3:     v=m; break;
   }
-  sprintf( str,"%s %s/div",listV[vix],listU[uix]);
-  setStringParam( _siTimDiv,str);
-  setDoubleParam( _aiTimDiv,v);
-  sprintf( cmnd,"%s %e",TmSclCmnd,v);
-  command( cmnd);
+  sprintf(str,"%s %s/div",listV[vix],listU[uix]);
+  setStringParam(_siTimDiv,str);
+  setDoubleParam(_aiTimDiv,v);
+  sprintf(cmnd,"%s %e",TmSclCmnd,v);
+  command(cmnd);
   setTimePerDiv(v);
 }
 
-asynStatus drvTDS::getCmnds( int ix,int addr){
+asynStatus drvTDS::getCmnds(int ix,int addr){
 /*-----------------------------------------------------------------------------
  * This virtual function reimplements the one in the base class.
  * This routine is called from the pollerThread in the base class when it
@@ -471,7 +471,7 @@ asynStatus drvTDS::getCmnds( int ix,int addr){
   asynStatus stat=asynSuccess; int jx=ix-_firstix,v; char cmnd[32];
     printf("drvTDS::getCmnds(): jx=%d\n", jx);
 //  _opc();
-  switch( jx){
+  switch(jx){
     case ixBoTrMode:    getBinary(TrigModeCmnd, ix, trgMode, 2); break;
     case ixMbboTrSou:   getBinary(TrigSouCmnd, ix, trigSou, SIZE(trigSou)); break;
     case ixBoTrSlo:     getBinary(TrigSloCmnd, ix, trigSlo, 2); break;
@@ -484,11 +484,11 @@ asynStatus drvTDS::getCmnds( int ix,int addr){
     case ixSiHead:      stat = getString(HeaderCmnd, ix); break;
     default:            stat = drvScope::getCmnds(ix, addr); break;
   } 
-  callParamCallbacks( addr);
+  callParamCallbacks(addr);
   return(stat);
 }
 
-asynStatus drvTDS::putIntCmnds( int ix,int addr,int v){
+asynStatus drvTDS::putIntCmnds(int ix,int addr,int v){
 /*-----------------------------------------------------------------------------
  * This is a reimplementation of a virtual function in the base class.
  * It is called from the pollerThread routine in the base dlass when it
@@ -499,38 +499,38 @@ asynStatus drvTDS::putIntCmnds( int ix,int addr,int v){
  *---------------------------------------------------------------------------*/
   asynStatus stat=asynSuccess; char cmnd[32];
   int jx=ix-_firstix;
-  switch( jx){
-    case ixMbboChScl:   setIntegerParam( addr,ix,v);
-                        setBinaryCh( v,addr,ChSclCmnd,chanScl,SIZE(chanScl));
-                        getFloatCh( ChSclCmnd,addr+1,_aoChScl);
+  switch(jx){
+    case ixMbboChScl:   setIntegerParam(addr,ix,v);
+                        setBinaryCh(v,addr,ChSclCmnd,chanScl,SIZE(chanScl));
+                        getFloatCh(ChSclCmnd,addr+1,_aoChScl);
                         break;
-    case ixMbboTimDivV: stat=getIntegerParam( _mbboTimDivU,&jx);
-                        _setTimePerDiv( v,jx);
+    case ixMbboTimDivV: stat=getIntegerParam(_mbboTimDivU,&jx);
+                        _setTimePerDiv(v,jx);
                         break;
-    case ixMbboTimDivU: getIntegerParam( _mbboTimDivV,&jx);
-                        _setTimePerDiv( jx,v);
+    case ixMbboTimDivU: getIntegerParam(_mbboTimDivV,&jx);
+                        _setTimePerDiv(jx,v);
                         break;
-    case ixLoWfWid:	setInt( jx,WfDatCmnd,v,ix); break;
+    case ixLoWfWid:	setInt(jx,WfDatCmnd,v,ix); break;
     case ixBoTrMode:    setBinary(v,TrigModeCmnd,trgMode,SIZE(trgMode));
-                        setIntegerParam( ix,v);
+                        setIntegerParam(ix,v);
                         break;
     case ixMbboTrSou:   setBinary(v,TrigSouCmnd,trigSou,SIZE(trigSou));
                         break;
     case ixBoTrSlo:     setBinary(v,TrigSloCmnd,trigSlo,SIZE(trigSlo));
                         break;
-    case ixLoRecall:	sprintf( cmnd,RecallCmnd,v);
-			command( cmnd);
+    case ixLoRecall:	sprintf(cmnd,RecallCmnd,v);
+			command(cmnd);
 			update();
 			break;
-    case ixLoStore:	sprintf( cmnd,SaveCmnd,v);
-                        command( cmnd); break;
-    default:		stat=drvScope::putIntCmnds( ix,addr,v); break;
+    case ixLoStore:	sprintf(cmnd,SaveCmnd,v);
+                        command(cmnd); break;
+    default:		stat=drvScope::putIntCmnds(ix,addr,v); break;
   }
   callParamCallbacks(addr);
   return(stat);
 }
 
-asynStatus drvTDS::putFltCmnds( int ix,int addr,float v){
+asynStatus drvTDS::putFltCmnds(int ix,int addr,float v){
 /*-----------------------------------------------------------------------------
  * This routine is a reimplementation of a virtual function in base class.
  * It is called from the pollerThread routine in base class when it receives
@@ -540,14 +540,14 @@ asynStatus drvTDS::putFltCmnds( int ix,int addr,float v){
  * v is a possible integer set value.
  *---------------------------------------------------------------------------*/
   asynStatus stat=asynSuccess; int jx=ix-_firstix;
-  switch( jx){
-    default:		stat=drvScope::putFltCmnds( ix,addr,v); break;
+  switch(jx){
+    default:		stat=drvScope::putFltCmnds(ix,addr,v); break;
   }
   callParamCallbacks(addr);
   return(stat);
 }
 
-asynStatus drvTDS::writeInt32( asynUser* pau,epicsInt32 v){
+asynStatus drvTDS::writeInt32(asynUser* pau,epicsInt32 v){
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.  Here we service
  * all write requests comming from EPICS records.
@@ -560,14 +560,14 @@ asynStatus drvTDS::writeInt32( asynUser* pau,epicsInt32 v){
 
   stat=getAddress(pau,&addr); if(stat!=asynSuccess) return(stat);
   jx=ix-_firstix;
-  switch( jx){
-    default:		stat=drvScope::writeInt32( pau,v); break;
+  switch(jx){
+    default:		stat=drvScope::writeInt32(pau,v); break;
   }
   callParamCallbacks(addr);
   return(stat);
 }
 
-asynStatus drvTDS::writeFloat64( asynUser* pau,epicsFloat64 v){
+asynStatus drvTDS::writeFloat64(asynUser* pau,epicsFloat64 v){
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.  Here we service
  * all write requests comming from EPICS records.
@@ -580,8 +580,8 @@ asynStatus drvTDS::writeFloat64( asynUser* pau,epicsFloat64 v){
 
   stat=getAddress(pau,&addr); if(stat!=asynSuccess) return(stat);
   ix=pau->reason-_firstix;
-  switch( ix){
-    default:		stat=drvScope::writeFloat64( pau,v); break;
+  switch(ix){
+    default:		stat=drvScope::writeFloat64(pau,v); break;
   }
   return(stat);
 }
@@ -597,23 +597,23 @@ drvTDS::drvTDS(const char* port, const char* udp):
  *   udpPort is the actual device port name.
  *   np is the total number of items for the parameter library.
  *---------------------------------------------------------------------------*/
-  createParam( loWfWidStr,	asynParamInt32,         &_loWfWid);
-  createParam( boTrModeStr,     asynParamInt32,         &_boTrMode);
-  createParam( mbboTrSouStr,    asynParamInt32,         &_mbboTrSou);
-  createParam( boTrSlopeStr,    asynParamInt32,         &_boTrSlo);
-  createParam( mbbiTrStaStr,    asynParamInt32,         &_mbbiTrSta);
+  createParam(loWfWidStr,	asynParamInt32,         &_loWfWid);
+  createParam(boTrModeStr,     asynParamInt32,         &_boTrMode);
+  createParam(mbboTrSouStr,    asynParamInt32,         &_mbboTrSou);
+  createParam(boTrSlopeStr,    asynParamInt32,         &_boTrSlo);
+  createParam(mbbiTrStaStr,    asynParamInt32,         &_mbbiTrSta);
 
-  createParam( mbboChSclStr,    asynParamInt32,         &_mbboChScl);
-  createParam( mbboTimDivVStr,  asynParamInt32,         &_mbboTimDivV);
-  createParam( mbboTimDivUStr,  asynParamInt32,         &_mbboTimDivU);
-  createParam( biAcqStatStr,    asynParamInt32,         &_biAcqStat);
-  createParam( liEvQStr,        asynParamInt32,         &_liEvQ);
+  createParam(mbboChSclStr,    asynParamInt32,         &_mbboChScl);
+  createParam(mbboTimDivVStr,  asynParamInt32,         &_mbboTimDivV);
+  createParam(mbboTimDivUStr,  asynParamInt32,         &_mbboTimDivU);
+  createParam(biAcqStatStr,    asynParamInt32,         &_biAcqStat);
+  createParam(liEvQStr,        asynParamInt32,         &_liEvQ);
 
-  createParam( liEvQtyStr,      asynParamInt32,         &_liEvQty);
-  createParam( loRecallStr,     asynParamInt32,         &_loRecall);
-  createParam( loStoreStr,      asynParamInt32,         &_loStore);
-  createParam( siSourceStr,	asynParamOctet,         &_siSource);
-  createParam( siHeadStr,       asynParamOctet,         &_siHead);
+  createParam(liEvQtyStr,      asynParamInt32,         &_liEvQty);
+  createParam(loRecallStr,     asynParamInt32,         &_loRecall);
+  createParam(loStoreStr,      asynParamInt32,         &_loStore);
+  createParam(siSourceStr,	asynParamOctet,         &_siSource);
+  createParam(siHeadStr,       asynParamOctet,         &_siHead);
 
   createParam(aiMeas1Str,       asynParamFloat64,       &_aiMeas1);
   createParam(aiMeas2Str,       asynParamFloat64,       &_aiMeas2);
@@ -626,11 +626,11 @@ drvTDS::drvTDS(const char* port, const char* udp):
 
   _firstix=_loWfWid;
 
-  setStringParam( _siName,dname);
-  setIntegerParam( _loStore,1);
-  setIntegerParam( _loRecall,1);
-   message( "Constructor drvTDS success");
-  callParamCallbacks( 0);
+  setStringParam(_siName,dname);
+  setIntegerParam(_loStore,1);
+  setIntegerParam(_loRecall,1);
+   message("Constructor drvTDS success");
+  callParamCallbacks(0);
 }
 
 
@@ -649,8 +649,8 @@ int drvTDSConfigure(const char* port, const char* udp) {
 
 /* EPICS iocsh shell commands */
 
-static const iocshArg initArg0 = { "port",iocshArgString};
-static const iocshArg initArg1 = { "udp",iocshArgString};
+static const iocshArg initArg0 = {"port",iocshArgString};
+static const iocshArg initArg1 = {"udp",iocshArgString};
 static const iocshArg * const initArgs[] = {&initArg0,&initArg1};
 static const iocshFuncDef initFuncDef = {"drvTDSConfigure",2,initArgs};
 static void initCallFunc(const iocshArgBuf *args){
