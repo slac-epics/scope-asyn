@@ -1141,8 +1141,8 @@ const char* pcmd=getCommand(ixBoInit);
     putInMessgQ( enQuery,_aoTrLev,0,0);
 }
 
-drvScope::drvScope(const char* port,const char* udp,int nparms):
-        asynPortDriver(port, MAX_ADDR, nparms,
+drvScope::drvScope(const char* port, const char* udp):
+        asynPortDriver(port, MAX_ADDR,
                 asynInt32Mask | asynFloat64Mask | asynFloat32ArrayMask |
                 asynOctetMask | asynDrvUserMask,
                 asynInt32Mask | asynFloat64Mask | asynFloat32ArrayMask | asynOctetMask,

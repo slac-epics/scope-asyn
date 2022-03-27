@@ -34,12 +34,11 @@
 #define loAcqAveStr	"LO_ACQAV"	// acquire averages
 
 #define mbboAcqTpStr	"MBBO_ACQTP"	// acquire type
-#define NDS6_PARAM	21
 
 
 class drvDS6x: public drvScope{
 public:
-  drvDS6x(const char* port,const char* udp,int np);
+  drvDS6x(const char* port, const char* udp);
 
   virtual asynStatus writeInt32( asynUser* pau,epicsInt32 v);
   virtual asynStatus writeFloat64( asynUser* pau,epicsFloat64 v);

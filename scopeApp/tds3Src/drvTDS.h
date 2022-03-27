@@ -39,12 +39,10 @@
 #define siMeas3UnitsStr "SI_MEAS3_UNITS" // Measurement units
 #define siMeas4UnitsStr "SI_MEAS4_UNITS" // Measurement units
 
-#define NTDS_PARAM    23
-
 
 class drvTDS: public drvScope{
 public:
-  drvTDS(const char* port,const char* udp,int np);
+  drvTDS(const char* port, const char* udp);
 
   virtual asynStatus writeInt32(asynUser* pau,epicsInt32 v);
   virtual asynStatus writeFloat64(asynUser* pau,epicsFloat64 v);

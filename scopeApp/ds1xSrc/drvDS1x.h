@@ -34,12 +34,10 @@
 #define mbboWfFmtStr	"MBBO_WFFMT"	// Waveform format
 #define boDumpStr	"BO_DUMP"	// for printing data dump
 
-#define NDS6_PARAM	20
-
 
 class drvDS1x: public drvScope{
 public:
-  drvDS1x(const char* port,const char* udp,int np);
+  drvDS1x(const char* port, const char* udp);
 
   virtual asynStatus writeInt32( asynUser* pau,epicsInt32 v);
   virtual asynStatus writeFloat64( asynUser* pau,epicsFloat64 v);

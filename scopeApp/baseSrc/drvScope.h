@@ -122,7 +122,6 @@ float fval;           // possible floating point value
 #define aiWfRateStr	"AI_WFRATE"	// get traces rate
 #define boMeasEnabledStr "BO_MEAS_EN"  // when true, read measurements from scope
 
-#define NBASE_PARAM	65		// number of parameters in base class.
 
 typedef unsigned char	byte;
 typedef unsigned short	word;
@@ -150,7 +149,7 @@ epicsTimer& timer;
 class drvScope: public asynPortDriver {
 public:
     friend class Utils;
-    drvScope(const char* port,const char* udp,int nparms);
+    drvScope(const char* port, const char* udp);
     virtual ~drvScope(){}
 
     virtual asynStatus writeOctet( asynUser* paU,const char* val,size_t nc,
@@ -201,11 +200,6 @@ protected:
         ixLiMsgQS,    ixLiMsgQF,    ixMbboTracMod,ixLiXNpts,    ixBiState,
         ixBoErUpdt,   ixWfFPath,    ixBoRestore,  ixBoRdTraces, ixAiWfTime,
         ixAiWfTMin,   ixAiWfTMax,   ixAiWfPeriod, ixAiWfRate,   ixBoMeasEnabled};
-
-    //#define FRST_COMMAND _boChOn
-    //#define LAST_COMMAND _boRdTraces
-    //#define N_PARAMS (&LAST_COMMAND - &FRST_COMMAND + 1)
-    #define N_PARAMS NBASE_PARAM
 
     virtual asynStatus putFltCmnds( int ix,int addr,float v);
     virtual asynStatus putIntCmnds( int ix,int addr,int v);

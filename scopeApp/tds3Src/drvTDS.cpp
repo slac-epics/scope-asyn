@@ -586,8 +586,8 @@ asynStatus drvTDS::writeFloat64( asynUser* pau,epicsFloat64 v){
   return(stat);
 }
 
-drvTDS::drvTDS(const char* port,const char* udp,int np):
-			drvScope( port,udp,np),
+drvTDS::drvTDS(const char* port, const char* udp):
+			drvScope(port, udp),
              _num_meas(4) {
 /*------------------------------------------------------------------------------
  * Constructor for the drvTDS class. Calls the base class constructor, which
@@ -637,15 +637,14 @@ drvTDS::drvTDS(const char* port,const char* udp,int np):
 // Configuration routines.  Called directly, or from the iocsh function below
 extern "C" {
 
-int drvTDSConfigure( const char* port,const char* udp){
+int drvTDSConfigure(const char* port, const char* udp) {
 /*-----------------------------------------------------------------------------
  * EPICS iocsh callable function to call constructor for the drvTDS class.
  *  port The name of the asyn port driver to be created.
  *  udp is the IO port.
  *---------------------------------------------------------------------------*/
-  int np = N_PARAMS + NTDS_PARAM;
-  _this = new drvTDS(port, udp, np);
-  return(asynSuccess);
+  _this = new drvTDS(port, udp);
+  return asynSuccess;
 }
 
 /* EPICS iocsh shell commands */

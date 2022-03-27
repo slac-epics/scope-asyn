@@ -786,8 +786,9 @@ asynStatus drvDS6x::writeFloat64( asynUser* pau,epicsFloat64 v){
   }
   return(stat);
 }
-drvDS6x::drvDS6x(const char* port,const char* udp,int np):
-			drvScope( port,udp,np){
+
+drvDS6x::drvDS6x(const char* port, const char* udp):
+			drvScope(port, udp) {
 /*------------------------------------------------------------------------------
  * Constructor for the drvDS6x class. Calls constructor for the asynPortDriver
  * base class. Where
@@ -826,17 +827,18 @@ drvDS6x::drvDS6x(const char* port,const char* udp,int np):
   message( "Constructor drvDS6x: success");
   callParamCallbacks();
 }
+
+
 // Configuration routines.  Called directly, or from the iocsh function below
 extern "C" {
 
-int drvDS6xConfigure( const char* port,const char* udp){
+int drvDS6xConfigure(const char* port, const char* udp) {
 /*-----------------------------------------------------------------------------
  * EPICS iocsh callable function to call constructor for the drvDS6x class.
  *  port The name of the asyn port driver to be created.
  *  udp is the IO port.
  *---------------------------------------------------------------------------*/
-  int np=N_PARAMS+NDS6_PARAM;
-  _this=new drvDS6x(port,udp,np);
+  _this = new drvDS6x(port, udp);
   return(asynSuccess);
 }
 

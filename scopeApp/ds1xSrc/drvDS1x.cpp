@@ -777,8 +777,8 @@ asynStatus drvDS1x::writeFloat64( asynUser* pau,epicsFloat64 v){
   }
   return(stat);
 }
-drvDS1x::drvDS1x(const char* port,const char* udp,int np):
-			drvScope( port,udp,np){
+drvDS1x::drvDS1x(const char* port, const char* udp):
+			drvScope(port, udp) {
 /*------------------------------------------------------------------------------
  * Constructor for the drvDS1x class. Calls constructor for the asynPortDriver
  * base class. Where
@@ -816,17 +816,18 @@ drvDS1x::drvDS1x(const char* port,const char* udp,int np):
   message( "Constructor drvDS1x: success");
   callParamCallbacks();
 }
+
+
 // Configuration routines.  Called directly, or from the iocsh function below
 extern "C" {
 
-int drvDS1xConfigure( const char* port,const char* udp){
+int drvDS1xConfigure(const char* port, const char* udp) {
 /*-----------------------------------------------------------------------------
  * EPICS iocsh callable function to call constructor for the drvDS1x class.
  *  port The name of the asyn port driver to be created.
  *  udp is the IO port.
  *---------------------------------------------------------------------------*/
-  int np=N_PARAMS+NDS6_PARAM;
-  _this=new drvDS1x(port,udp,np);
+  _this = new drvDS1x(port, udp);
   return(asynSuccess);
 }
 
