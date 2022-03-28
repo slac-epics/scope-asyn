@@ -597,32 +597,32 @@ drvTDS::drvTDS(const char* port, const char* udp):
  *   udpPort is the actual device port name.
  *   np is the total number of items for the parameter library.
  *---------------------------------------------------------------------------*/
-  createParam(loWfWidStr,	asynParamInt32,         &_loWfWid);
-  createParam(boTrModeStr,     asynParamInt32,         &_boTrMode);
-  createParam(mbboTrSouStr,    asynParamInt32,         &_mbboTrSou);
-  createParam(boTrSlopeStr,    asynParamInt32,         &_boTrSlo);
-  createParam(mbbiTrStaStr,    asynParamInt32,         &_mbbiTrSta);
-
-  createParam(mbboChSclStr,    asynParamInt32,         &_mbboChScl);
-  createParam(mbboTimDivVStr,  asynParamInt32,         &_mbboTimDivV);
-  createParam(mbboTimDivUStr,  asynParamInt32,         &_mbboTimDivU);
-  createParam(biAcqStatStr,    asynParamInt32,         &_biAcqStat);
-  createParam(liEvQStr,        asynParamInt32,         &_liEvQ);
-
-  createParam(liEvQtyStr,      asynParamInt32,         &_liEvQty);
-  createParam(loRecallStr,     asynParamInt32,         &_loRecall);
-  createParam(loStoreStr,      asynParamInt32,         &_loStore);
-  createParam(siSourceStr,	asynParamOctet,         &_siSource);
-  createParam(siHeadStr,       asynParamOctet,         &_siHead);
-
-  createParam(aiMeas1Str,       asynParamFloat64,       &_aiMeas1);
-  createParam(aiMeas2Str,       asynParamFloat64,       &_aiMeas2);
-  createParam(aiMeas3Str,       asynParamFloat64,       &_aiMeas3);
-  createParam(aiMeas4Str,       asynParamFloat64,       &_aiMeas4);
-  createParam(siMeas1UnitsStr,  asynParamOctet,         &_siMeas1Units);
-  createParam(siMeas2UnitsStr,  asynParamOctet,         &_siMeas2Units);
-  createParam(siMeas3UnitsStr,  asynParamOctet,         &_siMeas3Units);
-  createParam(siMeas4UnitsStr,  asynParamOctet,         &_siMeas4Units);
+    createParam(loWfWidStr,	      asynParamInt32,         &_loWfWid);
+    createParam(boTrModeStr,      asynParamInt32,         &_boTrMode);
+    createParam(mbboTrSouStr,     asynParamInt32,         &_mbboTrSou);
+    createParam(boTrSlopeStr,     asynParamInt32,         &_boTrSlo);
+    createParam(mbbiTrStaStr,     asynParamInt32,         &_mbbiTrSta);
+  
+    createParam(mbboChSclStr,     asynParamInt32,         &_mbboChScl);
+    createParam(mbboTimDivVStr,   asynParamInt32,         &_mbboTimDivV);
+    createParam(mbboTimDivUStr,   asynParamInt32,         &_mbboTimDivU);
+    createParam(biAcqStatStr,     asynParamInt32,         &_biAcqStat);
+    createParam(liEvQStr,         asynParamInt32,         &_liEvQ);
+  
+    createParam(liEvQtyStr,       asynParamInt32,         &_liEvQty);
+    createParam(loRecallStr,      asynParamInt32,         &_loRecall);
+    createParam(loStoreStr,       asynParamInt32,         &_loStore);
+    createParam(siSourceStr,	  asynParamOctet,         &_siSource);
+    createParam(siHeadStr,        asynParamOctet,         &_siHead);
+  
+    createParam(aiMeas1Str,       asynParamFloat64,       &_aiMeas1);
+    createParam(aiMeas2Str,       asynParamFloat64,       &_aiMeas2);
+    createParam(aiMeas3Str,       asynParamFloat64,       &_aiMeas3);
+    createParam(aiMeas4Str,       asynParamFloat64,       &_aiMeas4);
+    createParam(siMeas1UnitsStr,  asynParamOctet,         &_siMeas1Units);
+    createParam(siMeas2UnitsStr,  asynParamOctet,         &_siMeas2Units);
+    createParam(siMeas3UnitsStr,  asynParamOctet,         &_siMeas3Units);
+    createParam(siMeas4UnitsStr,  asynParamOctet,         &_siMeas4Units);
 
   _firstix=_loWfWid;
 

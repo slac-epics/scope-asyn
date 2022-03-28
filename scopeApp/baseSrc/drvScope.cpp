@@ -151,8 +151,8 @@ asynStatus drvScope::_write(const char* pw,size_t nw){
  *---------------------------------------------------------------------------*/
     asynStatus stat=asynSuccess; size_t nbw;
 
-    stat=pasynOctetSyncIO->flush(_aPvt);
-    stat=pasynOctetSyncIO->write(_aPvt,pw,nw,1,&nbw);
+    stat=pasynOctetSyncIO->flush(pasynUser);
+    stat=pasynOctetSyncIO->write(pasynUser,pw,nw,1,&nbw);
     return(stat);
 }
 
@@ -166,8 +166,8 @@ asynStatus drvScope::_wtrd(const char* pw,size_t nw,char* pr,size_t nr){
  *---------------------------------------------------------------------------*/
     asynStatus stat=asynSuccess; int eom; size_t nbw,nbr;
 
-    stat=pasynOctetSyncIO->flush(_aPvt);
-    stat=pasynOctetSyncIO->writeRead(_aPvt,pw,nw,pr,nr,1,&nbw,&nbr,&eom);
+    stat=pasynOctetSyncIO->flush(pasynUser);
+    stat=pasynOctetSyncIO->writeRead(pasynUser,pw,nw,pr,nr,1,&nbw,&nbr,&eom);
     return(stat);
 }
 
@@ -807,22 +807,22 @@ asynStatus drvScope::getCmnds(int ix,int addr){
     return(stat);
 }
 
-asynStatus drvScope::writeOctet(asynUser* paUser,const char* v,
+asynStatus drvScope::writeOctet(asynUser* pasynUser,const char* v,
             size_t nc,size_t* nActual){
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.
  *---------------------------------------------------------------------------*/
     asynStatus stat=asynSuccess; int ix,addr;
-    stat=getAddress(paUser,&addr);
+    stat=getAddress(pasynUser,&addr);
     if(stat!=asynSuccess) return(stat);
-    ix=paUser->reason-_firstix;
+    ix=pasynUser->reason-_firstix;
     switch(ix){
         case ixSoCmnd:    stat=command(v);
                 *nActual=nc; break;
         case ixWfFPath:    strncpy(_fname,v,FNAME); _fname[FNAME-1]=0; break;
         default:        break;
     }
-    stat=asynPortDriver::writeOctet(paUser,v,nc,nActual);
+    stat=asynPortDriver::writeOctet(pasynUser,v,nc,nActual);
     callParamCallbacks();
     return(stat);
 }
@@ -1181,7 +1181,7 @@ drvScope::drvScope(const char* port, const char* udp):
 
     _rdtraces=0;
 
-    status=pasynOctetSyncIO->connect(udp,0,&_aPvt,0);
+    status=pasynOctetSyncIO->connect(udp, 0, &pasynUser, 0);
     if(status!=asynSuccess)
         printf("%s::%s:connect: failed to connect to port %s\n",
             dname,dname,udp);
@@ -1190,85 +1190,85 @@ drvScope::drvScope(const char* port, const char* udp):
         st=1;
     }
 
-    createParam(boChOnStr,    asynParamInt32,        &_boChOn);
-    createParam(aoChPosStr,    asynParamFloat64,    &_aoChPos);
-    createParam(boChImpStr,    asynParamInt32,        &_boChImp);
-    createParam(mbboChCplStr,    asynParamInt32,        &_mbboChCpl);
-    createParam(aoChSclStr,    asynParamFloat64,    &_aoChScl);
+    createParam(boChOnStr,         asynParamInt32,         &_boChOn);
+    createParam(aoChPosStr,        asynParamFloat64,       &_aoChPos);
+    createParam(boChImpStr,        asynParamInt32,         &_boChImp);
+    createParam(mbboChCplStr,      asynParamInt32,         &_mbboChCpl);
+    createParam(aoChSclStr,        asynParamFloat64,       &_aoChScl);
 
-    createParam(wfTraceStr,    asynParamFloat32Array,    &_wfTrace);
-    createParam(loWfNptsStr,    asynParamInt32,        &_loWfNpts);
-    createParam(loWfStartStr,    asynParamInt32,        &_loWfStart);
-    createParam(loWfStopStr,    asynParamInt32,        &_loWfStop);
-    createParam(siWfFmtStr,    asynParamOctet,        &_siWfFmt);
+    createParam(wfTraceStr,        asynParamFloat32Array,  &_wfTrace);
+    createParam(loWfNptsStr,       asynParamInt32,         &_loWfNpts);
+    createParam(loWfStartStr,      asynParamInt32,         &_loWfStart);
+    createParam(loWfStopStr,       asynParamInt32,         &_loWfStop);
+    createParam(siWfFmtStr,        asynParamOctet,         &_siWfFmt);
 
-    createParam(aoTimDlyStr,    asynParamFloat64,    &_aoTimDly);
-    createParam(boTimDlyStStr,    asynParamInt32,        &_boTimDlySt);
-    createParam(aiTimDivStr,    asynParamFloat64,    &_aiTimDiv);
-    createParam(aoTrPosStr,    asynParamFloat64,    &_aoTrPos);
-    createParam(aoTrLevStr,    asynParamFloat64,    &_aoTrLev);
+    createParam(aoTimDlyStr,       asynParamFloat64,       &_aoTimDly);
+    createParam(boTimDlyStStr,     asynParamInt32,         &_boTimDlySt);
+    createParam(aiTimDivStr,       asynParamFloat64,       &_aiTimDiv);
+    createParam(aoTrPosStr,        asynParamFloat64,       &_aoTrPos);
+    createParam(aoTrLevStr,        asynParamFloat64,       &_aoTrLev);
 
-    createParam(aoTrHOffStr,    asynParamFloat64,    &_aoTrHOff);
-    createParam(boRunStr,    asynParamInt32,        &_boRun);
-    createParam(boStopStr,    asynParamInt32,        &_boStop);
-    createParam(loEseStr,    asynParamInt32,        &_loEse);
-    createParam(boClsStr,    asynParamInt32,        &_boCls);
+    createParam(aoTrHOffStr,       asynParamFloat64,       &_aoTrHOff);
+    createParam(boRunStr,          asynParamInt32,         &_boRun);
+    createParam(boStopStr,         asynParamInt32,         &_boStop);
+    createParam(loEseStr,          asynParamInt32,         &_loEse);
+    createParam(boClsStr,          asynParamInt32,         &_boCls);
 
-    createParam(liEsrStr,    asynParamInt32,        &_liEsr);
-    createParam(siOpcStr,    asynParamOctet,        &_siOpc);
-    createParam(liStbStr,    asynParamInt32,        &_liStb);
-    createParam(boResetStr,    asynParamInt32,        &_boReset);
-    createParam(wfIdnStr,    asynParamOctet,        &_wfIdn);
+    createParam(liEsrStr,          asynParamInt32,         &_liEsr);
+    createParam(siOpcStr,          asynParamOctet,         &_siOpc);
+    createParam(liStbStr,          asynParamInt32,         &_liStb);
+    createParam(boResetStr,        asynParamInt32,         &_boReset);
+    createParam(wfIdnStr,          asynParamOctet,         &_wfIdn);
 
-    createParam(siIpAddrStr,    asynParamOctet,        &_siIpAddr);
-    createParam(boInitStr,    asynParamInt32,        &_boInit);
-    createParam(boSaveStr,    asynParamInt32,        &_boSave);
-    createParam(boEvMsgStr,    asynParamInt32,        &_boEvMsg);
-    createParam(siTimDlyStr,    asynParamOctet,        &_siTimDly);
+    createParam(siIpAddrStr,       asynParamOctet,         &_siIpAddr);
+    createParam(boInitStr,         asynParamInt32,         &_boInit);
+    createParam(boSaveStr,         asynParamInt32,         &_boSave);
+    createParam(boEvMsgStr,        asynParamInt32,         &_boEvMsg);
+    createParam(siTimDlyStr,       asynParamOctet,         &_siTimDly);
 
-    createParam(siTimDivStr,    asynParamOctet,        &_siTimDiv);
+    createParam(siTimDivStr,       asynParamOctet,         &_siTimDiv);
 
-    createParam(siNameStr,    asynParamOctet,        &_siName);
-    createParam(boGetWfStr,    asynParamInt32,        &_boGetWf);
-    createParam(boGetWfAStr,    asynParamInt32,        &_boGetWfA);
-    createParam(biCtGetsStr,    asynParamInt32,        &_biCtGets);
-    createParam(boUpdtStr,    asynParamInt32,        &_boUpdt);
+    createParam(siNameStr,         asynParamOctet,         &_siName);
+    createParam(boGetWfStr,        asynParamInt32,         &_boGetWf);
+    createParam(boGetWfAStr,       asynParamInt32,         &_boGetWfA);
+    createParam(biCtGetsStr,       asynParamInt32,         &_biCtGets);
+    createParam(boUpdtStr,         asynParamInt32,         &_boUpdt);
 
-    createParam(soCmndStr,    asynParamOctet,        &_soCmnd);
-    createParam(wfReplyStr,    asynParamOctet,        &_wfReply);
-    createParam(aoPTMOStr,    asynParamFloat64,    &_aoPTMO);
-    createParam(boAnalStr,    asynParamInt32,        &_boAnal);
-    createParam(boAPedStr,    asynParamInt32,        &_boAPed);
+    createParam(soCmndStr,         asynParamOctet,         &_soCmnd);
+    createParam(wfReplyStr,        asynParamOctet,         &_wfReply);
+    createParam(aoPTMOStr,         asynParamFloat64,       &_aoPTMO);
+    createParam(boAnalStr,         asynParamInt32,         &_boAnal);
+    createParam(boAPedStr,         asynParamInt32,         &_boAPed);
 
-    createParam(aiAreaStr,    asynParamFloat64,    &_aiArea);
-    createParam(aiPedStr,    asynParamFloat64,    &_aiPed);
-    createParam(mbboMChanStr,    asynParamInt32,        &_mbboMChan);
-    createParam(loMark1Str,    asynParamInt32,        &_loMark1);
-    createParam(loMark2Str,    asynParamInt32,        &_loMark2);
+    createParam(aiAreaStr,         asynParamFloat64,       &_aiArea);
+    createParam(aiPedStr,          asynParamFloat64,       &_aiPed);
+    createParam(mbboMChanStr,      asynParamInt32,         &_mbboMChan);
+    createParam(loMark1Str,        asynParamInt32,         &_loMark1);
+    createParam(loMark2Str,        asynParamInt32,         &_loMark2);
 
-    createParam(wfEventStr,    asynParamOctet,        &_wfEvent);
-    createParam(wfMessgStr,    asynParamOctet,        &_wfMessg);
-    createParam(boChSelStr,    asynParamInt32,        &_boChSel);
-    createParam(loChPosStr,    asynParamInt32,        &_loChPos);
-    createParam(loTrLevStr,    asynParamInt32,        &_loTrLev);
+    createParam(wfEventStr,        asynParamOctet,         &_wfEvent);
+    createParam(wfMessgStr,        asynParamOctet,         &_wfMessg);
+    createParam(boChSelStr,        asynParamInt32,         &_boChSel);
+    createParam(loChPosStr,        asynParamInt32,         &_loChPos);
+    createParam(loTrLevStr,        asynParamInt32,         &_loTrLev);
 
-    createParam(liMQSuccsStr,    asynParamInt32,        &_liMsgQS);
-    createParam(liMQFailStr,    asynParamInt32,        &_liMsgQF);
-    createParam(mbboTracModStr,    asynParamInt32,        &_mbboTracMod);
-    createParam(liXNptsStr,    asynParamInt32,        &_liXNpts);
-    createParam(biStateStr,    asynParamInt32,        &_biState);
+    createParam(liMQSuccsStr,      asynParamInt32,         &_liMsgQS);
+    createParam(liMQFailStr,       asynParamInt32,         &_liMsgQF);
+    createParam(mbboTracModStr,    asynParamInt32,         &_mbboTracMod);
+    createParam(liXNptsStr,        asynParamInt32,         &_liXNpts);
+    createParam(biStateStr,        asynParamInt32,         &_biState);
 
-    createParam(boErUpdtStr,    asynParamInt32,        &_boErUpdt);
-    createParam(wfFPathStr,    asynParamOctet,        &_wfFPath);
-    createParam(boRestoreStr,    asynParamInt32,        &_boRestore);
-    createParam(boRdTracesStr,    asynParamInt32,        &_boRdTraces);
-    createParam(aiWfTimeStr,    asynParamFloat64,    &_aiWfTime);
+    createParam(boErUpdtStr,       asynParamInt32,         &_boErUpdt);
+    createParam(wfFPathStr,        asynParamOctet,         &_wfFPath);
+    createParam(boRestoreStr,      asynParamInt32,         &_boRestore);
+    createParam(boRdTracesStr,     asynParamInt32,         &_boRdTraces);
+    createParam(aiWfTimeStr,       asynParamFloat64,       &_aiWfTime);
 
-    createParam(aiWfTMinStr,    asynParamFloat64,    &_aiWfTMin);
-    createParam(aiWfTMaxStr,    asynParamFloat64,    &_aiWfTMax);
-    createParam(aiWfPerStr,    asynParamFloat64,    &_aiWfPeriod);
-    createParam(aiWfRateStr,    asynParamFloat64,    &_aiWfRate);
-    createParam(boMeasEnabledStr,  asynParamInt32,    &_boMeasEnabled);
+    createParam(aiWfTMinStr,       asynParamFloat64,       &_aiWfTMin);
+    createParam(aiWfTMaxStr,       asynParamFloat64,       &_aiWfTMax);
+    createParam(aiWfPerStr,        asynParamFloat64,       &_aiWfPeriod);
+    createParam(aiWfRateStr,       asynParamFloat64,       &_aiWfRate);
+    createParam(boMeasEnabledStr,  asynParamInt32,         &_boMeasEnabled);
 
     _firstix=_boChOn;
 
@@ -1280,16 +1280,16 @@ drvScope::drvScope(const char* port, const char* udp):
 
     callParamCallbacks(0);
 
-    _pmq = new epicsMessageQueue(NMSGQ,MSGQNB);
+    _pmq = new epicsMessageQueue(NMSGQ, MSGQNB);
     //errlogPrintf("%s::%s: messageQueue created, id=0x%p\n",dname,dname,_pmq);
 
     epicsThreadCreate(dname,epicsThreadPriorityHigh,
                     epicsThreadGetStackSize(epicsThreadStackMedium),
                     (EPICSTHREADFUNC)pollerThreadC,this);
 
-    epicsTimerQueueActive& _tmq=epicsTimerQueueActive::allocate(true);
+    epicsTimerQueueActive& _tmq = epicsTimerQueueActive::allocate(true);
 
-    _chPosTimer=new myTimer("chPosTimer",_tmq);
+    _chPosTimer = new myTimer("chPosTimer", _tmq);
 
 }
 

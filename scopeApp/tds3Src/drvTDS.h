@@ -42,52 +42,52 @@
 
 class drvTDS: public drvScope{
 public:
-  drvTDS(const char* port, const char* udp);
-
-  virtual asynStatus writeInt32(asynUser* pau,epicsInt32 v);
-  virtual asynStatus writeFloat64(asynUser* pau,epicsFloat64 v);
-  void          getWaveform(int ch);
-  virtual void  getMeasurements();
-  const char*   getCommand(int cix);
-  const char**  getCmndList(int cix,uint* ni);
-  void          getHSParams(double hs,int* x0,int* np);
-  int           isTriggered();
-  void          postInit();
+    drvTDS(const char* port, const char* udp);
+  
+    virtual asynStatus writeInt32(asynUser* pau,epicsInt32 v);
+    virtual asynStatus writeFloat64(asynUser* pau,epicsFloat64 v);
+    void          getWaveform(int ch);
+    virtual void  getMeasurements();
+    const char*   getCommand(int cix);
+    const char**  getCmndList(int cix,uint* ni);
+    void          getHSParams(double hs,int* x0,int* np);
+    int           isTriggered();
+    void          postInit();
 
 protected:
-  int _loWfWid,       _boTrMode,      _mbboTrSou,     _boTrSlo,   _mbbiTrSta,
-      _mbboChScl,     _mbboTimDivV,   _mbboTimDivU,   _biAcqStat, _liEvQ,
-      _liEvQty,       _loRecall,      _loStore,       _siSource,  _siHead,
-      _aiMeas1,       _aiMeas2,       _aiMeas3,       _aiMeas4,   _siMeas1Units,
-      _siMeas2Units,  _siMeas3Units,  _siMeas4Units;
-
-  enum {ixLoWfWid,      ixBoTrMode,     ixMbboTrSou,    ixBoTrSlo,   ixMbbiTrSta,
-        ixMbboChScl,    ixMbboTimDivV,  ixMbboTimDivU,  ixBiAcqStat, ixLiEvQ,
-        ixLiEvQty,      ixLoRecall,     ixLoStore,      ixSiSource,  ixSiHead,
-        ixAiMeas1,      ixAiMeas2,      ixAiMeas3,      ixAiMeas4,   ixSiMeas1Units,
-        ixSiMeas2Units, ixSiMeas3Units, ixSiMeas4Units};
-
-  asynStatus  putFltCmnds(int ix,int addr,float v);
-  asynStatus  putIntCmnds(int ix,int addr,int v);
-  asynStatus  getCmnds(int ix,int addr);
-  void        setTimePerDiv(double v);
-  void        getChanScl(int ch);
-  void        timeDelayStr(int,int);
-  void        getTrigLevl();
-  void        setTrigLevl(int v);
-  void        updateUser();
-  asynStatus  trigState();
+    int _loWfWid,       _boTrMode,      _mbboTrSou,     _boTrSlo,   _mbbiTrSta,
+        _mbboChScl,     _mbboTimDivV,   _mbboTimDivU,   _biAcqStat, _liEvQ,
+        _liEvQty,       _loRecall,      _loStore,       _siSource,  _siHead,
+        _aiMeas1,       _aiMeas2,       _aiMeas3,       _aiMeas4,   _siMeas1Units,
+        _siMeas2Units,  _siMeas3Units,  _siMeas4Units;
+  
+    enum {ixLoWfWid,      ixBoTrMode,     ixMbboTrSou,    ixBoTrSlo,   ixMbbiTrSta,
+          ixMbboChScl,    ixMbboTimDivV,  ixMbboTimDivU,  ixBiAcqStat, ixLiEvQ,
+          ixLiEvQty,      ixLoRecall,     ixLoStore,      ixSiSource,  ixSiHead,
+          ixAiMeas1,      ixAiMeas2,      ixAiMeas3,      ixAiMeas4,   ixSiMeas1Units,
+          ixSiMeas2Units, ixSiMeas3Units, ixSiMeas4Units};
+  
+    asynStatus  putFltCmnds(int ix,int addr,float v);
+    asynStatus  putIntCmnds(int ix,int addr,int v);
+    asynStatus  getCmnds(int ix,int addr);
+    void        setTimePerDiv(double v);
+    void        getChanScl(int ch);
+    void        timeDelayStr(int,int);
+    void        getTrigLevl();
+    void        setTrigLevl(int v);
+    void        updateUser();
+    asynStatus  trigState();
 
 private:
-  void      _setTimePerDiv(uint vix,uint uix);
-  int       _wfPreamble(char* p,int*,int*,double*,double*,double*);
-  char      _name[NAME_LEN];
-  float     _wfbuf[WF_LEN];
-  float     _wfraw[WF_LEN];
-  char      _rbuf[DBUF_LEN];
-  int       _firstix;
-  void      _getMeasData(int meas_num, int param);
-  const int _num_meas;
+    void      _setTimePerDiv(uint vix,uint uix);
+    int       _wfPreamble(char* p,int*,int*,double*,double*,double*);
+    char      _name[NAME_LEN];
+    float     _wfbuf[WF_LEN];
+    float     _wfraw[WF_LEN];
+    char      _rbuf[DBUF_LEN];
+    int       _firstix;
+    void      _getMeasData(int meas_num, int param);
+    const int _num_meas;
 };
 
 #endif    // _drvTDS_h

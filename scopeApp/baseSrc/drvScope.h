@@ -24,130 +24,131 @@
 #endif
 
 #define MAX_ADDR    4
-#define NCHAN        (MAX_ADDR)
-#define MSGNB        100
-#define NMSGQ           400
-#define MSGQNB          20
+#define NCHAN       (MAX_ADDR)
+#define MSGNB       100
+#define NMSGQ       400
+#define MSGQNB      20
 #define NAME_LEN    23
 #define CMND_LEN    32
 #define DBUF_LEN    10240
-#define FNAME        128
-
-typedef enum{enTMNone,enTMASync,enTMSync} tracem_e;
-typedef enum{enPutInt,enPutFlt,enQuery} ctype_e;
-
-typedef struct{
-int   type,           // one of ctype_e (type of command processing)
-        ix,             // parameter library index
-        addr,           // channel or address
-        ival;           // possible integer set value
-float fval;           // possible floating point value
-} msgq_t;
-
-#define boChOnStr    "BO_CHON"    // (0) chan on/off
-#define aoChPosStr    "AO_CHPOS"    // cha position
-#define boChImpStr    "BO_CHIMP"    // cha impedance
-#define mbboChCplStr    "MBBO_CHCPL"    // cha coupling
-#define aoChSclStr    "AO_CHSCL"    // cha scale
-
-#define wfTraceStr    "WF_TRACE"    // (5) get trace
-#define loWfNptsStr    "LO_WFNPTS"    // Number of data points in waveform
-#define loWfStartStr    "LO_WFSTART"    // waveform starting data index
-#define loWfStopStr    "LO_WFSTOP"    // waveform ending data index
-#define siWfFmtStr    "SI_WFFMT"    // waveform data format
-
-#define aoTimDlyStr    "AO_TIMDLY"    // (10) time base delay
-#define boTimDlyStStr    "BO_TIMDLYST"    // time delay state flag
-#define aiTimDivStr    "AI_TIMDIV"    //
-#define aoTrPosStr    "AO_TRPOS"    // trigger position
-#define aoTrLevStr    "AO_TRLEV"    // trigger level
-
-#define aoTrHOffStr    "AO_TRHOFF"    // (15) trigger hold off
-#define boRunStr    "BO_RUN"    //  acquire run state
-#define boStopStr    "BO_STOP"    // acquire stop state
-#define loEseStr    "LO_ESE"
-#define boClsStr    "BO_CLS"    //
-
-#define liEsrStr    "LI_ESR"    // (20)
-#define siOpcStr    "SI_OPC"    //
-#define liStbStr    "LI_STB"    // Status byte (30)
-#define boResetStr    "BO_RESET"    //
-#define wfIdnStr    "WF_IDN"    // Identity
-
-#define siIpAddrStr    "SI_IPADDR"    // (25)
-#define boInitStr    "BO_INIT"    // trigger sending an init string
-#define boSaveStr    "BO_SAVE"    // save configuration to a disk file
-#define boEvMsgStr    "BO_EVMSG"    // gets event code and message
-#define siTimDlyStr    "SI_TIMDLY"    //
-
-#define siTimDivStr    "SI_TIMDIV"    // (30)
-
-#define siNameStr    "SI_NAME"    // (31) Internal driver commands (44)
-#define boGetWfStr    "BO_GETWF"    // one time get a waveform
-#define boGetWfAStr    "BO_GETWFALL"    // one time get all waveforms
-#define biCtGetsStr    "BI_CTGETS"    //
-#define boUpdtStr    "BO_UPDT"    // update various controls
-
-#define soCmndStr    "SO_CMND"    // (36) interactive command
-#define wfReplyStr    "WF_REPLY"    // reply to interactive command
-#define aoPTMOStr    "AO_PTMO"    //
-#define boAnalStr    "BO_ANAL"    // analysis on/off
-#define boAPedStr    "BO_PED"    // take pedestal
-
-#define aiAreaStr    "AI_AREA"    // (41) analysis area
-#define aiPedStr    "AI_PED"    // analysis pedestal
-#define mbboMChanStr    "MBBO_MCHAN"    // channel number for marker use
-#define loMark1Str    "LO_MARK1"    // marker for analysis
-#define loMark2Str    "LO_MARK2"    // marker for analysis
-
-#define wfEventStr    "WF_EVENT"    // (46)
-#define wfMessgStr    "WF_MESSG"    //
-#define boChSelStr    "BO_CHSEL"    // channel select for slider
-#define loChPosStr    "LO_CHPOS"    // slider trace position
-#define loTrLevStr    "LO_TRLEV"    // slider trigger level
-
-#define liMQSuccsStr    "LI_MSGQS"    // (51) put in MsgQ suceesfull
-#define liMQFailStr    "LI_MSGQF"    // put in MsgQ failed
-#define mbboTracModStr    "MBBO_TRCMOD"
-#define liXNptsStr    "LI_XNPTS"    // X axis number of points (GUI)
-#define biStateStr    "BI_STATE"
-
-#define boErUpdtStr    "BO_EUPDT"    // (56)
-#define wfFPathStr    "WF_FPATH"    // save/restore file path
-#define boRestoreStr    "BO_RESTR"    // restore config from a disk file
-#define boRdTracesStr    "BO_RDTRACE"    // when true, read traces from scope
-#define aiWfTimeStr    "AI_WFTIME"    // time to get all traces
-
-#define aiWfTMinStr    "AI_WFTMIN"    // minimum time to get traces
-#define aiWfTMaxStr    "AI_WFTMAX"    // max time to get traces
-#define aiWfPerStr    "AI_WFPER"    // get traces period
-#define aiWfRateStr    "AI_WFRATE"    // get traces rate
-#define boMeasEnabledStr "BO_MEAS_EN"  // when true, read measurements from scope
-
+#define FNAME       128
 
 typedef unsigned char  byte;
 typedef unsigned short word;
 typedef unsigned int   uint;
+
+typedef enum {enTMNone, enTMASync, enTMSync} tracem_e;
+typedef enum {enPutInt, enPutFlt, enQuery} ctype_e;
+
+typedef struct{
+    int type,           // one of ctype_e (type of command processing)
+        ix,             // parameter library index
+        addr,           // channel or address
+        ival;           // possible integer set value
+    float fval;         // possible floating point value
+} msgq_t;
 
 typedef struct{
     int pix; 
     const char* pcmd;
 } cmnds_t;
 
+#define boChOnStr         "BO_CHON"    // (0) chan on/off
+#define aoChPosStr        "AO_CHPOS"    // cha position
+#define boChImpStr        "BO_CHIMP"    // cha impedance
+#define mbboChCplStr      "MBBO_CHCPL"    // cha coupling
+#define aoChSclStr        "AO_CHSCL"    // cha scale
 
-class myTimer: public epicsTimerNotify{
+#define wfTraceStr        "WF_TRACE"    // (5) get trace
+#define loWfNptsStr       "LO_WFNPTS"    // Number of data points in waveform
+#define loWfStartStr      "LO_WFSTART"    // waveform starting data index
+#define loWfStopStr       "LO_WFSTOP"    // waveform ending data index
+#define siWfFmtStr        "SI_WFFMT"    // waveform data format
+
+#define aoTimDlyStr       "AO_TIMDLY"    // (10) time base delay
+#define boTimDlyStStr     "BO_TIMDLYST"    // time delay state flag
+#define aiTimDivStr       "AI_TIMDIV"    //
+#define aoTrPosStr        "AO_TRPOS"    // trigger position
+#define aoTrLevStr        "AO_TRLEV"    // trigger level
+
+#define aoTrHOffStr       "AO_TRHOFF"    // (15) trigger hold off
+#define boRunStr          "BO_RUN"    //  acquire run state
+#define boStopStr         "BO_STOP"    // acquire stop state
+#define loEseStr          "LO_ESE"
+#define boClsStr          "BO_CLS"    //
+
+#define liEsrStr          "LI_ESR"    // (20)
+#define siOpcStr          "SI_OPC"    //
+#define liStbStr          "LI_STB"    // Status byte (30)
+#define boResetStr        "BO_RESET"    //
+#define wfIdnStr          "WF_IDN"    // Identity
+
+#define siIpAddrStr       "SI_IPADDR"    // (25)
+#define boInitStr         "BO_INIT"    // trigger sending an init string
+#define boSaveStr         "BO_SAVE"    // save configuration to a disk file
+#define boEvMsgStr        "BO_EVMSG"    // gets event code and message
+#define siTimDlyStr       "SI_TIMDLY"    //
+
+#define siTimDivStr       "SI_TIMDIV"    // (30)
+
+#define siNameStr         "SI_NAME"    // (31) Internal driver commands (44)
+#define boGetWfStr        "BO_GETWF"    // one time get a waveform
+#define boGetWfAStr       "BO_GETWFALL"    // one time get all waveforms
+#define biCtGetsStr       "BI_CTGETS"    //
+#define boUpdtStr         "BO_UPDT"    // update various controls
+
+#define soCmndStr         "SO_CMND"    // (36) interactive command
+#define wfReplyStr        "WF_REPLY"    // reply to interactive command
+#define aoPTMOStr         "AO_PTMO"    //
+#define boAnalStr         "BO_ANAL"    // analysis on/off
+#define boAPedStr         "BO_PED"    // take pedestal
+
+#define aiAreaStr         "AI_AREA"    // (41) analysis area
+#define aiPedStr          "AI_PED"    // analysis pedestal
+#define mbboMChanStr      "MBBO_MCHAN"    // channel number for marker use
+#define loMark1Str        "LO_MARK1"    // marker for analysis
+#define loMark2Str        "LO_MARK2"    // marker for analysis
+
+#define wfEventStr        "WF_EVENT"    // (46)
+#define wfMessgStr        "WF_MESSG"    //
+#define boChSelStr        "BO_CHSEL"    // channel select for slider
+#define loChPosStr        "LO_CHPOS"    // slider trace position
+#define loTrLevStr        "LO_TRLEV"    // slider trigger level
+
+#define liMQSuccsStr      "LI_MSGQS"    // (51) put in MsgQ suceesfull
+#define liMQFailStr       "LI_MSGQF"    // put in MsgQ failed
+#define mbboTracModStr    "MBBO_TRCMOD"
+#define liXNptsStr        "LI_XNPTS"    // X axis number of points (GUI)
+#define biStateStr        "BI_STATE"
+
+#define boErUpdtStr       "BO_EUPDT"    // (56)
+#define wfFPathStr        "WF_FPATH"    // save/restore file path
+#define boRestoreStr      "BO_RESTR"    // restore config from a disk file
+#define boRdTracesStr     "BO_RDTRACE"    // when true, read traces from scope
+#define aiWfTimeStr       "AI_WFTIME"    // time to get all traces
+
+#define aiWfTMinStr       "AI_WFTMIN"    // minimum time to get traces
+#define aiWfTMaxStr       "AI_WFTMAX"    // max time to get traces
+#define aiWfPerStr        "AI_WFPER"    // get traces period
+#define aiWfRateStr       "AI_WFRATE"    // get traces rate
+#define boMeasEnabledStr  "BO_MEAS_EN"  // when true, read measurements from scope
+
+
+
+class myTimer: public epicsTimerNotify {
 public:
-    myTimer(const char* nm,epicsTimerQueueActive& queue)
-            :name(nm), timer(queue.createTimer()){}
+    myTimer(const char* nm, epicsTimerQueueActive& queue)
+            :name(nm), timer(queue.createTimer()) {}
     virtual ~myTimer(){timer.destroy();}
-    void start(double delay){timer.start(*this,delay);}
-    virtual expireStatus expire(const epicsTime& currTime){
+    void start(double delay) {timer.start(*this, delay);}
+    virtual expireStatus expire(const epicsTime& currTime) {
         _expired(currTime);
         return(noRestart);
-}
+    }
 
 protected:
     void _expired(const epicsTime& currTime);
+
 private:
     const char* name;
     epicsTimer& timer;
@@ -160,7 +161,7 @@ public:
     drvScope(const char* port, const char* udp);
     virtual ~drvScope(){}
 
-    virtual asynStatus writeOctet(asynUser* paU, const char* val, size_t nc, size_t* nActual);
+    virtual asynStatus writeOctet(asynUser* pau, const char* val, size_t nc, size_t* nActual);
     virtual asynStatus writeInt32(asynUser* pau,epicsInt32 v);
     virtual asynStatus writeFloat64(asynUser* pau,epicsFloat64 v);
     void    pollerThread();
@@ -277,7 +278,7 @@ private:
     void          _getTrigLevel();
     void          _setTrigLevel(int v);
 
-    asynUser*     _aPvt;
+    asynUser*     pasynUser;
     const char*   _port;
     const char*   _udpp;
     int           _ncmnds;
