@@ -47,7 +47,6 @@ public:
     virtual asynStatus writeInt32(asynUser* pau,epicsInt32 v);
     virtual asynStatus writeFloat64(asynUser* pau,epicsFloat64 v);
     void          getWaveform(int ch);
-    virtual void  getMeasurements();
     const char*   getCommand(int cix);
     const char**  getCmndList(int cix,uint* ni);
     void          getHSParams(double hs,int* x0,int* np);
@@ -77,6 +76,7 @@ protected:
     void        setTrigLevl(int v);
     void        updateUser();
     asynStatus  trigState();
+    void        getMeasurements();
 
 private:
     void      _setTimePerDiv(uint vix,uint uix);
@@ -86,7 +86,6 @@ private:
     float     _wfraw[WF_LEN];
     char      _rbuf[DBUF_LEN];
     int       _firstix;
-    void      _getMeasData(int meas_num, int param);
     const int _num_meas;
 };
 

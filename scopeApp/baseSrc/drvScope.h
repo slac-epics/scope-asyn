@@ -169,7 +169,6 @@ public:
     virtual const char*  getCommand(int ix)=0;
     virtual const char** getCmndList(int cix,uint* ni);
     virtual void         getWaveform(int ch);
-    virtual void         getMeasurements();
     virtual void         getHSParams(double hs,int* x0,int* np);
     virtual void         getChanPos(int addr);
     virtual void         setChanPos(int addr,double v);
@@ -218,6 +217,7 @@ protected:
     virtual void setTrigLevl(int v);
     virtual void timeDelayStr(int m,int uix);
     virtual void updateUser();
+    virtual void getMeasurements();
 
     void          putInMessgQ(int tp,int ix,int addr,int iv,float fv=0.0);
     void          message(const char* m);

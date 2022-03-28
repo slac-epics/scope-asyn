@@ -308,44 +308,21 @@ void drvTDS::getWaveform(int ch){
 void drvTDS::getMeasurements() {
 /*-----------------------------------------------------------------------------
  *---------------------------------------------------------------------------*/
+    char str[32]; 
+
+    // Get measurement data
     for (int i=0; i<_num_meas; i++) {
-        _getMeasData(i, _aiMeas1+i);
+        //_getMeasData(i, _aiMeas1+i);
+        sprintf(str, MeasValCmnd, i+1);
+        getFloat(str, _aiMeas1+i);
     }
-}
-
-void drvTDS::_getMeasData(int meas_num, int param){
-/*-----------------------------------------------------------------------------
- *---------------------------------------------------------------------------*/
-    asynStatus stat = asynSuccess;
-    char str[64];
-    double val;
-
-    // Measurement number starts at 1
-    meas_num += 1;
-    
-    if (meas_num > _num_meas) {
-        return;
-    }
-   
-    // Get measurement value 
-    sprintf(str, MeasValCmnd, meas_num);
-    stat = writeRd(str, _rbuf, DBUF_LEN);
-    if(stat != asynSuccess) {
-        printf("drvTDS::getMeasData: stat=%d, cmd=%s, rbuf=%s\n", stat, str, _rbuf);
-        return;
-    }
-    val = atof(_rbuf);
-    setDoubleParam(param, val);
 
     // Get measurement units
-    sprintf(str, MeasUnitsCmnd, meas_num);
-    stat = writeRd(str, _rbuf, DBUF_LEN);
-    if(stat != asynSuccess) {
-        printf("drvTDS::getMeasData: stat=%d, cmd=%s, rbuf=%s\n", stat, str, _rbuf);
-        return;
+    for (int i=0; i<_num_meas; i++) {
+        sprintf(str, MeasUnitsCmnd, i+1);
+        getString(str, _siMeas1Units+i);
     }
-    setStringParam(param, _rbuf);
-
+    
     callParamCallbacks();
 }
 
