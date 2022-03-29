@@ -85,7 +85,7 @@ static const char* trgMode[]={"NORMAL","AUTO"};
 static const char* trigSou[]={"CH1","CH2","CH3","CH4","LINE","VERTICAL",
 				"EXT10","EXT"};
 static const char* trigSlo[]={"FALL","RISE"};
-static const char* acqStat[]={"RUNSTOP","SEQUESCE"};
+//static const char* acqStat[]={"RUNSTOP","SEQUESCE"};
 static const char* trigSta[]={"AUTO","ARMED","READY","SAVE","TRIGGER"};
 static const char* dataFmt[]={"ASCII","RIBINARY",
 			"RPBINARY","SRIBINARY","SRPBINARY"};
@@ -140,7 +140,6 @@ void drvTDS::postInit(){
 /*-----------------------------------------------------------------------------
  * After IOC init.
  *---------------------------------------------------------------------------*/
-    printf("$$$$$$$$$$$$$$ drvTDS::postInit\n");
   putInMessgQ(enQuery,_mbboTrSou,0,0);
   putInMessgQ(enQuery,_boTrSlo,0,0);
   putInMessgQ(enQuery,_mbbiTrSta,0,0);
@@ -157,7 +156,6 @@ void drvTDS::updateUser(){
 /*-----------------------------------------------------------------------------
  * This is a re-implementation of a virtual function in the base class.
  *---------------------------------------------------------------------------*/
-    printf("**********drvTDS::updateUser()**************\n");
   getBinary(TrigSouCmnd,_mbboTrSou,trigSou,SIZE(trigSou));
   getBinary(TrigSloCmnd,_boTrSlo,trigSlo,SIZE(trigSlo));
   getBinary(TrigStaCmnd,_mbbiTrSta,trigSta,SIZE(trigSta));
@@ -210,7 +208,7 @@ const char* drvTDS::getCommand(int cix){
  * a pointer to a command string for the index cix into the list commands.
  * Returns a null pointer if index is out of range.
  *---------------------------------------------------------------------------*/
-  if((cix<0)||(cix>=SIZE(cmnds))) return(NULL);
+  if((cix < 0) || (cix >= int(SIZE(cmnds)))) return(NULL);
   if(!strlen(cmnds[cix])) return(NULL);
   return(cmnds[cix]);
 }
@@ -239,11 +237,11 @@ int drvTDS::_wfPreamble(char* p,int* ln,int* nb,
   }
   j=i; i+=2+wd;
   strncpy(chs,&ids[1],3); chs[3]=0; sscanf(chs,"Ch%d",&chn);
-printf("_wfPreamble: nbyt=%d,nbit=%d,enc=%s,bfmt=%s\n",nbyt,nbit,enc,bfmt);
-printf("_wfPreamble: bord=%s,len=%d,ids=%s,ptfm=%s\n",bord,len,ids,ptfm);
-printf("_wfPreamble: xinc=%g,ptof=%d,xzr=%g,xunt=%s\n",xinc,ptof,xzr,xunt);
-printf("_wfPreamble: ymult=%g,yzr=%g,yof=%g,yunt=%s\n",ymult,yzr,yof,yunt);
-printf("_wfPreamble: j=%d,i=%d,wd=%d\n",j,i,wd);
+//printf("_wfPreamble: nbyt=%d,nbit=%d,enc=%s,bfmt=%s\n",nbyt,nbit,enc,bfmt);
+//printf("_wfPreamble: bord=%s,len=%d,ids=%s,ptfm=%s\n",bord,len,ids,ptfm);
+//printf("_wfPreamble: xinc=%g,ptof=%d,xzr=%g,xunt=%s\n",xinc,ptof,xzr,xunt);
+//printf("_wfPreamble: ymult=%g,yzr=%g,yof=%g,yunt=%s\n",ymult,yzr,yof,yunt);
+//printf("_wfPreamble: j=%d,i=%d,wd=%d\n",j,i,wd);
   *ln=len; *nb=nbyt; *ym=ymult; *yz=yzr; *yo=yof;
   return(i);
 }
@@ -261,7 +259,7 @@ void drvTDS::getWaveform(int ch){
   if (chon) {
     stat=writeRd(ixWfTrace,ch+1,_rbuf,DBUF_LEN);
     if(stat != asynSuccess) {
-        printf("getWaveform: ch=%d, stat=%d, rbuf=%s\n", ch, stat, _rbuf);
+        //printf("getWaveform: ch=%d, stat=%d, rbuf=%s\n", ch, stat, _rbuf);
         return;
     }
     getDoubleParam(ch, _aoChPos,&pos);
@@ -296,7 +294,7 @@ void drvTDS::getWaveform(int ch){
       callParamCallbacks(ch);
     }
   } else {
-    printf("getWaveform: ch=%d not on\n");
+    //printf("getWaveform: ch=%d not on\n");
     for (i=0; i<WF_LEN; i++,pwf++) {
         *pwf = 1000.0;
     }
@@ -339,7 +337,7 @@ void drvTDS::timeDelayStr(int m,int uix){
  * construct a string and push it to the db record.
  *---------------------------------------------------------------------------*/
   char str[32];
-  if((uix<0)||(uix>=SIZE(timDivU))) return;
+  if((uix < 0) || (uix >= int(SIZE(timDivU)))) return;
   sprintf(str,"%d %s",m,timDivU[uix]);
   setStringParam(_siTimDly,str);
 }
@@ -400,7 +398,8 @@ void drvTDS::setTimePerDiv(double v){
   else if(m<=100) mix=6;
   else if(m<=200) mix=7;
   else mix=8;
-  uint ni=SIZE(timDivU); int x0;
+  //uint ni=SIZE(timDivU); 
+  int x0;
   const char** list=timDivU;
   if(list){
     sprintf(str,"%d %s/div",m,list[uix]);
@@ -445,8 +444,10 @@ asynStatus drvTDS::getCmnds(int ix,int addr){
  * ix is the index into parameter library (or the reason)
  * addr is channel or address
  *---------------------------------------------------------------------------*/
-  asynStatus stat=asynSuccess; int jx=ix-_firstix,v; char cmnd[32];
-    printf("drvTDS::getCmnds(): jx=%d\n", jx);
+  asynStatus stat = asynSuccess; 
+  int jx = ix - _firstix;
+  //char cmnd[32];
+
 //  _opc();
   switch(jx){
     case ixBoTrMode:    getBinary(TrigModeCmnd, ix, trgMode, 2); break;
@@ -601,13 +602,17 @@ drvTDS::drvTDS(const char* port, const char* udp):
     createParam(siMeas3UnitsStr,  asynParamOctet,         &_siMeas3Units);
     createParam(siMeas4UnitsStr,  asynParamOctet,         &_siMeas4Units);
 
-  _firstix=_loWfWid;
+    _firstix=_loWfWid;
 
-  setStringParam(_siName,dname);
-  setIntegerParam(_loStore,1);
-  setIntegerParam(_loRecall,1);
-   message("Constructor drvTDS success");
-  callParamCallbacks(0);
+    setStringParam(_siName,dname);
+    setIntegerParam(_loStore,1);
+    setIntegerParam(_loRecall,1);
+    for (int i=0; i<_num_meas; i++) {
+        setDoubleParam(_aiMeas1+i, 0);
+        setStringParam(_siMeas1Units+i, "");
+    }
+    message("Constructor drvTDS success");
+    callParamCallbacks(0);
 }
 
 
