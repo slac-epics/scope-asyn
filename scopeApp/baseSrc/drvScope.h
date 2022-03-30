@@ -217,7 +217,7 @@ protected:
     virtual void setTrigLevl(int v);
     virtual void timeDelayStr(int m,int uix);
     virtual void updateUser();
-    virtual void getMeasurements();
+    virtual void getMeasurements(int pollCount) {};
 
     void          putInMessgQ(int tp,int ix,int addr,int iv,float fv=0.0);
     void          message(const char* m);
@@ -296,10 +296,11 @@ private:
     int           _mqFailed;
     int           _tracemode;        // 0 async, 1 sync
     int           _rdtraces;        // read traces flag
-    int           _measEnabled;
     int           _posInProg;        // when true position slider moving
     double        _wfTime, _wfTMin, _wfTMax;
     double        _wfPeriod, _wfRate;
+    int           _measEnabled;
+    int           _pollCount;
 };
 
 #endif    // _drvScope_h

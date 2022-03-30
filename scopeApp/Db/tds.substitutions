@@ -37,6 +37,10 @@ pattern
     {"Meas. 2 Units", MEAS2_UNITS, 0, MEAS2_UNITS}
     {"Meas. 3 Units", MEAS3_UNITS, 0, MEAS3_UNITS}
     {"Meas. 4 Units", MEAS4_UNITS, 0, MEAS4_UNITS}
+    { "Meas. 1 Type",  MEAS1_TYPE, 0,  MEAS1_TYPE}
+    { "Meas. 2 Type",  MEAS2_TYPE, 0,  MEAS2_TYPE}
+    { "Meas. 3 Type",  MEAS3_TYPE, 0,  MEAS3_TYPE}
+    { "Meas. 4 Type",  MEAS4_TYPE, 0,  MEAS4_TYPE}
 }
 
 file ai.db 

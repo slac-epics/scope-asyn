@@ -51,8 +51,9 @@ void drvScope::pollerThread(){
                 _getTraces();
             }
             if (_measEnabled) {
-                getMeasurements();
+                getMeasurements(_pollCount);
             }
+            _pollCount = (_pollCount >= 99)?(_pollCount = 0):(_pollCount + 1);
             epicsThreadSleep(_pollT);
         } else {
             switch(msgq.type){
@@ -173,12 +174,6 @@ asynStatus drvScope::_wtrd(const char* pw,size_t nw,char* pr,size_t nr){
 
 /*--- virtual methods -------------------------------------------------------*/
 void drvScope::getWaveform(int ch){
-/*-----------------------------------------------------------------------------
- * Virtual function to be supplied by device specific class.
- *---------------------------------------------------------------------------*/
-}
-
-void drvScope::getMeasurements() {
 /*-----------------------------------------------------------------------------
  * Virtual function to be supplied by device specific class.
  *---------------------------------------------------------------------------*/
@@ -1148,7 +1143,8 @@ drvScope::drvScope(const char* port, const char* udp):
                 asynOctetMask | asynDrvUserMask,
                 asynInt32Mask | asynFloat64Mask | asynFloat32ArrayMask | asynOctetMask,
                 ASYN_CANBLOCK | ASYN_MULTIDEVICE,1,0,0),
-                _measEnabled(0) {
+                _measEnabled(0),
+                _pollCount(0) {
 /*------------------------------------------------------------------------------
  * Constructor for the drvScope class. Calls constructor for the asynPortDriver
  * base class. Where

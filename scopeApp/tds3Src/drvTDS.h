@@ -38,6 +38,11 @@
 #define siMeas2UnitsStr "SI_MEAS2_UNITS" // Measurement units
 #define siMeas3UnitsStr "SI_MEAS3_UNITS" // Measurement units
 #define siMeas4UnitsStr "SI_MEAS4_UNITS" // Measurement units
+#define siMeas1TypeStr  "SI_MEAS1_TYPE"  // Measurement type
+#define siMeas2TypeStr  "SI_MEAS2_TYPE"  // Measurement type
+
+#define siMeas3TypeStr  "SI_MEAS3_TYPE"  // Measurement type
+#define siMeas4TypeStr  "SI_MEAS4_TYPE"  // Measurement type
 
 
 class drvTDS: public drvScope{
@@ -54,17 +59,19 @@ public:
     void          postInit();
 
 protected:
-    int _loWfWid,       _boTrMode,      _mbboTrSou,     _boTrSlo,   _mbbiTrSta,
-        _mbboChScl,     _mbboTimDivV,   _mbboTimDivU,   _biAcqStat, _liEvQ,
-        _liEvQty,       _loRecall,      _loStore,       _siSource,  _siHead,
-        _aiMeas1,       _aiMeas2,       _aiMeas3,       _aiMeas4,   _siMeas1Units,
-        _siMeas2Units,  _siMeas3Units,  _siMeas4Units;
+    int _loWfWid,       _boTrMode,      _mbboTrSou,     _boTrSlo,     _mbbiTrSta,
+        _mbboChScl,     _mbboTimDivV,   _mbboTimDivU,   _biAcqStat,   _liEvQ,
+        _liEvQty,       _loRecall,      _loStore,       _siSource,    _siHead,
+        _aiMeas1,       _aiMeas2,       _aiMeas3,       _aiMeas4,     _siMeas1Units,
+        _siMeas2Units,  _siMeas3Units,  _siMeas4Units,  _siMeas1Type, _siMeas2Type,
+        _siMeas3Type,   _siMeas4Type;
   
-    enum {ixLoWfWid,      ixBoTrMode,     ixMbboTrSou,    ixBoTrSlo,   ixMbbiTrSta,
-          ixMbboChScl,    ixMbboTimDivV,  ixMbboTimDivU,  ixBiAcqStat, ixLiEvQ,
-          ixLiEvQty,      ixLoRecall,     ixLoStore,      ixSiSource,  ixSiHead,
-          ixAiMeas1,      ixAiMeas2,      ixAiMeas3,      ixAiMeas4,   ixSiMeas1Units,
-          ixSiMeas2Units, ixSiMeas3Units, ixSiMeas4Units};
+    enum {ixLoWfWid,      ixBoTrMode,     ixMbboTrSou,    ixBoTrSlo,     ixMbbiTrSta,
+          ixMbboChScl,    ixMbboTimDivV,  ixMbboTimDivU,  ixBiAcqStat,   ixLiEvQ,
+          ixLiEvQty,      ixLoRecall,     ixLoStore,      ixSiSource,    ixSiHead,
+          ixAiMeas1,      ixAiMeas2,      ixAiMeas3,      ixAiMeas4,     ixSiMeas1Units,
+          ixSiMeas2Units, ixSiMeas3Units, ixSiMeas4Units, ixSiMeas1Type, ixSiMeas2Type,
+          ixSiMeas3Type,  ixSiMeas4Type};
   
     asynStatus  putFltCmnds(int ix,int addr,float v);
     asynStatus  putIntCmnds(int ix,int addr,int v);
@@ -76,7 +83,7 @@ protected:
     void        setTrigLevl(int v);
     void        updateUser();
     asynStatus  trigState();
-    void        getMeasurements();
+    void        getMeasurements(int pollCount);
 
 private:
     void      _setTimePerDiv(uint vix,uint uix);

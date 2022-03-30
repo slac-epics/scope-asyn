@@ -59,6 +59,7 @@ const char* GetConfCmnd    = "*LRN?";
 const char* ErrMsgCmnd     = "EVM?";
 const char* MeasValCmnd    = "MEASU:MEAS%d:VAL?";
 const char* MeasUnitsCmnd  = "MEASU:MEAS%d:UNI?";
+const char* MeasTypeCmnd   = "MEASU:MEAS%d:TYP?";
 
 // cmnds is a list of commands understood by the instrument that we implement.
 // The order is important and must agree with the order of enumerated names
@@ -303,7 +304,7 @@ void drvTDS::getWaveform(int ch){
     doCallbacksFloat32Array(_wfbuf,WF_LEN,_wfTrace,ch);
 }
 
-void drvTDS::getMeasurements() {
+void drvTDS::getMeasurements(int pollCount) {
 /*-----------------------------------------------------------------------------
  *---------------------------------------------------------------------------*/
     char str[32]; 
@@ -315,10 +316,19 @@ void drvTDS::getMeasurements() {
         getFloat(str, _aiMeas1+i);
     }
 
-    // Get measurement units
-    for (int i=0; i<_num_meas; i++) {
-        sprintf(str, MeasUnitsCmnd, i+1);
-        getString(str, _siMeas1Units+i);
+    // Get these at a slower rate
+    if (pollCount % 50 == 0) {
+        // Get measurement units
+        for (int i=0; i<_num_meas; i++) {
+            sprintf(str, MeasUnitsCmnd, i+1);
+            getString(str, _siMeas1Units+i);
+        }
+        
+        // Get measurement type
+        for (int i=0; i<_num_meas; i++) {
+            sprintf(str, MeasTypeCmnd, i+1);
+            getString(str, _siMeas1Type+i);
+        }
     }
     
     callParamCallbacks();
@@ -598,9 +608,15 @@ drvTDS::drvTDS(const char* port, const char* udp):
     createParam(aiMeas3Str,       asynParamFloat64,       &_aiMeas3);
     createParam(aiMeas4Str,       asynParamFloat64,       &_aiMeas4);
     createParam(siMeas1UnitsStr,  asynParamOctet,         &_siMeas1Units);
+
     createParam(siMeas2UnitsStr,  asynParamOctet,         &_siMeas2Units);
     createParam(siMeas3UnitsStr,  asynParamOctet,         &_siMeas3Units);
     createParam(siMeas4UnitsStr,  asynParamOctet,         &_siMeas4Units);
+    createParam(siMeas1TypeStr,   asynParamOctet,         &_siMeas1Type);
+    createParam(siMeas2TypeStr,   asynParamOctet,         &_siMeas2Type);
+
+    createParam(siMeas3TypeStr,   asynParamOctet,         &_siMeas3Type);
+    createParam(siMeas4TypeStr,   asynParamOctet,         &_siMeas4Type);
 
     _firstix=_loWfWid;
 
@@ -610,6 +626,7 @@ drvTDS::drvTDS(const char* port, const char* udp):
     for (int i=0; i<_num_meas; i++) {
         setDoubleParam(_aiMeas1+i, 0);
         setStringParam(_siMeas1Units+i, "");
+        setStringParam(_siMeas1Type+i, "");
     }
     message("Constructor drvTDS success");
     callParamCallbacks(0);
