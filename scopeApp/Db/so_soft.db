@@ -1,0 +1,8 @@
+#--- $(DESC) -------------------------------------
+record(stringout, "$(P):$(ITEM)"){
+    field(DESC, "$(DESC="")")
+    field(VAL,  "$(VAL="")")
+    field(PINI, "$(PINI=1)")
+    info(autosaveFields, "$(AUTOSAVE="")")
+}
+

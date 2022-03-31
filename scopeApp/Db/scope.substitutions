@@ -1,132 +1,153 @@
+
 file bo.db
 {
-pattern	
+pattern    
     {                 DESC,         ITEM, N,     ZNAM,    ONAM,    USER, AUTOSAVE}
-	{             "Ch0 On",       CH0_ON, 0,      Off,      On,    CHON, }
-	{             "Ch1 On",       CH1_ON, 1,      Off,      On,    CHON, }
-	{             "Ch2 On",       CH2_ON, 2,      Off,      On,    CHON, }
-	{             "Ch3 On",       CH3_ON, 3,      Off,      On,    CHON, }
-	{      "Ch0 Impedance",      CH0_IMP, 0, "50 Ohm", "1 Meg",   CHIMP, }
-	{      "Ch1 Impedance",      CH1_IMP, 1, "50 Ohm", "1 Meg",   CHIMP, }
-	{      "Ch2 Impedance",      CH2_IMP, 2, "50 Ohm", "1 Meg",   CHIMP, }
-	{      "Ch3 Impedance",      CH3_IMP, 3, "50 Ohm", "1 Meg",   CHIMP, }
-	{       "Ch0 Analysis",  CH0_ANAL_ON, 0,      Off,      On,    ANAL, }
-	{       "Ch1 Analysis",  CH1_ANAL_ON, 1,      Off,      On,    ANAL, }
-	{       "Ch2 Analysis",  CH2_ANAL_ON, 2,      Off,      On,    ANAL, }
-	{       "Ch3 Analysis",  CH3_ANAL_ON, 3,      Off,      On,    ANAL, }
-	{         "Ch0 Select",   CH0_SELECT, 0,      Off,      On,   CHSEL, }
-	{         "Ch1 Select",   CH1_SELECT, 1,      Off,      On,   CHSEL, }
-	{         "Ch2 Select",   CH2_SELECT, 2,      Off,      On,   CHSEL, }
-	{         "Ch3 Select",   CH3_SELECT, 3,      Off,      On,   CHSEL, }
-	{   "Time Delay State", TIMDLY_STATE, 0,      off,      on,TIMDLYST, VAL}
-	{        "Acquire Run",          RUN, 0,      Run,     Run,     RUN, }
-	{       "Acquire Stop",         STOP, 0,     Stop,    Stop,    STOP, }
-	{       "Clear Errors",          CLS, 0,      off,      on,     CLS, }
-	{              "Reset",        RESET, 0,    Reset,   Reset,   RESET, }
-	{         "Init scope",         INIT, 0,      off,      on,    INIT, }
-	{      "Get Ch0 Trace",    CH0_GETWF, 0,      off,      on,   GETWF, }
-	{      "Get Ch1 Trace",    CH1_GETWF, 1,      off,      on,   GETWF, }
-	{      "Get Ch2 Trace",    CH2_GETWF, 2,      off,      on,   GETWF, }
-	{      "Get Ch3 Trace",    CH3_GETWF, 3,      off,      on,   GETWF, }
-	{         "Get Traces",   GET_WF_ALL, 0,      off,      on,GETWFALL, }
-	{             "Update",       UPDATE, 0       off,      on,    UPDT, SCAN}
-	{         "Err Update",   ERR_UPDATE, 0       off,      on,   EUPDT, }
-	{       "Ch0 Pedestal", CH0_ANAL_PED, 0,      off,      on,     PED, }
-	{       "Ch1 Pedestal", CH1_ANAL_PED, 1,      off,      on,     PED, }
-	{       "Ch2 Pedestal", CH2_ANAL_PED, 2,      off,      on,     PED, }
-	{       "Ch3 Pedestal", CH3_ANAL_PED, 3,      off,      on,     PED, }
-	{       " Read Traces",     RD_TRACE, 0,      off,      on, RDTRACE, VAL}
-	{        "Save config",    SAVE_CONF, 0,     Save,    Save,    SAVE, }
-	{      "Restor config",   RESTR_CONF, 0,  Restore, Restore,   RESTR, }
-	{      "get Ev Messag",   GET_EV_MSG, 0,      Get,     Get,   EVMSG, }
-	{"Measurements enable",      MEAS_EN, 0,  Disable,  Enable, MEAS_EN, VAL}
+    {             "Ch0 On",       CH0_ON, 0,      Off,      On,    CHON, }
+    {             "Ch1 On",       CH1_ON, 1,      Off,      On,    CHON, }
+    {             "Ch2 On",       CH2_ON, 2,      Off,      On,    CHON, }
+    {             "Ch3 On",       CH3_ON, 3,      Off,      On,    CHON, }
+    {      "Ch0 Impedance",      CH0_IMP, 0, "50 Ohm", "1 Meg",   CHIMP, }
+    {      "Ch1 Impedance",      CH1_IMP, 1, "50 Ohm", "1 Meg",   CHIMP, }
+    {      "Ch2 Impedance",      CH2_IMP, 2, "50 Ohm", "1 Meg",   CHIMP, }
+    {      "Ch3 Impedance",      CH3_IMP, 3, "50 Ohm", "1 Meg",   CHIMP, }
+    {       "Ch0 Analysis",  CH0_ANAL_ON, 0,      Off,      On,    ANAL, }
+    {       "Ch1 Analysis",  CH1_ANAL_ON, 1,      Off,      On,    ANAL, }
+    {       "Ch2 Analysis",  CH2_ANAL_ON, 2,      Off,      On,    ANAL, }
+    {       "Ch3 Analysis",  CH3_ANAL_ON, 3,      Off,      On,    ANAL, }
+    {         "Ch0 Select",   CH0_SELECT, 0,      Off,      On,   CHSEL, }
+    {         "Ch1 Select",   CH1_SELECT, 1,      Off,      On,   CHSEL, }
+    {         "Ch2 Select",   CH2_SELECT, 2,      Off,      On,   CHSEL, }
+    {         "Ch3 Select",   CH3_SELECT, 3,      Off,      On,   CHSEL, }
+    {   "Time Delay State", TIMDLY_STATE, 0,      off,      on,TIMDLYST, VAL}
+    {        "Acquire Run",          RUN, 0,      Run,     Run,     RUN, }
+    {       "Acquire Stop",         STOP, 0,     Stop,    Stop,    STOP, }
+    {       "Clear Errors",          CLS, 0,      off,      on,     CLS, }
+    {              "Reset",        RESET, 0,    Reset,   Reset,   RESET, }
+    {         "Init scope",         INIT, 0,      off,      on,    INIT, }
+    {      "Get Ch0 Trace",    CH0_GETWF, 0,      off,      on,   GETWF, }
+    {      "Get Ch1 Trace",    CH1_GETWF, 1,      off,      on,   GETWF, }
+    {      "Get Ch2 Trace",    CH2_GETWF, 2,      off,      on,   GETWF, }
+    {      "Get Ch3 Trace",    CH3_GETWF, 3,      off,      on,   GETWF, }
+    {         "Get Traces",   GET_WF_ALL, 0,      off,      on,GETWFALL, }
+    {             "Update",       UPDATE, 0       off,      on,    UPDT, SCAN}
+    {         "Err Update",   ERR_UPDATE, 0       off,      on,   EUPDT, }
+    {       "Ch0 Pedestal", CH0_ANAL_PED, 0,      off,      on,     PED, }
+    {       "Ch1 Pedestal", CH1_ANAL_PED, 1,      off,      on,     PED, }
+    {       "Ch2 Pedestal", CH2_ANAL_PED, 2,      off,      on,     PED, }
+    {       "Ch3 Pedestal", CH3_ANAL_PED, 3,      off,      on,     PED, }
+    {       " Read Traces",     RD_TRACE, 0,      off,      on, RDTRACE, VAL}
+    {        "Save config",    SAVE_CONF, 0,     Save,    Save,    SAVE, }
+    {      "Restor config",   RESTR_CONF, 0,  Restore, Restore,   RESTR, }
+    {      "get Ev Messag",   GET_EV_MSG, 0,      Get,     Get,   EVMSG, }
+    {"Measurements enable",      MEAS_EN, 0,  Disable,  Enable, MEAS_EN, VAL}
 }
+
 file bi.db
 {
-pattern	{           DESC,        ITEM, N,     ZNAM,    ONAM,    USER}
-	{ "Driver state",       STATE, 0,      Bad,    Good,   STATE}
+pattern    {           DESC,        ITEM, N,     ZNAM,    ONAM,    USER}
+    { "Driver state",       STATE, 0,      Bad,    Good,   STATE}
 }
+
 file ao.db
 {
-pattern	{             DESC,     ITEM, N,  DRVL, DRVH, EGU,   USER}
-	{   "Ch0 Position",   CH0_POS, 0,   -4,    4, div,  CHPOS}
-	{   "Ch1 Position",   CH1_POS, 1,   -4,    4, div,  CHPOS}
-	{   "Ch2 Position",   CH2_POS, 2,   -4,    4, div,  CHPOS}
-	{   "Ch3 Position",   CH3_POS, 3,   -4,    4, div,  CHPOS}
-	{      "Ch0 Scale",   CH0_SCL, 0,    0,   10,   V,  CHSCL}
-	{      "Ch1 Scale",   CH1_SCL, 1,    0,   10,   V,  CHSCL}
-	{      "Ch2 Scale",   CH2_SCL, 2,    0,   10,   V,  CHSCL}
-	{      "Ch3 Scale",   CH3_SCL, 3,    0,   10,   V,  CHSCL}
-	{     "time delay",TIME_DELAY, 0,  -50,   50,   s, TIMDLY}
-	{  "trig position",  TRIG_POS, 0,    0,  100,   %,  TRPOS}
-	{  "trigger level",  TRIG_LEV, 0,  -20,   20,   V,  TRLEV}
-	{ "trigger holdof",   HOLDOFF, 0,  -20,   20,   s, TRHOFF}
-	{ "Thread TimeOut",  POLL_TMO, 0,    0,    0,   s,   PTMO}
+pattern    {             DESC,     ITEM, N,  DRVL, DRVH, EGU,   USER}
+    {   "Ch0 Position",   CH0_POS, 0,   -4,    4, div,  CHPOS}
+    {   "Ch1 Position",   CH1_POS, 1,   -4,    4, div,  CHPOS}
+    {   "Ch2 Position",   CH2_POS, 2,   -4,    4, div,  CHPOS}
+    {   "Ch3 Position",   CH3_POS, 3,   -4,    4, div,  CHPOS}
+    {      "Ch0 Scale",   CH0_SCL, 0,    0,   10,   V,  CHSCL}
+    {      "Ch1 Scale",   CH1_SCL, 1,    0,   10,   V,  CHSCL}
+    {      "Ch2 Scale",   CH2_SCL, 2,    0,   10,   V,  CHSCL}
+    {      "Ch3 Scale",   CH3_SCL, 3,    0,   10,   V,  CHSCL}
+    {     "time delay",TIME_DELAY, 0,  -50,   50,   s, TIMDLY}
+    {  "trig position",  TRIG_POS, 0,    0,  100,   %,  TRPOS}
+    {  "trigger level",  TRIG_LEV, 0,  -20,   20,   V,  TRLEV}
+    { "trigger holdof",   HOLDOFF, 0,  -20,   20,   s, TRHOFF}
+    { "Thread TimeOut",  POLL_TMO, 0,    0,    0,   s,   PTMO}
 }
+
 file ai.db
 {
-pattern	{             DESC,     ITEM, N,  EGU,   USER}
-	{ "Time Divisions", TIME_DIV, 0,s/div, TIMDIV}
-	{       "Ch0 Area", CH0_AREA, 0,   "",   AREA}
-	{       "Ch1 Area", CH1_AREA, 1,   "",   AREA}
-	{       "Ch2 Area", CH2_AREA, 2,   "",   AREA}
-	{       "Ch3 Area", CH3_AREA, 3,   "",   AREA}
-	{        "Ch0 Ped",  CH0_PED, 0,   "",    PED}
-	{        "Ch1 Ped",  CH1_PED, 1,   "",    PED}
-	{        "Ch2 Ped",  CH2_PED, 2,   "",    PED}
-	{        "Ch3 Ped",  CH3_PED, 3,   "",    PED}
-	{        "WF Time",  WF_TIME, 0,    s, WFTIME}
-	{    "WF Time Min",WF_TM_MIN, 0,    s, WFTMIN}
-	{    "WF Time Max",WF_TM_MAX, 0,    s, WFTMAX}
-	{      "WF Period",WF_PERIOD, 0,    s,  WFPER}
-	{        "WF Rate",  WF_RATE, 0,    s, WFRATE}
+pattern    {             DESC,     ITEM, N,  EGU,   USER}
+    { "Time Divisions", TIME_DIV, 0,s/div, TIMDIV}
+    {       "Ch0 Area", CH0_AREA, 0,   "",   AREA}
+    {       "Ch1 Area", CH1_AREA, 1,   "",   AREA}
+    {       "Ch2 Area", CH2_AREA, 2,   "",   AREA}
+    {       "Ch3 Area", CH3_AREA, 3,   "",   AREA}
+    {        "Ch0 Ped",  CH0_PED, 0,   "",    PED}
+    {        "Ch1 Ped",  CH1_PED, 1,   "",    PED}
+    {        "Ch2 Ped",  CH2_PED, 2,   "",    PED}
+    {        "Ch3 Ped",  CH3_PED, 3,   "",    PED}
+    {        "WF Time",  WF_TIME, 0,    s, WFTIME}
+    {    "WF Time Min",WF_TM_MIN, 0,    s, WFTMIN}
+    {    "WF Time Max",WF_TM_MAX, 0,    s, WFTMAX}
+    {      "WF Period",WF_PERIOD, 0,    s,  WFPER}
+    {        "WF Rate",  WF_RATE, 0,    s, WFRATE}
 }
+
 file lo.db
 {
-pattern	{              DESC,        ITEM, LOPR, HOPR,      USER}
-	{   "N data points",    DATA_LEN,    0,    0,    WFNPTS}
-	{      "data start",  DATA_START,    0,    0,   WFSTART}
-	{       "data stop",   DATA_STOP,    0,    0,    WFSTOP}
-	{    "ESE register",         ESE,    0,    0,       ESE}
-	{  "Marker 1 index",      MARK_1,    0,  500,     MARK1}
-	{  "Marker 2 index",      MARK_2,    0,  500,     MARK2}
-	{  "Trace Position",      CH_POS, -400,  400,     CHPOS}
-	{   "Trigger Level",   TRIG_LEVL, -400,  400,     TRLEV}
+pattern    {              DESC,        ITEM, LOPR, HOPR,      USER}
+    {   "N data points",    DATA_LEN,    0,    0,    WFNPTS}
+    {      "data start",  DATA_START,    0,    0,   WFSTART}
+    {       "data stop",   DATA_STOP,    0,    0,    WFSTOP}
+    {    "ESE register",         ESE,    0,    0,       ESE}
+    {  "Marker 1 index",      MARK_1,    0,  500,     MARK1}
+    {  "Marker 2 index",      MARK_2,    0,  500,     MARK2}
+    {  "Trace Position",      CH_POS, -400,  400,     CHPOS}
+    {   "Trigger Level",   TRIG_LEVL, -400,  400,     TRLEV}
 }
+
 file li.db
 {
-pattern	{              DESC,        ITEM,      USER}
-	{    "ESR Register",         ESR,       ESR}
-	{     "Status Byte",         STB,       STB}
-	{    "MSGQ Success",    MQ_SUCCS,     MSGQS}
-	{     "MSGQ Failed",     MQ_FAIL,     MSGQF}
-	{    "NPTS for EDM",      X_NPTS,     XNPTS}
+pattern    {              DESC,        ITEM,      USER}
+    {    "ESR Register",         ESR,       ESR}
+    {     "Status Byte",         STB,       STB}
+    {    "MSGQ Success",    MQ_SUCCS,     MSGQS}
+    {     "MSGQ Failed",     MQ_FAIL,     MSGQF}
+    {    "NPTS for EDM",      X_NPTS,     XNPTS}
 }
+
 file si.db
 {
-pattern	{           DESC,       ITEM, N,    USER}
-	{  "Data Format",   DATA_FMT, 0,   WFFMT}
-	{   "IP Address",    IP_ADDR, 0,  IPADDR}
-	{          "OPC",        OPC, 0,     OPC}
-	{   "Time Delay",   TIME_DLY, 0,  TIMDLY}
-	{     "Time Div",   TIME_DIV, 0,  TIMDIV}
-	{  "Driver name",   DRV_NAME, 0,    NAME}
+pattern    {           DESC,       ITEM, N,    USER}
+    {  "Data Format",   DATA_FMT, 0,   WFFMT}
+    {   "IP Address",    IP_ADDR, 0,  IPADDR}
+    {          "OPC",        OPC, 0,     OPC}
+    {   "Time Delay",   TIME_DLY, 0,  TIMDLY}
+    {     "Time Div",   TIME_DIV, 0,  TIMDIV}
+    {  "Driver name",   DRV_NAME, 0,    NAME}
 }
+
+file so_soft.db {
+pattern    
+    {       DESC,     ITEM,                  VAL, AUTOSAVE}
+    {"Ch0 Desc.", CH0_DESC, "Click to edit desc",    "VAL"}
+    {"Ch1 Desc.", CH1_DESC, "Click to edit desc",    "VAL"}
+    {"Ch2 Desc.", CH2_DESC, "Click to edit desc",    "VAL"}
+    {"Ch3 Desc.", CH3_DESC, "Click to edit desc",    "VAL"}
+}
+
 file mbbo3.db
 {
-pattern	{           DESC,      ITEM, N,  ZRST,   ONST,  TWST,   USER, AUTOSAVE}
-	{ "Ch0 Coupling",   CH0_CPL, 0,    DC,     AC,   GND,  CHCPL, }
-	{ "Ch1 Coupling",   CH1_CPL, 1,    DC,     AC,   GND,  CHCPL, }
-	{ "Ch2 Coupling",   CH2_CPL, 2,    DC,     AC,   GND,  CHCPL, }
-	{ "Ch3 Coupling",   CH3_CPL, 3,    DC,     AC,   GND,  CHCPL, }
-	{   "Trace mode",TRACE_MODE, 0,  None,  aSync,  Sync, TRCMOD, VAL}
+pattern    {           DESC,      ITEM, N,  ZRST,   ONST,  TWST,   USER, AUTOSAVE}
+    { "Ch0 Coupling",   CH0_CPL, 0,    DC,     AC,   GND,  CHCPL, }
+    { "Ch1 Coupling",   CH1_CPL, 1,    DC,     AC,   GND,  CHCPL, }
+    { "Ch2 Coupling",   CH2_CPL, 2,    DC,     AC,   GND,  CHCPL, }
+    { "Ch3 Coupling",   CH3_CPL, 3,    DC,     AC,   GND,  CHCPL, }
+    {   "Trace mode",TRACE_MODE, 0,  None,  aSync,  Sync, TRCMOD, VAL}
 }
+
 file scopeCmnd.db{
 {SCAN="Passive", MAX=100000}
 }
+
 file scopeCtrl.db{
 {N=0}
 }
+
 file scopeErr.db{
 {N=0}
 }
+

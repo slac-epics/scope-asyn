@@ -17,6 +17,7 @@ R1.3.3  M. Dunning (mdunning) 25-Mar-2022
         Use "new" asynPortDriver constructor, which does not need number of parameters (requires asyn >= 4-32)
     Add support for scope measurements
     Fix bug in setting and initializing waveform data type
+    Add autosaved channel description PVs
     
 
 scope-asyn R1.3.2 Garth Brown (gwbrown) 25-Jan-2022:
