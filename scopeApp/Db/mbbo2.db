@@ -1,0 +1,13 @@
+#---- $(DESC) -----------------------------------
+record(mbbo, "$(P):MBBO_$(ITEM)"){
+    field(DTYP, "asynInt32")
+    field(DESC, "$(DESC):")
+    field(ZRVL, "$(ZRVL=0)")
+    field(ONVL, "$(ONVL=1)")
+    field(ZRST, "$(ZRST="0")")
+    field(ONST, "$(ONST="1")")
+    field(OUT,  "@asyn($(PORT),$(N=0),1) MBBO_$(USER)")
+    info(asyn:READBACK, "1")
+    info(autosaveFields, "$(AUTOSAVE=)")
+}
+

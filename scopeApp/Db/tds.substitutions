@@ -6,16 +6,26 @@ pattern    {           DESC,        ITEM, N,     ZNAM,    ONAM,    USER}
     {"Trigger slope",  TRIG_SLOPE, 0,     Fall,    Rise, TRSLOPE}
 }
 
-file bi.db
-{
-pattern    {           DESC,        ITEM, N,     ZNAM,    ONAM,    USER}
-    { "Acquire Stat",    ACQ_STAT, 0,     Stop,     Run, ACQSTAT}
+file bi.db {
+pattern    
+    {           DESC,        ITEM, N,     ZNAM,    ONAM,       USER}
+    { "Acquire Stat",    ACQ_STAT, 0,     Stop,     Run,    ACQSTAT}
+    { "Meas. 1 Stat",  MEAS1_STAT, 0,      Off,      On, MEAS1_STAT}
+    { "Meas. 2 Stat",  MEAS2_STAT, 0,      Off,      On, MEAS2_STAT}
+    { "Meas. 3 Stat",  MEAS3_STAT, 0,      Off,      On, MEAS3_STAT}
+    { "Meas. 4 Stat",  MEAS4_STAT, 0,      Off,      On, MEAS4_STAT}
+}
+
+file mbbo2.db {
+pattern    
+    {        DESC,       ITEM, N, ZRVL, ONVL, ZRST, ONST,    USER}
+    {"Data width", DATA_WIDTH, 0,    1,    2,  "1",  "2", WFWIDTH}
 }
 
 file lo.db
 {
 pattern    {              DESC,        ITEM, LOPR, HOPR,      USER}
-    {      "data width",  DATA_WIDTH,    0,    0,   WFWIDTH}
+#    {      "data width",  DATA_WIDTH,    0,    0,   WFWIDTH}
     {            Recall,      RECALL,    1,   10,    RECALL}
     {             Store,       STORE,    1,   10,     STORE}
 }

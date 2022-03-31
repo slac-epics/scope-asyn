@@ -11,7 +11,7 @@
 
 #define WF_LEN    800
 
-#define loWfWidStr      "LO_WFWIDTH"    // bytes per point
+#define mbboWfWidStr    "MBBO_WFWIDTH"  // bytes per point (1 or 2)
 #define boTrModeStr     "BO_TRMODE"     // trigger mode
 #define mbboTrSouStr    "MBBO_TRSOU"    // trigger source
 #define boTrSlopeStr    "BO_TRSLOPE"    // trigger slope
@@ -43,6 +43,11 @@
 
 #define siMeas3TypeStr  "SI_MEAS3_TYPE"  // Measurement type
 #define siMeas4TypeStr  "SI_MEAS4_TYPE"  // Measurement type
+#define biMeas1StatStr  "BI_MEAS1_STAT"  // Measurement status
+#define biMeas2StatStr  "BI_MEAS2_STAT"  // Measurement status
+#define biMeas3StatStr  "BI_MEAS3_STAT"  // Measurement status
+
+#define biMeas4StatStr  "BI_MEAS4_STAT"  // Measurement status
 
 
 class drvTDS: public drvScope{
@@ -59,19 +64,21 @@ public:
     void          postInit();
 
 protected:
-    int _loWfWid,       _boTrMode,      _mbboTrSou,     _boTrSlo,     _mbbiTrSta,
+    int _mbboWfWid,     _boTrMode,      _mbboTrSou,     _boTrSlo,     _mbbiTrSta,
         _mbboChScl,     _mbboTimDivV,   _mbboTimDivU,   _biAcqStat,   _liEvQ,
         _liEvQty,       _loRecall,      _loStore,       _siSource,    _siHead,
         _aiMeas1,       _aiMeas2,       _aiMeas3,       _aiMeas4,     _siMeas1Units,
         _siMeas2Units,  _siMeas3Units,  _siMeas4Units,  _siMeas1Type, _siMeas2Type,
-        _siMeas3Type,   _siMeas4Type;
+        _siMeas3Type,   _siMeas4Type,   _biMeas1Stat,   _biMeas2Stat, _biMeas3Stat,
+        _biMeas4Stat;
   
-    enum {ixLoWfWid,      ixBoTrMode,     ixMbboTrSou,    ixBoTrSlo,     ixMbbiTrSta,
+    enum {ixMbboWfWid,      ixBoTrMode,     ixMbboTrSou,    ixBoTrSlo,     ixMbbiTrSta,
           ixMbboChScl,    ixMbboTimDivV,  ixMbboTimDivU,  ixBiAcqStat,   ixLiEvQ,
           ixLiEvQty,      ixLoRecall,     ixLoStore,      ixSiSource,    ixSiHead,
           ixAiMeas1,      ixAiMeas2,      ixAiMeas3,      ixAiMeas4,     ixSiMeas1Units,
           ixSiMeas2Units, ixSiMeas3Units, ixSiMeas4Units, ixSiMeas1Type, ixSiMeas2Type,
-          ixSiMeas3Type,  ixSiMeas4Type};
+          ixSiMeas3Type,  ixSiMeas4Type,  ixBiMeas1Stat,  ixBiMeas2Stat, ixBiMeas3Stat,
+          ixBiMeas4Stat};
   
     asynStatus  putFltCmnds(int ix,int addr,float v);
     asynStatus  putIntCmnds(int ix,int addr,int v);

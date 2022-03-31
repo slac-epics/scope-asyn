@@ -53,13 +53,14 @@ const char* SaveCmnd       = "*SAV %d";
 const char* IdnCmnd        = "*IDN?";
 const char* IPAddrCmnd     = "ETHER:IPADD?";
 const char* WfSouCmnd      = "DATA:SOU";
-const char* InitCmnd       = "*CLS; :DAT:ENC RIB; :HOR:RECORDL 500; :HEAD OFF; :VERB ON; :DAT:STAR 1; :DAT:STOP 500; HOR:DEL:STATE 1";
+const char* InitCmnd       = "*CLS; :DAT:ENC RIB; :HOR:RECORDL 500; :HEAD OFF; :VERB ON; DAT:WID 1; :DAT:STAR 1; :DAT:STOP 500; HOR:DEL:STATE 1";
 const char* HeaderCmnd     = "HEAD?";
 const char* GetConfCmnd    = "*LRN?";
 const char* ErrMsgCmnd     = "EVM?";
 const char* MeasValCmnd    = "MEASU:MEAS%d:VAL?";
 const char* MeasUnitsCmnd  = "MEASU:MEAS%d:UNI?";
 const char* MeasTypeCmnd   = "MEASU:MEAS%d:TYP?";
+const char* MeasStatCmnd   = "MEASU:MEAS%d:STATE?";
 
 // cmnds is a list of commands understood by the instrument that we implement.
 // The order is important and must agree with the order of enumerated names
@@ -116,6 +117,72 @@ static const int hnp[]={ 51, 101, 201, 500};
 static drvTDS*	_this;
 static const char *dname="drvTDS";
 
+
+drvTDS::drvTDS(const char* port, const char* udp):
+			drvScope(port, udp),
+             _num_meas(4) {
+/*------------------------------------------------------------------------------
+ * Constructor for the drvTDS class. Calls the base class constructor, which
+ * in tern calls the asynPortDriver constructor.
+ * base class. Where
+ *   portName The name of the asyn port driver to be created.
+ *   udpPort is the actual device port name.
+ *   np is the total number of items for the parameter library.
+ *---------------------------------------------------------------------------*/
+    createParam(mbboWfWidStr,	  asynParamInt32,         &_mbboWfWid);
+    createParam(boTrModeStr,      asynParamInt32,         &_boTrMode);
+    createParam(mbboTrSouStr,     asynParamInt32,         &_mbboTrSou);
+    createParam(boTrSlopeStr,     asynParamInt32,         &_boTrSlo);
+    createParam(mbbiTrStaStr,     asynParamInt32,         &_mbbiTrSta);
+  
+    createParam(mbboChSclStr,     asynParamInt32,         &_mbboChScl);
+    createParam(mbboTimDivVStr,   asynParamInt32,         &_mbboTimDivV);
+    createParam(mbboTimDivUStr,   asynParamInt32,         &_mbboTimDivU);
+    createParam(biAcqStatStr,     asynParamInt32,         &_biAcqStat);
+    createParam(liEvQStr,         asynParamInt32,         &_liEvQ);
+  
+    createParam(liEvQtyStr,       asynParamInt32,         &_liEvQty);
+    createParam(loRecallStr,      asynParamInt32,         &_loRecall);
+    createParam(loStoreStr,       asynParamInt32,         &_loStore);
+    createParam(siSourceStr,	  asynParamOctet,         &_siSource);
+    createParam(siHeadStr,        asynParamOctet,         &_siHead);
+  
+    createParam(aiMeas1Str,       asynParamFloat64,       &_aiMeas1);
+    createParam(aiMeas2Str,       asynParamFloat64,       &_aiMeas2);
+    createParam(aiMeas3Str,       asynParamFloat64,       &_aiMeas3);
+    createParam(aiMeas4Str,       asynParamFloat64,       &_aiMeas4);
+    createParam(siMeas1UnitsStr,  asynParamOctet,         &_siMeas1Units);
+
+    createParam(siMeas2UnitsStr,  asynParamOctet,         &_siMeas2Units);
+    createParam(siMeas3UnitsStr,  asynParamOctet,         &_siMeas3Units);
+    createParam(siMeas4UnitsStr,  asynParamOctet,         &_siMeas4Units);
+    createParam(siMeas1TypeStr,   asynParamOctet,         &_siMeas1Type);
+    createParam(siMeas2TypeStr,   asynParamOctet,         &_siMeas2Type);
+
+    createParam(siMeas3TypeStr,   asynParamOctet,         &_siMeas3Type);
+    createParam(siMeas4TypeStr,   asynParamOctet,         &_siMeas4Type);
+    createParam(biMeas1StatStr,   asynParamInt32,         &_biMeas1Stat);
+    createParam(biMeas2StatStr,   asynParamInt32,         &_biMeas2Stat);
+    createParam(biMeas3StatStr,   asynParamInt32,         &_biMeas3Stat);
+
+    createParam(biMeas4StatStr,   asynParamInt32,         &_biMeas4Stat);
+
+    _firstix=_mbboWfWid;
+
+    setStringParam(_siName,dname);
+    setIntegerParam(_loStore,1);
+    setIntegerParam(_loRecall,1);
+    for (int i=0; i<_num_meas; i++) {
+        setDoubleParam(_aiMeas1+i, 0);
+        setStringParam(_siMeas1Units+i, "");
+        setStringParam(_siMeas1Type+i, "");
+        setIntegerParam(_biMeas1Stat+i, 0);
+    }
+    message("Constructor drvTDS success");
+    callParamCallbacks(0);
+}
+
+
 static void __getHSParams(double hs,int* x0,int* np){
 /*-----------------------------------------------------------------------------
  * Returns starting point in x0 and number of points in np where data should
@@ -147,7 +214,7 @@ void drvTDS::postInit(){
   putInMessgQ(enQuery,_boTrMode,0,0);
   putInMessgQ(enQuery,_siSource,0,0);
   putInMessgQ(enQuery,_siHead,0,0);
-  putInMessgQ(enQuery,_loWfWid,0,0);
+  putInMessgQ(enQuery,_mbboWfWid,0,0);
   putInMessgQ(enQuery,_liEvQ,0,0);
   putInMessgQ(enQuery,_biAcqStat,0,0);
   drvScope::afterInit();
@@ -232,7 +299,7 @@ int drvTDS::_wfPreamble(char* p,int* ln,int* nb,
       printf("_wfPreamble: n=%d, failed to unpack preamble\n",n); return(-1);}
     return(0);
   }
-  if((n=sscanf(&p[i],"#%1d",&wd))!=1){
+  if((n = sscanf(&p[i], "#%1d", &wd)) != 1) {
     printf("_wfPreamble: n=%d, failed to get width\n",n);
     return(-1);
   }
@@ -328,6 +395,12 @@ void drvTDS::getMeasurements(int pollCount) {
         for (int i=0; i<_num_meas; i++) {
             sprintf(str, MeasTypeCmnd, i+1);
             getString(str, _siMeas1Type+i);
+        }
+        
+        // Get measurement state (on/off)
+        for (int i=0; i<_num_meas; i++) {
+            sprintf(str, MeasStatCmnd, i+1);
+            getInt(str, _biMeas1Stat+i);
         }
     }
     
@@ -466,7 +539,7 @@ asynStatus drvTDS::getCmnds(int ix,int addr){
     case ixMbbiTrSta:   getBinary(TrigStaCmnd, ix, trigSta, 5); break;
     case ixMbboChScl:   getBinaryCh(ChSclCmnd, addr+1, ix, chanScl, SIZE(chanScl)); break;
     case ixSiSource:    stat = getString(WfSouCmnd, ix); break;
-    case ixLoWfWid:     stat = getInt(WfWidCmnd, ix); break;
+    case ixMbboWfWid:   stat = getInt(WfWidCmnd, ix); break;
     case ixLiEvQ:       stat = getInt(EvqCmnd, ix); break;
     case ixBiAcqStat:   stat = getInt(AcqStateCmnd, ix); break;
     case ixSiHead:      stat = getString(HeaderCmnd, ix); break;
@@ -498,7 +571,7 @@ asynStatus drvTDS::putIntCmnds(int ix,int addr,int v){
     case ixMbboTimDivU: getIntegerParam(_mbboTimDivV,&jx);
                         _setTimePerDiv(jx,v);
                         break;
-    case ixLoWfWid:	setInt(jx,WfDatCmnd,v,ix); break;
+    case ixMbboWfWid:	setInt(jx, WfDatCmnd, v, ix); break;
     case ixBoTrMode:    setBinary(v,TrigModeCmnd,trgMode,SIZE(trgMode));
                         setIntegerParam(ix,v);
                         break;
@@ -535,7 +608,7 @@ asynStatus drvTDS::putFltCmnds(int ix,int addr,float v){
   return(stat);
 }
 
-asynStatus drvTDS::writeInt32(asynUser* pau,epicsInt32 v){
+asynStatus drvTDS::writeInt32(asynUser* pau, epicsInt32 v){
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.  Here we service
  * all write requests comming from EPICS records.
@@ -544,15 +617,26 @@ asynStatus drvTDS::writeInt32(asynUser* pau,epicsInt32 v){
  *  v           (in) this is the command index, which together with
  *              pau->reason define the command to be sent.
  *---------------------------------------------------------------------------*/
-  asynStatus stat=asynSuccess; int ix=pau->reason,jx,addr;
+    asynStatus stat = asynSuccess;
+    int jx, addr;
+    int ix = pau->reason;
 
-  stat=getAddress(pau,&addr); if(stat!=asynSuccess) return(stat);
-  jx=ix-_firstix;
-  switch(jx){
-    default:		stat=drvScope::writeInt32(pau,v); break;
-  }
-  callParamCallbacks(addr);
-  return(stat);
+    stat = getAddress(pau, &addr);
+    if (stat != asynSuccess) return(stat);
+
+    jx = ix - _firstix;
+    switch(jx) {
+        case ixMbboWfWid:
+            setInt(jx, WfWidCmnd, v, jx);
+            stat = setIntegerParam(jx, v);
+            break;
+        default:
+            stat = drvScope::writeInt32(pau,v);
+            break;
+    }
+
+    callParamCallbacks(addr);
+    return stat;
 }
 
 asynStatus drvTDS::writeFloat64(asynUser* pau,epicsFloat64 v){
@@ -572,64 +656,6 @@ asynStatus drvTDS::writeFloat64(asynUser* pau,epicsFloat64 v){
     default:		stat=drvScope::writeFloat64(pau,v); break;
   }
   return(stat);
-}
-
-drvTDS::drvTDS(const char* port, const char* udp):
-			drvScope(port, udp),
-             _num_meas(4) {
-/*------------------------------------------------------------------------------
- * Constructor for the drvTDS class. Calls the base class constructor, which
- * in tern calls the asynPortDriver constructor.
- * base class. Where
- *   portName The name of the asyn port driver to be created.
- *   udpPort is the actual device port name.
- *   np is the total number of items for the parameter library.
- *---------------------------------------------------------------------------*/
-    createParam(loWfWidStr,	      asynParamInt32,         &_loWfWid);
-    createParam(boTrModeStr,      asynParamInt32,         &_boTrMode);
-    createParam(mbboTrSouStr,     asynParamInt32,         &_mbboTrSou);
-    createParam(boTrSlopeStr,     asynParamInt32,         &_boTrSlo);
-    createParam(mbbiTrStaStr,     asynParamInt32,         &_mbbiTrSta);
-  
-    createParam(mbboChSclStr,     asynParamInt32,         &_mbboChScl);
-    createParam(mbboTimDivVStr,   asynParamInt32,         &_mbboTimDivV);
-    createParam(mbboTimDivUStr,   asynParamInt32,         &_mbboTimDivU);
-    createParam(biAcqStatStr,     asynParamInt32,         &_biAcqStat);
-    createParam(liEvQStr,         asynParamInt32,         &_liEvQ);
-  
-    createParam(liEvQtyStr,       asynParamInt32,         &_liEvQty);
-    createParam(loRecallStr,      asynParamInt32,         &_loRecall);
-    createParam(loStoreStr,       asynParamInt32,         &_loStore);
-    createParam(siSourceStr,	  asynParamOctet,         &_siSource);
-    createParam(siHeadStr,        asynParamOctet,         &_siHead);
-  
-    createParam(aiMeas1Str,       asynParamFloat64,       &_aiMeas1);
-    createParam(aiMeas2Str,       asynParamFloat64,       &_aiMeas2);
-    createParam(aiMeas3Str,       asynParamFloat64,       &_aiMeas3);
-    createParam(aiMeas4Str,       asynParamFloat64,       &_aiMeas4);
-    createParam(siMeas1UnitsStr,  asynParamOctet,         &_siMeas1Units);
-
-    createParam(siMeas2UnitsStr,  asynParamOctet,         &_siMeas2Units);
-    createParam(siMeas3UnitsStr,  asynParamOctet,         &_siMeas3Units);
-    createParam(siMeas4UnitsStr,  asynParamOctet,         &_siMeas4Units);
-    createParam(siMeas1TypeStr,   asynParamOctet,         &_siMeas1Type);
-    createParam(siMeas2TypeStr,   asynParamOctet,         &_siMeas2Type);
-
-    createParam(siMeas3TypeStr,   asynParamOctet,         &_siMeas3Type);
-    createParam(siMeas4TypeStr,   asynParamOctet,         &_siMeas4Type);
-
-    _firstix=_loWfWid;
-
-    setStringParam(_siName,dname);
-    setIntegerParam(_loStore,1);
-    setIntegerParam(_loRecall,1);
-    for (int i=0; i<_num_meas; i++) {
-        setDoubleParam(_aiMeas1+i, 0);
-        setStringParam(_siMeas1Units+i, "");
-        setStringParam(_siMeas1Type+i, "");
-    }
-    message("Constructor drvTDS success");
-    callParamCallbacks(0);
 }
 
 
