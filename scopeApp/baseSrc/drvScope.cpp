@@ -333,14 +333,6 @@ void drvScope::getWaveform(int ch){
  *---------------------------------------------------------------------------*/
 }
 
-int drvScope::isTriggered(){
-/*-----------------------------------------------------------------------------
- * Default is that the scope is triggered.  This can be overridden in derived
- * class.
- *---------------------------------------------------------------------------*/
-    return(1);
-}
-
 void drvScope::getChanPos(int addr){
 /*-----------------------------------------------------------------------------
  * This virtual method is coded to work with the tds3000 series scopes.  It
@@ -985,9 +977,13 @@ asynStatus drvScope::putIntCmnds(int ix,int addr,int v){
  * addr is channel or address
  * v is a possible integer set value.
  *---------------------------------------------------------------------------*/
-    asynStatus stat=asynSuccess; char cmnd[32]; const char* pcmd;
+    asynStatus stat=asynSuccess;
+    char cmnd[32]; 
+    const char* pcmd;
+
     int jx=ix-_firstix;
     pcmd=getCommand(jx);
+
     switch(jx){
         case ixBoUpdt:    update(); break;
         case ixBoErUpdt:    _errUpdate(); break;
@@ -1017,6 +1013,7 @@ asynStatus drvScope::putIntCmnds(int ix,int addr,int v){
         case ixBoStop:
         case ixBoRun:    if(!pcmd) break;
                 command(pcmd);
+                isRunning();
                 break;
         case ixBoReset:    if(!pcmd) break;
                 command(pcmd); break;
@@ -1038,6 +1035,7 @@ asynStatus drvScope::putIntCmnds(int ix,int addr,int v){
         case ixBoEvMsg:    if(v) _evMessage(); break;
         default:        stat=asynError; break;
     }
+
     callParamCallbacks(addr);
     return(stat);
 }
@@ -1171,7 +1169,8 @@ void drvScope::_getTraces(){
  *---------------------------------------------------------------------------*/
     static epicsTimeStamp t1,t2,t3; 
     static int first=1;
-    int tmode,istrig=1; 
+    int tmode;
+    bool istrig = true; 
     const char* pcmd;
 
     epicsTimeGetCurrent(&t1);

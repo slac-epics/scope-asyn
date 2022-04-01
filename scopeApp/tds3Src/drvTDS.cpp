@@ -243,18 +243,45 @@ asynStatus drvTDS::trigState(){
   return(stat);
 }
 
-int drvTDS::isTriggered(){
+bool drvTDS::isTriggered() {
 /*-----------------------------------------------------------------------------
  * Returns true if scope is in a triggered state, returns false otherwise.
  *---------------------------------------------------------------------------*/
-  asynStatus stat=trigState(); int trst;
-  if(stat!=asynSuccess){
-    printf("%s::isTriggered: failed in trigState\n",dname);
-    return(0);
-  }
-  getIntegerParam(0,_mbbiTrSta,&trst);
-  if(trst==4) return(1);
-  return(0);
+    asynStatus stat;
+    int trst;
+
+    stat = trigState();
+
+    if (stat != asynSuccess) {
+        printf("%s::isTriggered: failed in trigState\n", dname);
+        return false;
+    }
+
+    getIntegerParam(0, _mbbiTrSta, &trst);
+    if (trst == 4) return true;
+  
+    return false;
+}
+
+bool drvTDS::isRunning() {
+/*-----------------------------------------------------------------------------
+ * Returns true if scope is in the run state, returns false otherwise.
+ *---------------------------------------------------------------------------*/
+    asynStatus status;
+    int runState;
+
+    status = getInt(AcqStateCmnd, _biAcqStat);
+    callParamCallbacks();
+
+    if (status != asynSuccess) {
+        //printf("%s::isRunning: failed to get run state\n", dname);
+        return false;
+    }
+    
+    getIntegerParam(_biAcqStat, &runState);
+    if (runState) return true;
+  
+    return false;
 }
 
 const char** drvTDS::getCmndList(int cix,uint* ni){

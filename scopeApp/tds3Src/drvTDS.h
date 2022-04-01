@@ -60,7 +60,8 @@ public:
     const char*   getCommand(int cix);
     const char**  getCmndList(int cix,uint* ni);
     void          getHSParams(double hs,int* x0,int* np);
-    int           isTriggered();
+    bool          isTriggered();
+    bool          isRunning();
     void          postInit();
 
 protected:

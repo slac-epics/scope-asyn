@@ -19,6 +19,7 @@ R1.4.0  M. Dunning (mdunning) 31-Mar-2022
     Fix bug in setting and initializing waveform data type
     Add autosaved channel description PVs
     Modify tds3x trigger commands to also support DPO2x scopes    
+    Fix acquire state readback when run/stop changed
 
 scope-asyn R1.3.2 Garth Brown (gwbrown) 25-Jan-2022:
 	Use latest asyn version

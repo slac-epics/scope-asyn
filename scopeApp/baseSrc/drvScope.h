@@ -174,7 +174,8 @@ public:
     virtual void         setChanPos(int addr,double v);
     virtual void         saveConfig();
     virtual void         restoreConfig();
-    virtual int          isTriggered();
+    virtual bool         isTriggered() {return true;}
+    virtual bool         isRunning() {return true;}
     void                 setChanPosition();
 
 protected:
