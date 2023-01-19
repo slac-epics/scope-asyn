@@ -2,7 +2,7 @@
 file bo.db
 {
 pattern    
-    {                 DESC,         ITEM, N,     ZNAM,    ONAM,    USER, AUTOSAVE}
+    {                 DESC,         ITEM, N,     ZNAM,    ONAM,    USER, AUTOSAVE, PINI}
     {             "Ch0 On",       CH0_ON, 0,      Off,      On,    CHON, }
     {             "Ch1 On",       CH1_ON, 1,      Off,      On,    CHON, }
     {             "Ch2 On",       CH2_ON, 2,      Off,      On,    CHON, }
@@ -19,7 +19,7 @@ pattern
     {         "Ch1 Select",   CH1_SELECT, 1,      Off,      On,   CHSEL, }
     {         "Ch2 Select",   CH2_SELECT, 2,      Off,      On,   CHSEL, }
     {         "Ch3 Select",   CH3_SELECT, 3,      Off,      On,   CHSEL, }
-    {   "Time Delay State", TIMDLY_STATE, 0,      off,      on,TIMDLYST, VAL}
+    {   "Time Delay State", TIMDLY_STATE, 0,      off,      on,TIMDLYST, VAL,        1}
     {        "Acquire Run",          RUN, 0,      Run,     Run,     RUN, }
     {       "Acquire Stop",         STOP, 0,     Stop,    Stop,    STOP, }
     {       "Clear Errors",          CLS, 0,      off,      on,     CLS, }
@@ -30,17 +30,17 @@ pattern
     {      "Get Ch2 Trace",    CH2_GETWF, 2,      off,      on,   GETWF, }
     {      "Get Ch3 Trace",    CH3_GETWF, 3,      off,      on,   GETWF, }
     {         "Get Traces",   GET_WF_ALL, 0,      off,      on,GETWFALL, }
-    {             "Update",       UPDATE, 0       off,      on,    UPDT, SCAN}
+    {             "Update",       UPDATE, 0       off,      on,    UPDT, SCAN,       1}
     {         "Err Update",   ERR_UPDATE, 0       off,      on,   EUPDT, }
     {       "Ch0 Pedestal", CH0_ANAL_PED, 0,      off,      on,     PED, }
     {       "Ch1 Pedestal", CH1_ANAL_PED, 1,      off,      on,     PED, }
     {       "Ch2 Pedestal", CH2_ANAL_PED, 2,      off,      on,     PED, }
     {       "Ch3 Pedestal", CH3_ANAL_PED, 3,      off,      on,     PED, }
-    {       " Read Traces",     RD_TRACE, 0,      off,      on, RDTRACE, VAL}
+    {       " Read Traces",     RD_TRACE, 0,      off,      on, RDTRACE, VAL,        1}
     {        "Save config",    SAVE_CONF, 0,     Save,    Save,    SAVE, }
     {      "Restor config",   RESTR_CONF, 0,  Restore, Restore,   RESTR, }
     {      "get Ev Messag",   GET_EV_MSG, 0,      Get,     Get,   EVMSG, }
-    {"Measurements enable",      MEAS_EN, 0,  Disable,  Enable, MEAS_EN, VAL}
+    {"Measurements enable",      MEAS_EN, 0,  Disable,  Enable, MEAS_EN, VAL,        1}
 }
 
 file bi.db

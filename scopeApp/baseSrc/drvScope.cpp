@@ -48,7 +48,7 @@ drvScope::drvScope(const char* port, const char* udp):
                 _markchan(0),
                 _chSel(0),
                 _tracemode(0),
-                _rdtraces(0),
+                _rdtraces(1),
                 _posInProg(0),
                 _measEnabled(0),
                 _pollCount(0) {

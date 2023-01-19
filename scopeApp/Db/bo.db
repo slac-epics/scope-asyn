@@ -6,6 +6,8 @@ record(bo, "$(P):BO_$(ITEM)"){
     field(OUT,  "@asyn($(PORT),$(N),1) BO_$(USER)")
     field(ZNAM, "$(ZNAM)")
     field(ONAM, "$(ONAM)")
+    field(VAL,  "$(VAL=0)")
+    field(PINI, "$(PINI=0)")
     info(asyn:READBACK, "1")
     info(autosaveFields, "$(AUTOSAVE=)")
 }
