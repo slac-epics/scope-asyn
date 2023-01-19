@@ -16,6 +16,8 @@
 
 #include "drvTDS.h"
 
+static const int debug = 0;
+
 const char* ChOnCmnd       = "SEL:CH%d";
 const char* ChPosCmnd      = "CH%d:POS";
 const char* ChImpCmnd      = "CH%d:IMP";
@@ -59,8 +61,8 @@ const char* GetConfCmnd    = "*LRN?";
 const char* ErrMsgCmnd     = "EVM?";
 const char* MeasValCmnd    = "MEASU:MEAS%d:VAL?";
 const char* MeasUnitsCmnd  = "MEASU:MEAS%d:UNI?";
-const char* MeasTypeCmnd   = "MEASU:MEAS%d:TYP?";
-const char* MeasStatCmnd   = "MEASU:MEAS%d:STATE?";
+const char* MeasTypeCmnd   = "MEASU:MEAS%d:TYP";
+const char* MeasStateCmnd  = "MEASU:MEAS%d:STATE";
 
 // cmnds is a list of commands understood by the instrument that we implement.
 // The order is important and must agree with the order of enumerated names
@@ -73,24 +75,27 @@ static const char* cmnds[]={
   TrigHoldCmnd, RunCmnd,      StopCmnd,    EseCmnd,    ClsCmnd,
   EsrCmnd,      OpcCmnd,      StbCmnd,     ResetCmnd,  IdnCmnd,
   IPAddrCmnd,   InitCmnd,     GetConfCmnd, ErrMsgCmnd, MeasValCmnd,
-  MeasUnitsCmnd};
+  MeasUnitsCmnd, MeasTypeCmnd, MeasStateCmnd};
 
 // some of the commands listed above return or require specific keywords.  What
 // follows are lists of these keywords for some of the commands.
 static const char* chanImp[]={"FIFTY","MEG"};
 static const char* chanCpl[]={"DC","AC","GND"};
 static const char* chanScl[]={"1.0E-3","2.0E-3","5.0E-3","1.0E-2","2.0E-2",
-	"5.0E-2","1.0E-1","2.0E-1","5.0E-1","1.0E0","2.0E0","5.0E0","1.0E1"};
+        "5.0E-2","1.0E-1","2.0E-1","5.0E-1","1.0E0","2.0E0","5.0E0","1.0E1"};
 static const char* timDivV[]={"1","2","4","10","20","40","100","200","400"};
 static const char* timDivU[]={"ns","us","ms","s"};
 static const char* trgMode[]={"NORMAL","AUTO"};
 static const char* trigSou[]={"CH1","CH2","CH3","CH4","LINE","VERTICAL",
-				"EXT10","EXT"};
+		"EXT10","EXT"};
 static const char* trigSlo[]={"FALL","RISE"};
 //static const char* acqStat[]={"RUNSTOP","SEQUESCE"};
 static const char* trigSta[]={"AUTO","ARMED","READY","SAVE","TRIGGER"};
 static const char* dataFmt[]={"ASCII","RIBINARY",
-			"RPBINARY","SRIBINARY","SRPBINARY"};
+		"RPBINARY","SRIBINARY","SRPBINARY"};
+//static const char* measState[]={"OFF", "ON"};
+static const char* measType[]={"AMPLITUDE", "FREQUENCY", "DELAY", "MAXIMUM", "MINIMUM", "MEAN", "PERIOD", 
+        "PHASE", "PK2PK", "PWIDTH", "RISE", "FALL", "RMS"};
 
 // here we construct a list of lists.  Again the order is important.  The total
 // number of items in this list must agree with the number of commands above.
@@ -101,13 +106,14 @@ static const char** listIx[]={
 	0,0,0,0,0,
 	0,0,0,0,0,
 	0,0,0,0,0,
-	0,0,0,0};
+	0,0,0,0,0,
+    0,measType,0};
 
 // finally, we construct a list of number of keywords in each list.  Again,
 // order is important.
 static int itemSz[]={
 	0,0,2,3,13, 0,0,0,0,5,  0,0,0,0,0,  0,0,0,0,0,
-	0,0,0,0,0,  0,0,0,0};
+	0,0,0,0,0,  0,0,0,0,0,  0,13,0};
 
 static const int hsc[]={  1,   2,   4,  10};
 static const int hsx[]={225, 200, 150,   0};
@@ -147,25 +153,25 @@ drvTDS::drvTDS(const char* port, const char* udp):
     createParam(siSourceStr,	  asynParamOctet,         &_siSource);
     createParam(siHeadStr,        asynParamOctet,         &_siHead);
   
-    createParam(aiMeas1Str,       asynParamFloat64,       &_aiMeas1);
-    createParam(aiMeas2Str,       asynParamFloat64,       &_aiMeas2);
-    createParam(aiMeas3Str,       asynParamFloat64,       &_aiMeas3);
-    createParam(aiMeas4Str,       asynParamFloat64,       &_aiMeas4);
-    createParam(siMeas1UnitsStr,  asynParamOctet,         &_siMeas1Units);
+    createParam(meas1Str,         asynParamFloat64,       &_meas1);
+    createParam(meas2Str,         asynParamFloat64,       &_meas2);
+    createParam(meas3Str,         asynParamFloat64,       &_meas3);
+    createParam(meas4Str,         asynParamFloat64,       &_meas4);
+    createParam(meas1UnitsStr,    asynParamOctet,         &_meas1Units);
 
-    createParam(siMeas2UnitsStr,  asynParamOctet,         &_siMeas2Units);
-    createParam(siMeas3UnitsStr,  asynParamOctet,         &_siMeas3Units);
-    createParam(siMeas4UnitsStr,  asynParamOctet,         &_siMeas4Units);
-    createParam(siMeas1TypeStr,   asynParamOctet,         &_siMeas1Type);
-    createParam(siMeas2TypeStr,   asynParamOctet,         &_siMeas2Type);
+    createParam(meas2UnitsStr,    asynParamOctet,         &_meas2Units);
+    createParam(meas3UnitsStr,    asynParamOctet,         &_meas3Units);
+    createParam(meas4UnitsStr,    asynParamOctet,         &_meas4Units);
+    createParam(meas1TypeStr,     asynParamInt32,         &_meas1Type);
+    createParam(meas2TypeStr,     asynParamInt32,         &_meas2Type);
 
-    createParam(siMeas3TypeStr,   asynParamOctet,         &_siMeas3Type);
-    createParam(siMeas4TypeStr,   asynParamOctet,         &_siMeas4Type);
-    createParam(biMeas1StatStr,   asynParamInt32,         &_biMeas1Stat);
-    createParam(biMeas2StatStr,   asynParamInt32,         &_biMeas2Stat);
-    createParam(biMeas3StatStr,   asynParamInt32,         &_biMeas3Stat);
+    createParam(meas3TypeStr,     asynParamInt32,         &_meas3Type);
+    createParam(meas4TypeStr,     asynParamInt32,         &_meas4Type);
+    createParam(meas1StateStr,    asynParamInt32,         &_meas1State);
+    createParam(meas2StateStr,    asynParamInt32,         &_meas2State);
+    createParam(meas3StateStr,    asynParamInt32,         &_meas3State);
 
-    createParam(biMeas4StatStr,   asynParamInt32,         &_biMeas4Stat);
+    createParam(meas4StateStr,    asynParamInt32,         &_meas4State);
 
     _firstix=_mbboWfWid;
 
@@ -173,10 +179,10 @@ drvTDS::drvTDS(const char* port, const char* udp):
     setIntegerParam(_loStore,1);
     setIntegerParam(_loRecall,1);
     for (int i=0; i<_num_meas; i++) {
-        setDoubleParam(_aiMeas1+i, 0);
-        setStringParam(_siMeas1Units+i, "");
-        setStringParam(_siMeas1Type+i, "");
-        setIntegerParam(_biMeas1Stat+i, 0);
+        setDoubleParam(_meas1+i, 0);
+        setStringParam(_meas1Units+i, "");
+        setIntegerParam(_meas1Type+i, 0);
+        setIntegerParam(_meas1State+i, 0);
     }
     message("Constructor drvTDS success");
     callParamCallbacks(0);
@@ -204,35 +210,43 @@ static void inithooks(initHookState state){
   }
 }
 
-void drvTDS::postInit(){
+
+void drvTDS::postInit() {
 /*-----------------------------------------------------------------------------
  * After IOC init.
  *---------------------------------------------------------------------------*/
-  putInMessgQ(enQuery,_mbboTrSou,0,0);
-  putInMessgQ(enQuery,_boTrSlo,0,0);
-  putInMessgQ(enQuery,_mbbiTrSta,0,0);
-  putInMessgQ(enQuery,_boTrMode,0,0);
-  putInMessgQ(enQuery,_siSource,0,0);
-  putInMessgQ(enQuery,_siHead,0,0);
-  putInMessgQ(enQuery,_mbboWfWid,0,0);
-  putInMessgQ(enQuery,_liEvQ,0,0);
-  putInMessgQ(enQuery,_biAcqStat,0,0);
-  drvScope::afterInit();
+    if (debug) printf("%s: postInit\n", dname);
+    putInMessgQ(enQuery, _mbboTrSou,0,0);
+    putInMessgQ(enQuery, _boTrSlo,0,0);
+    putInMessgQ(enQuery, _mbbiTrSta,0,0);
+    putInMessgQ(enQuery, _boTrMode,0,0);
+    putInMessgQ(enQuery, _siSource,0,0);
+    putInMessgQ(enQuery, _siHead,0,0);
+    putInMessgQ(enQuery, _mbboWfWid,0,0);
+    putInMessgQ(enQuery, _liEvQ,0,0);
+    putInMessgQ(enQuery, _biAcqStat,0,0);
+    for (int i=0; i<_num_meas; i++) {
+        putInMessgQ(enQuery, _meas1State+i,0,0);
+    }
+    drvScope::afterInit();
 }
+
 
 void drvTDS::updateUser(){
 /*-----------------------------------------------------------------------------
  * This is a re-implementation of a virtual function in the base class.
  *---------------------------------------------------------------------------*/
-  getBinary(TrigSouCmnd,_mbboTrSou,trigSou,SIZE(trigSou));
-  getBinary(TrigSloCmnd,_boTrSlo,trigSlo,SIZE(trigSlo));
-  getBinary(TrigStaCmnd,_mbbiTrSta,trigSta,SIZE(trigSta));
-  getBinary(TrigModeCmnd,_boTrMode,trgMode,SIZE(trgMode));
+    getBinary(TrigSouCmnd, _mbboTrSou,trigSou,SIZE(trigSou));
+    getBinary(TrigSloCmnd, _boTrSlo,trigSlo,SIZE(trigSlo));
+    getBinary(TrigStaCmnd, _mbbiTrSta,trigSta,SIZE(trigSta));
+    getBinary(TrigModeCmnd, _boTrMode,trgMode,SIZE(trgMode));
 }
+
 
 void drvTDS::getHSParams(double hs,int* x0,int* np){
   __getHSParams(hs,x0,np);
 }
+
 
 asynStatus drvTDS::trigState(){
 /*-----------------------------------------------------------------------------
@@ -242,6 +256,7 @@ asynStatus drvTDS::trigState(){
   stat=getBinary(TrigStaCmnd,_mbbiTrSta,trigSta,SIZE(trigSta));
   return(stat);
 }
+
 
 bool drvTDS::isTriggered() {
 /*-----------------------------------------------------------------------------
@@ -253,7 +268,7 @@ bool drvTDS::isTriggered() {
     stat = trigState();
 
     if (stat != asynSuccess) {
-        printf("%s::isTriggered: failed in trigState\n", dname);
+        if (debug) printf("%s::isTriggered: failed in trigState\n", dname);
         return false;
     }
 
@@ -274,7 +289,7 @@ bool drvTDS::isRunning() {
     callParamCallbacks();
 
     if (status != asynSuccess) {
-        //printf("%s::isRunning: failed to get run state\n", dname);
+        if (debug) printf("%s::isRunning: failed to get run state\n", dname);
         return false;
     }
     
@@ -284,16 +299,18 @@ bool drvTDS::isRunning() {
     return false;
 }
 
-const char** drvTDS::getCmndList(int cix,uint* ni){
+const char** drvTDS::getCmndList(int cix, uint* ni){
 /*-----------------------------------------------------------------------------
  * Overides the empty virtual function in the base class.  It returns a pointer
  * to a list of command items choices for the cix index.  If list is not null,
  * it also returns in ni, number of items in the list.
  *---------------------------------------------------------------------------*/
-  int n=SIZE(listIx);
+  int n = SIZE(listIx);
+
   *ni=0;
   if((cix<0)||(cix>=n)) return(NULL);
-  if(listIx[cix]) *ni=itemSz[cix];
+  if(listIx[cix]) *ni = itemSz[cix];
+
   return(listIx[cix]);
 }
 
@@ -401,33 +418,26 @@ void drvTDS::getWaveform(int ch){
 void drvTDS::getMeasurements(int pollCount) {
 /*-----------------------------------------------------------------------------
  *---------------------------------------------------------------------------*/
-    char str[32]; 
+    char cmnd[32]; 
 
     // Get measurement data
     for (int i=0; i<_num_meas; i++) {
-        //_getMeasData(i, _aiMeas1+i);
-        sprintf(str, MeasValCmnd, i+1);
-        getFloat(str, _aiMeas1+i);
+        sprintf(cmnd, MeasValCmnd, i+1);
+        getFloat(cmnd, _meas1+i);
     }
 
     // Get these at a slower rate
     if (pollCount % 50 == 0) {
-        // Get measurement units
         for (int i=0; i<_num_meas; i++) {
-            sprintf(str, MeasUnitsCmnd, i+1);
-            getString(str, _siMeas1Units+i);
-        }
-        
-        // Get measurement type
-        for (int i=0; i<_num_meas; i++) {
-            sprintf(str, MeasTypeCmnd, i+1);
-            getString(str, _siMeas1Type+i);
-        }
-        
-        // Get measurement state (on/off)
-        for (int i=0; i<_num_meas; i++) {
-            sprintf(str, MeasStatCmnd, i+1);
-            getInt(str, _biMeas1Stat+i);
+            // Get measurement units
+            sprintf(cmnd, MeasUnitsCmnd, i+1);
+            getString(cmnd, _meas1Units+i);
+            // Get measurement type
+            sprintf(cmnd, MeasTypeCmnd, i+1);
+            getBinary(cmnd, _meas1Type+i, measType, SIZE(measType));
+            // Get measurement state (on/off)
+            sprintf(cmnd, MeasStateCmnd, i+1);
+            getInt(cmnd, _meas1State+i);
         }
     }
     
@@ -546,7 +556,7 @@ void drvTDS::_setTimePerDiv(uint vix,uint uix){
   setTimePerDiv(v);
 }
 
-asynStatus drvTDS::getCmnds(int ix,int addr){
+asynStatus drvTDS::getCmnds(int ix, int addr){
 /*-----------------------------------------------------------------------------
  * This virtual function reimplements the one in the base class.
  * This routine is called from the pollerThread in the base class when it
@@ -554,11 +564,11 @@ asynStatus drvTDS::getCmnds(int ix,int addr){
  * ix is the index into parameter library (or the reason)
  * addr is channel or address
  *---------------------------------------------------------------------------*/
-  asynStatus stat = asynSuccess; 
+  asynStatus stat = asynSuccess;
+  char cmnd[32];
   int jx = ix - _firstix;
-  //char cmnd[32];
+    if (debug) printf("%s: getCmnds: ix=%d\n", dname, ix);
 
-//  _opc();
   switch(jx){
     case ixBoTrMode:    getBinary(TrigModeCmnd, ix, trgMode, 2); break;
     case ixMbboTrSou:   getBinary(TrigSouCmnd, ix, trigSou, SIZE(trigSou)); break;
@@ -570,13 +580,39 @@ asynStatus drvTDS::getCmnds(int ix,int addr){
     case ixLiEvQ:       stat = getInt(EvqCmnd, ix); break;
     case ixBiAcqStat:   stat = getInt(AcqStateCmnd, ix); break;
     case ixSiHead:      stat = getString(HeaderCmnd, ix); break;
+
+    case ixMeas1State:  sprintf(cmnd, MeasStateCmnd, 1);
+                        getInt(cmnd, ix); break;
+
+    case ixMeas2State:  sprintf(cmnd, MeasStateCmnd, 2);
+                        getInt(cmnd, ix); break;
+
+    case ixMeas3State:  sprintf(cmnd, MeasStateCmnd, 3);
+                        getInt(cmnd, ix); break;
+
+    case ixMeas4State:  sprintf(cmnd, MeasStateCmnd, 4);
+                        getInt(cmnd, ix); break;
+
+    case ixMeas1Type:   sprintf(cmnd, MeasTypeCmnd, 1);
+                        getBinary(cmnd, ix, measType, SIZE(measType)); break;
+
+    case ixMeas2Type:   sprintf(cmnd, MeasTypeCmnd, 2);
+                        getBinary(cmnd, ix, measType, SIZE(measType)); break;
+
+    case ixMeas3Type:   sprintf(cmnd, MeasTypeCmnd, 3);
+                        getBinary(cmnd, ix, measType, SIZE(measType)); break;
+
+    case ixMeas4Type:   sprintf(cmnd, MeasTypeCmnd, 4);
+                        getBinary(cmnd, ix, measType, SIZE(measType)); break;
+
     default:            stat = drvScope::getCmnds(ix, addr); break;
   } 
+
   callParamCallbacks(addr);
-  return(stat);
+  return stat;
 }
 
-asynStatus drvTDS::putIntCmnds(int ix,int addr,int v){
+asynStatus drvTDS::putIntCmnds(int ix, int addr, int v) {
 /*-----------------------------------------------------------------------------
  * This is a reimplementation of a virtual function in the base class.
  * It is called from the pollerThread routine in the base dlass when it
@@ -585,37 +621,99 @@ asynStatus drvTDS::putIntCmnds(int ix,int addr,int v){
  * addr is channel or address
  * v is a possible integer set value.
  *---------------------------------------------------------------------------*/
-  asynStatus stat=asynSuccess; char cmnd[32];
-  int jx=ix-_firstix;
-  switch(jx){
-    case ixMbboChScl:   setIntegerParam(addr,ix,v);
-                        setBinaryCh(v,addr,ChSclCmnd,chanScl,SIZE(chanScl));
-                        getFloatCh(ChSclCmnd,addr+1,_aoChScl);
-                        break;
-    case ixMbboTimDivV: stat=getIntegerParam(_mbboTimDivU,&jx);
-                        _setTimePerDiv(v,jx);
-                        break;
-    case ixMbboTimDivU: getIntegerParam(_mbboTimDivV,&jx);
-                        _setTimePerDiv(jx,v);
-                        break;
-    case ixMbboWfWid:	setInt(jx, WfDatCmnd, v, ix); break;
-    case ixBoTrMode:    setBinary(v,TrigModeCmnd,trgMode,SIZE(trgMode));
-                        setIntegerParam(ix,v);
-                        break;
-    case ixMbboTrSou:   setBinary(v,TrigSouCmnd,trigSou,SIZE(trigSou));
-                        break;
-    case ixBoTrSlo:     setBinary(v,TrigSloCmnd,trigSlo,SIZE(trigSlo));
-                        break;
-    case ixLoRecall:	sprintf(cmnd,RecallCmnd,v);
-			command(cmnd);
-			update();
-			break;
-    case ixLoStore:	sprintf(cmnd,SaveCmnd,v);
-                        command(cmnd); break;
-    default:		stat=drvScope::putIntCmnds(ix,addr,v); break;
-  }
-  callParamCallbacks(addr);
-  return(stat);
+    asynStatus stat = asynSuccess; 
+    char cmnd[32];
+    int jx = ix - _firstix;
+
+    switch(jx) {
+        case ixMbboChScl:   setIntegerParam(addr,ix,v);
+                            setBinaryCh(v,addr,ChSclCmnd,chanScl,SIZE(chanScl));
+                            getFloatCh(ChSclCmnd,addr+1,_aoChScl);
+                            break;
+  
+        case ixMbboTimDivV: stat=getIntegerParam(_mbboTimDivU,&jx);
+                            _setTimePerDiv(v,jx);
+                            break;
+  
+        case ixMbboTimDivU: getIntegerParam(_mbboTimDivV,&jx);
+                            _setTimePerDiv(jx,v);
+                            break;
+  
+        case ixMbboWfWid:   setInt(jx, WfDatCmnd, v, ix);
+                            break;
+
+        case ixBoTrMode:    setBinary(v,TrigModeCmnd,trgMode,SIZE(trgMode));
+                            setIntegerParam(ix,v);
+                            break;
+  
+        case ixMbboTrSou:   setBinary(v,TrigSouCmnd,trigSou,SIZE(trigSou));
+                            break;
+  
+        case ixBoTrSlo:     setBinary(v,TrigSloCmnd,trigSlo,SIZE(trigSlo));
+                            break;
+  
+        case ixLoRecall:    sprintf(cmnd,RecallCmnd,v);
+                            command(cmnd);
+                            update();
+                            break;
+  
+        case ixLoStore:     sprintf(cmnd,SaveCmnd,v);
+                            command(cmnd); 
+                            break;
+  
+        case ixMeas1State:  sprintf(cmnd, MeasStateCmnd, 1);
+                            setInt(jx, cmnd, v, ix);
+                            setIntegerParam(ix, v);
+                            break;
+  
+        case ixMeas2State:  sprintf(cmnd, MeasStateCmnd, 2);
+                            setInt(jx, cmnd, v, ix);
+                            setIntegerParam(ix, v);
+                            break;
+  
+        case ixMeas3State:  sprintf(cmnd, MeasStateCmnd, 3);
+                            setInt(jx, cmnd, v, ix);
+                            setIntegerParam(ix, v);
+                            break;
+  
+        case ixMeas4State:  sprintf(cmnd, MeasStateCmnd, 4);
+                            setInt(jx, cmnd, v, ix);
+                            setIntegerParam(ix, v);
+                            break;
+  
+        case ixMeas1Type:   sprintf(cmnd, MeasTypeCmnd, 1);
+                            setBinary(v, cmnd, measType, SIZE(measType));
+                            setIntegerParam(ix, v);
+                            sprintf(cmnd, MeasUnitsCmnd, 1);
+                            getString(cmnd, _meas1Units);
+                            break;
+  
+        case ixMeas2Type:   sprintf(cmnd, MeasTypeCmnd, 2);
+                            setBinary(v, cmnd, measType, SIZE(measType));
+                            setIntegerParam(ix, v);
+                            sprintf(cmnd, MeasUnitsCmnd, 2);
+                            getString(cmnd, _meas2Units);
+                            break;
+  
+        case ixMeas3Type:   sprintf(cmnd, MeasTypeCmnd, 3);
+                            setBinary(v, cmnd, measType, SIZE(measType));
+                            setIntegerParam(ix, v);
+                            sprintf(cmnd, MeasUnitsCmnd, 3);
+                            getString(cmnd, _meas3Units);
+                            break;
+  
+        case ixMeas4Type:   sprintf(cmnd, MeasTypeCmnd, 4);
+                            setBinary(v, cmnd, measType, SIZE(measType));
+                            setIntegerParam(ix, v);
+                            sprintf(cmnd, MeasUnitsCmnd, 4);
+                            getString(cmnd, _meas4Units);
+                            break;
+  
+        default:            stat=drvScope::putIntCmnds(ix,addr,v); break;
+    }
+
+    callParamCallbacks(addr);
+    return stat;
 }
 
 asynStatus drvTDS::putFltCmnds(int ix,int addr,float v){

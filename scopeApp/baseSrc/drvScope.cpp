@@ -20,6 +20,8 @@
 static drvScope*    _this;
 static const char *dname="drvScope";
 
+static const int debug = 0;
+
 extern "C" {
 static void pollerThreadC(void* pPvt){
     drvScope* _this=(drvScope*)pPvt;
@@ -41,6 +43,13 @@ drvScope::drvScope(const char* port, const char* udp):
                 asynOctetMask | asynDrvUserMask,
                 asynInt32Mask | asynFloat64Mask | asynFloat32ArrayMask | asynOctetMask,
                 ASYN_CANBLOCK | ASYN_MULTIDEVICE,1,0,0),
+                _ncmnds(0),
+                _pollT(0.1),
+                _markchan(0),
+                _chSel(0),
+                _tracemode(0),
+                _rdtraces(0),
+                _posInProg(0),
                 _measEnabled(0),
                 _pollCount(0) {
 /*------------------------------------------------------------------------------
@@ -59,29 +68,23 @@ drvScope::drvScope(const char* port, const char* udp):
  *  priority
  *  stack size
  *---------------------------------------------------------------------------*/
-    int i,status=asynSuccess,nbts,st=0;
+    int status = asynSuccess;
+    bool conn = false;
 
-    _this=this;
-    nbts=strlen(port)+strlen(udp)+2;
-    _port=(char*)callocMustSucceed(nbts,sizeof(char),dname);
-    _udpp=(char*)(_port+strlen(port)+1);
-    strcpy((char*)_port,port);
-    strcpy((char*)_udpp,udp);
-    _ncmnds=0; _pollT=0.1; _markchan=0; _chSel=_posInProg=0; _tracemode=0;
+    _this = this;
 
-    for(i=0; i<NCHAN; i++){
+    for(int i=0; i<NCHAN; i++){
         _analize[i]=_mix1[i]=_mix2[i]=0; _area[i]=_pedestal[i]=0.0;
     }
 
-    _rdtraces=0;
+    status = pasynOctetSyncIO->connect(udp, 0, &pasynUser, 0);
 
-    status=pasynOctetSyncIO->connect(udp, 0, &pasynUser, 0);
-    if(status!=asynSuccess)
+    if(status != asynSuccess) {
         printf("%s::%s:connect: failed to connect to port %s\n",
-            dname,dname,udp);
-    else{
-        printf("%s::%s:connect: connected to port %s\n",dname,dname,udp);
-        st=1;
+            dname, dname, udp);
+    } else {
+        printf("%s::%s:connect: connected to port %s\n", dname, dname, udp);
+        conn = true;
     }
 
     createParam(boChOnStr,         asynParamInt32,         &_boChOn);
@@ -166,16 +169,15 @@ drvScope::drvScope(const char* port, const char* udp):
 
     _firstix=_boChOn;
 
-    setStringParam(_siName,dname);
-    setIntegerParam(_biState,st);
-    setIntegerParam(_boRdTraces,_rdtraces);
+    setStringParam(_siName, dname);
+    setIntegerParam(_biState, conn);
+    setIntegerParam(_boRdTraces, _rdtraces);
     setIntegerParam(_boMeasEnabled, _measEnabled);
-    setDoubleParam(_aoPTMO,_pollT);
+    setDoubleParam(_aoPTMO, _pollT);
 
     callParamCallbacks(0);
 
     _pmq = new epicsMessageQueue(NMSGQ, MSGQNB);
-    //errlogPrintf("%s::%s: messageQueue created, id=0x%p\n",dname,dname,_pmq);
 
     epicsThreadCreate(dname,epicsThreadPriorityHigh,
                     epicsThreadGetStackSize(epicsThreadStackMedium),
@@ -264,13 +266,17 @@ void drvScope::putInMessgQ(int tp,int ix,int addr,int iv,float fv){
 /*-----------------------------------------------------------------------------
  * Construct a message and put in the message queue.
  *---------------------------------------------------------------------------*/
-    int stat; msgq_t messg;
+    if (debug) printf("%s: putInMessgQ: ix=%d\n", dname, ix);
+    int stat; 
+    msgq_t messg;
+
     messg.type=tp;
     messg.ix=ix;
     messg.addr=addr;
     messg.ival=iv;
     messg.fval=fv;
-    stat=_pmq->trySend(&messg,sizeof(messg));
+
+    stat = _pmq->trySend(&messg, sizeof(messg));
     if(!stat) _mqSent++; else _mqFailed++;
     setIntegerParam(_liMsgQS,_mqSent);
     setIntegerParam(_liMsgQF,_mqFailed);
@@ -593,29 +599,38 @@ asynStatus drvScope::command(const char* cmnd,char* prd,int n){
     return(stat);
 }
 
-asynStatus drvScope::getInt(int cix,int pix){
+
+asynStatus drvScope::getInt(int cix, int pix){
 /*-----------------------------------------------------------------------------
  * Issues a query for an integer value and puts the obtained value in
  * parameter library at index pix.
  *---------------------------------------------------------------------------*/
-    asynStatus stat=asynSuccess; const char* cmnd=getCommand(cix);
-    stat=getInt(cmnd,pix);
-    return(stat);
+    asynStatus stat = asynSuccess;
+    const char* cmnd = getCommand(cix);
+
+    stat = getInt(cmnd, pix);
+
+    return stat;
 }
 
-asynStatus drvScope::getInt(const char* cmnd,int pix){
+
+asynStatus drvScope::getInt(const char* cmnd, int pix){
 /*-----------------------------------------------------------------------------
  * Issues a query for an integer value and puts the obtained value in
  * parameter library at index pix.
  *---------------------------------------------------------------------------*/
-    asynStatus stat=asynSuccess; int val;
-    stat=command(_makeQuery(cmnd));
-    if(stat==asynSuccess){
-        val=atoi(_rbuf);
-        stat=setIntegerParam(pix,val);
+    asynStatus stat = asynSuccess;
+    int val;
+
+    stat = command(_makeQuery(cmnd));
+    if(stat == asynSuccess){
+        val = atoi(_rbuf);
+        stat = setIntegerParam(pix, val);
     }
-    return(stat);
+
+    return stat;
 }
+
 
 asynStatus drvScope::getFloat(int cix,int pix){
 /*-----------------------------------------------------------------------------
@@ -658,38 +673,51 @@ int drvScope::_find(const char* item,const char** list,int n){
     return(i);
 }
 
-asynStatus drvScope::getBinary(int cix,int pix){
+
+asynStatus drvScope::getBinary(int cix, int pix) {
 /*-----------------------------------------------------------------------------
  * Issues a query for an integer value and puts the obtained value in
  * parameter library at index pix.  The reply is a string and a numeric
  * value is the index in a list of strings.
  *---------------------------------------------------------------------------*/
-    const char* cmnd=getCommand(cix);
-    if(!cmnd) return(asynError);
+    const char* cmnd = getCommand(cix);
+    if(!cmnd) return asynError;
+
     uint ni;
-    const char** list=getCmndList(cix,&ni);
-    if(!list) return(asynError);
-    return(getBinary(cmnd,pix,list,ni));
+    const char** list = getCmndList(cix, &ni);
+    if(!list) return asynError;
+
+    if (debug) printf("%s: getBinary: pix=%d, cmnd=%s\n", dname, pix, cmnd);
+    
+    return getBinary(cmnd, pix, list, ni);
 }
 
-asynStatus drvScope::getBinary(const char* cmnd,int pix,
-            const char** list,int ni){
+
+asynStatus drvScope::getBinary(const char* cmnd, int pix, const char** list, int ni) {
 /*-----------------------------------------------------------------------------
  * Issues a query for an integer value and puts the obtained value in
  * parameter library at index pix.  The reply is a string and a numeric
  * value is the index in a list of strings.
  *---------------------------------------------------------------------------*/
-    asynStatus stat=asynSuccess; int val;
-    char str[32]; int len=strlen(cmnd);
+    asynStatus stat = asynSuccess;
+    int val;
+    char str[32];
+    int len = strlen(cmnd);
+
     if(len>30) return(asynError);
     strcpy(str,cmnd);
+
     if(!strchr(str,'?')) strcat(str,"?");
-    stat=_wtrd(str,strlen(str),_rbuf,DBUF_LEN);
-    if(stat!=asynSuccess) return(stat);
-    val=_find(_rbuf,list,ni);
-    stat=setIntegerParam(pix,val);
-    return(stat);
+
+    stat = _wtrd(str, strlen(str), _rbuf, DBUF_LEN);
+    if(stat != asynSuccess) return(stat);
+
+    val = _find(_rbuf, list, ni);
+    stat = setIntegerParam(pix, val);
+    
+    return stat;
 }
+
 
 asynStatus drvScope::getIntCh(int cix,int i,int pix){
 /*-----------------------------------------------------------------------------
@@ -706,17 +734,23 @@ asynStatus drvScope::getIntCh(const char* cmnd,int i,int pix){
  * Issues a query for an integer value for channel i and puts the obtained
  * value in parameter library at index pix.
  *---------------------------------------------------------------------------*/
-    asynStatus stat=asynSuccess; int val;
-    char str[32]; int len=strlen(cmnd);
+    asynStatus stat = asynSuccess;
+    int val;
+    char str[32];
+    int len=strlen(cmnd);
+
     if((len>30)||(i<1)||(i>4)) return(asynError);
+
     sprintf(str,cmnd,i);
     if(!strchr(str,'?')) strcat(str,"?");
-    stat=_wtrd(str,strlen(str),_rbuf,DBUF_LEN);
-    if(stat==asynSuccess){
-        val=atoi(_rbuf);
-        stat=setIntegerParam(i-1,pix,val);
+
+    stat = _wtrd(str, strlen(str), _rbuf, DBUF_LEN);
+    if(stat == asynSuccess){
+        val = atoi(_rbuf);
+        stat = setIntegerParam(i-1,pix,val);
     }
-    return(stat);
+
+    return stat;
 }
 
 asynStatus drvScope::getFloatCh(int cix,int i,int pix){
@@ -848,8 +882,11 @@ void drvScope::setInt(int cix,const char* cmnd,int v,int pix){
  * Constructs a string command to set an integer value and sends it.
  *---------------------------------------------------------------------------*/
     char str[32];
+
     sprintf(str,"%s %d",cmnd,v);
-    //printf("drvScope::setInt: str=%s, cix=%d, pix=%d\n", str, cix, pix);
+
+    if (debug) printf("drvScope::setInt: str=%s, cix=%d, pix=%d\n", str, cix, pix);
+
     command(str);
     if(!pix) return;
     getInt(cix,pix);
@@ -1050,7 +1087,7 @@ void drvScope::setChanPosition(){
     getTrigLevl();
 }
 
-asynStatus drvScope::writeInt32(asynUser* pau,epicsInt32 v){
+asynStatus drvScope::writeInt32(asynUser* pau, epicsInt32 v) {
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.  Here we service
  * all write requests comming from EPICS records.
@@ -1059,13 +1096,16 @@ asynStatus drvScope::writeInt32(asynUser* pau,epicsInt32 v){
  *  v           (in) this is the command index, which together with
  *              pau->reason define the command to be sent.
  *---------------------------------------------------------------------------*/
-    asynStatus stat=asynSuccess; int on,ix,jx,addr;
+    asynStatus stat = asynSuccess;
+    int on, ix, jx, addr;
 
-    stat=getAddress(pau,&addr); if(stat!=asynSuccess) return(stat);
-    ix=pau->reason;
-    jx=ix-_firstix;
+    stat = getAddress(pau,&addr);
+    if (stat != asynSuccess) return(stat);
 
-    switch(jx){
+    ix = pau->reason;
+    jx = ix-_firstix;
+
+    switch(jx) {
         case ixBoAnal:
             getIntegerParam(addr,_boChOn,&on);
             if(on) _analize[addr]=v;
@@ -1073,6 +1113,7 @@ asynStatus drvScope::writeInt32(asynUser* pau,epicsInt32 v){
             setIntegerParam(addr,_boAnal,1-_analize[addr]);
             setIntegerParam(addr,_boAnal,_analize[addr]);
             break;
+
         case ixMbboMChan:
             _markchan=MIN(NCHAN-1,MAX(v,0));
             setIntegerParam(_loMark1,_mix1[_markchan]+1);
@@ -1080,19 +1121,41 @@ asynStatus drvScope::writeInt32(asynUser* pau,epicsInt32 v){
             setIntegerParam(_loMark2,_mix2[_markchan]+1);
             setIntegerParam(_loMark2,_mix2[_markchan]);
             break;
-        case ixLoMark1:    _mix1[_markchan]=v; break;
-        case ixLoMark2:    _mix2[_markchan]=v; break;
-        case ixBoGetWfA:    _getTraces(); break;
-        case ixBoRdTraces:    _rdtraces=v; break;
+
+        case ixLoMark1:
+            _mix1[_markchan]=v;
+            break;
+
+        case ixLoMark2:
+            _mix2[_markchan]=v;
+            break;
+
+        case ixBoGetWfA:
+            _getTraces();
+            break;
+
+        case ixBoRdTraces:
+            _rdtraces = v;
+            setIntegerParam(_boRdTraces, v);
+            break;
+
         case ixBoMeasEnabled:
             _measEnabled = v;
+            setIntegerParam(_boMeasEnabled, v);
             getMeasurements(0);
             break;
-        case ixMbboTracMod:    setIntegerParam(addr,_mbboTracMod,v); break;
-        default:        putInMessgQ(enPutInt,ix,addr,v); break;
+
+        case ixMbboTracMod:
+            setIntegerParam(addr,_mbboTracMod,v);
+            break;
+
+        default:
+            putInMessgQ(enPutInt,ix,addr,v);
+            break;
     }
+
     callParamCallbacks(addr);
-    return(stat);
+    return stat;
 }
 
 asynStatus drvScope::putFltCmnds(int ix,int addr,float v){

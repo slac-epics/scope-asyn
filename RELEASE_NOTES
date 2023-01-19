@@ -11,6 +11,11 @@ was done by: 1. stopping acquisition, 2. reading all enabled traces, and
 This modification is needed for the Kicker Magnet scope.
 ==============================================================================
 
+R1.4.1  M. Dunning (mdunning) 19-Jan-2023
+    Make measurement type and state user adjustable
+    Set traces to be on by default, and use autosave
+    More code cleanup
+
 R1.4.0  M. Dunning (mdunning) 31-Mar-2022
     Code cleanup:
         Fix formatting issues

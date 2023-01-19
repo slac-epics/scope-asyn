@@ -29,25 +29,25 @@
 #define siSourceStr     "SI_SOURCE"     //
 #define siHeadStr       "SI_HEAD"       // state of the header flag
 
-#define aiMeas1Str      "AI_MEAS1"       // Measurement value
-#define aiMeas2Str      "AI_MEAS2"       // Measurement value
-#define aiMeas3Str      "AI_MEAS3"       // Measurement value
-#define aiMeas4Str      "AI_MEAS4"       // Measurement value
-#define siMeas1UnitsStr "SI_MEAS1_UNITS" // Measurement units
+#define meas1Str        "MEAS1"         // Measurement value
+#define meas2Str        "MEAS2"         // Measurement value
+#define meas3Str        "MEAS3"         // Measurement value
+#define meas4Str        "MEAS4"         // Measurement value
+#define meas1UnitsStr   "MEAS1_UNITS"   // Measurement units
 
-#define siMeas2UnitsStr "SI_MEAS2_UNITS" // Measurement units
-#define siMeas3UnitsStr "SI_MEAS3_UNITS" // Measurement units
-#define siMeas4UnitsStr "SI_MEAS4_UNITS" // Measurement units
-#define siMeas1TypeStr  "SI_MEAS1_TYPE"  // Measurement type
-#define siMeas2TypeStr  "SI_MEAS2_TYPE"  // Measurement type
+#define meas2UnitsStr   "MEAS2_UNITS"   // Measurement units
+#define meas3UnitsStr   "MEAS3_UNITS"   // Measurement units
+#define meas4UnitsStr   "MEAS4_UNITS"   // Measurement units
+#define meas1TypeStr    "MEAS1_TYPE"    // Measurement type
+#define meas2TypeStr    "MEAS2_TYPE"    // Measurement type
 
-#define siMeas3TypeStr  "SI_MEAS3_TYPE"  // Measurement type
-#define siMeas4TypeStr  "SI_MEAS4_TYPE"  // Measurement type
-#define biMeas1StatStr  "BI_MEAS1_STAT"  // Measurement status
-#define biMeas2StatStr  "BI_MEAS2_STAT"  // Measurement status
-#define biMeas3StatStr  "BI_MEAS3_STAT"  // Measurement status
+#define meas3TypeStr    "MEAS3_TYPE"    // Measurement type
+#define meas4TypeStr    "MEAS4_TYPE"    // Measurement type
+#define meas1StateStr   "MEAS1_STATE"   // Measurement state
+#define meas2StateStr   "MEAS2_STATE"   // Measurement state
+#define meas3StateStr   "MEAS3_STATE"   // Measurement state
 
-#define biMeas4StatStr  "BI_MEAS4_STAT"  // Measurement status
+#define meas4StateStr   "MEAS4_STATE"   // Measurement state
 
 
 class drvTDS: public drvScope{
@@ -56,6 +56,8 @@ public:
   
     virtual asynStatus writeInt32(asynUser* pau,epicsInt32 v);
     virtual asynStatus writeFloat64(asynUser* pau,epicsFloat64 v);
+    //virtual asynStatus readEnum(asynUser *pau, char *strings[], int values[], int severities[],
+    //        size_t nElements, size_t *nIn);
     void          getWaveform(int ch);
     const char*   getCommand(int cix);
     const char**  getCmndList(int cix,uint* ni);
@@ -68,18 +70,18 @@ protected:
     int _mbboWfWid,     _boTrMode,      _mbboTrSou,     _boTrSlo,     _mbbiTrSta,
         _mbboChScl,     _mbboTimDivV,   _mbboTimDivU,   _biAcqStat,   _liEvQ,
         _liEvQty,       _loRecall,      _loStore,       _siSource,    _siHead,
-        _aiMeas1,       _aiMeas2,       _aiMeas3,       _aiMeas4,     _siMeas1Units,
-        _siMeas2Units,  _siMeas3Units,  _siMeas4Units,  _siMeas1Type, _siMeas2Type,
-        _siMeas3Type,   _siMeas4Type,   _biMeas1Stat,   _biMeas2Stat, _biMeas3Stat,
-        _biMeas4Stat;
+        _meas1,         _meas2,         _meas3,         _meas4,       _meas1Units,
+        _meas2Units,    _meas3Units,    _meas4Units,    _meas1Type,   _meas2Type,
+        _meas3Type,     _meas4Type,     _meas1State,    _meas2State,  _meas3State,
+        _meas4State;
   
-    enum {ixMbboWfWid,      ixBoTrMode,     ixMbboTrSou,    ixBoTrSlo,     ixMbbiTrSta,
+    enum {ixMbboWfWid,    ixBoTrMode,     ixMbboTrSou,    ixBoTrSlo,     ixMbbiTrSta,
           ixMbboChScl,    ixMbboTimDivV,  ixMbboTimDivU,  ixBiAcqStat,   ixLiEvQ,
           ixLiEvQty,      ixLoRecall,     ixLoStore,      ixSiSource,    ixSiHead,
-          ixAiMeas1,      ixAiMeas2,      ixAiMeas3,      ixAiMeas4,     ixSiMeas1Units,
-          ixSiMeas2Units, ixSiMeas3Units, ixSiMeas4Units, ixSiMeas1Type, ixSiMeas2Type,
-          ixSiMeas3Type,  ixSiMeas4Type,  ixBiMeas1Stat,  ixBiMeas2Stat, ixBiMeas3Stat,
-          ixBiMeas4Stat};
+          ixMeas1,        ixMeas2,        ixMeas3,        ixMeas4,       ixMeas1Units,
+          ixMeas2Units,   ixMeas3Units,   ixMeas4Units,   ixMeas1Type,   ixMeas2Type,
+          ixMeas3Type,    ixMeas4Type,    ixMeas1State,   ixMeas2State,  ixMeas3State,
+          ixMeas4State};
   
     asynStatus  putFltCmnds(int ix,int addr,float v);
     asynStatus  putIntCmnds(int ix,int addr,int v);

@@ -1,9 +1,9 @@
 
 #--- $(DESC) -------------------------------------
-record( stringin, "$(P):SI_$(ITEM)") {
+record( stringin, "$(P):$(ITEM)") {
     field( DESC, "$(DESC)")
     field( DTYP, "asynOctetRead")
-    field( INP,  "@asyn($(PORT),$(N),1) SI_$(USER)")
+    field( INP,  "@asyn($(PORT),$(N),1) $(USER)")
     field( SCAN, "I/O Intr")
 }
 

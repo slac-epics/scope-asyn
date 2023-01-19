@@ -1,19 +1,24 @@
 
-file bo.db
-{
-pattern    {           DESC,        ITEM, N,     ZNAM,    ONAM,    USER}
-    { "Trigger mode",   TRIG_MODE, 0,   Normal,    Auto,  TRMODE}
-    {"Trigger slope",  TRIG_SLOPE, 0,     Fall,    Rise, TRSLOPE}
+file bo.db {
+pattern    
+    {            DESC,        ITEM, N,   ZNAM, ONAM,        USER}
+    {  "Trigger mode",   TRIG_MODE, 0, Normal, Auto,      TRMODE}
+    { "Trigger slope",  TRIG_SLOPE, 0,   Fall, Rise,     TRSLOPE}
+}
+
+file bo_no_rec_type.db {
+pattern    
+    {            DESC,        ITEM, N,   ZNAM, ONAM,        USER}
+    { "Meas. 1 State", MEAS1_STATE, 0,    Off,   On, MEAS1_STATE}
+    { "Meas. 2 State", MEAS2_STATE, 0,    Off,   On, MEAS2_STATE}
+    { "Meas. 3 State", MEAS3_STATE, 0,    Off,   On, MEAS3_STATE}
+    { "Meas. 4 State", MEAS4_STATE, 0,    Off,   On, MEAS4_STATE}
 }
 
 file bi.db {
 pattern    
     {           DESC,        ITEM, N,     ZNAM,    ONAM,       USER}
     { "Acquire Stat",    ACQ_STAT, 0,     Stop,     Run,    ACQSTAT}
-    { "Meas. 1 Stat",  MEAS1_STAT, 0,      Off,      On, MEAS1_STAT}
-    { "Meas. 2 Stat",  MEAS2_STAT, 0,      Off,      On, MEAS2_STAT}
-    { "Meas. 3 Stat",  MEAS3_STAT, 0,      Off,      On, MEAS3_STAT}
-    { "Meas. 4 Stat",  MEAS4_STAT, 0,      Off,      On, MEAS4_STAT}
 }
 
 file mbbo2.db {
@@ -37,24 +42,23 @@ pattern    {              DESC,        ITEM,      USER}
     {  "EVQty Register",       EVQTY,     EVQTY}
 }
 
-file si.db
-{
+file si.db {
 pattern
     {           DESC,        ITEM, N,        USER}
     {  "Data Source", DATA_SOURCE, 0,      SOURCE}
     {       "Header",      HEADER, 0,        HEAD}
+}
+
+file si_no_rec_type.db {
+pattern
+    {           DESC,        ITEM, N,        USER}
     {"Meas. 1 Units", MEAS1_UNITS, 0, MEAS1_UNITS}
     {"Meas. 2 Units", MEAS2_UNITS, 0, MEAS2_UNITS}
     {"Meas. 3 Units", MEAS3_UNITS, 0, MEAS3_UNITS}
     {"Meas. 4 Units", MEAS4_UNITS, 0, MEAS4_UNITS}
-    { "Meas. 1 Type",  MEAS1_TYPE, 0,  MEAS1_TYPE}
-    { "Meas. 2 Type",  MEAS2_TYPE, 0,  MEAS2_TYPE}
-    { "Meas. 3 Type",  MEAS3_TYPE, 0,  MEAS3_TYPE}
-    { "Meas. 4 Type",  MEAS4_TYPE, 0,  MEAS4_TYPE}
 }
 
-file ai.db 
-{
+file ai_no_rec_type.db {
 pattern 
     {           DESC,  ITEM, N,  USER, EGU}
     {"Measurement 1", MEAS1, 0, MEAS1,  ""}
@@ -63,13 +67,21 @@ pattern
     {"Measurement 4", MEAS4, 0, MEAS4,  ""}
 }
 
-file tdsMbboChScl.db
-{
+file tdsMbboChScl.db {
 pattern {        DESC,    ITEM, N,   USER}
         { "Ch0 Scale", CH0_SCL, 0,  CHSCL}
         { "Ch1 Scale", CH1_SCL, 1,  CHSCL}
         { "Ch2 Scale", CH2_SCL, 2,  CHSCL}
         { "Ch3 Scale", CH3_SCL, 3,  CHSCL}
+}
+
+file tdsMbboMeasType.db {
+pattern 
+    {          DESC,       ITEM, N,       USER}
+    {"Meas. 1 Type", MEAS1_TYPE, 0, MEAS1_TYPE}
+    {"Meas. 2 Type", MEAS2_TYPE, 0, MEAS2_TYPE}
+    {"Meas. 3 Type", MEAS3_TYPE, 0, MEAS3_TYPE}
+    {"Meas. 4 Type", MEAS4_TYPE, 0, MEAS4_TYPE}
 }
 
 file scopeTrace.db
@@ -83,5 +95,27 @@ pattern { N, NELM}
 
 file tdsCtrl.db{
   {N=0}
+}
+
+# Aliases
+file "alias.template" {
+pattern
+    {          PVNAME,                 ALIAS}
+    {      $(P):MEAS1,         $(P):AI_MEAS1}
+    {      $(P):MEAS2,         $(P):AI_MEAS2}
+    {      $(P):MEAS3,         $(P):AI_MEAS3}
+    {      $(P):MEAS4,         $(P):AI_MEAS4}
+    {$(P):MEAS1_STATE,    $(P):BI_MEAS1_STAT}
+    {$(P):MEAS2_STATE,    $(P):BI_MEAS2_STAT}
+    {$(P):MEAS3_STATE,    $(P):BI_MEAS3_STAT}
+    {$(P):MEAS4_STATE,    $(P):BI_MEAS4_STAT}
+    { $(P):MEAS1_TYPE,    $(P):SI_MEAS1_TYPE}
+    { $(P):MEAS2_TYPE,    $(P):SI_MEAS2_TYPE}
+    { $(P):MEAS3_TYPE,    $(P):SI_MEAS3_TYPE}
+    { $(P):MEAS4_TYPE,    $(P):SI_MEAS4_TYPE}
+    {$(P):MEAS1_UNITS,   $(P):SI_MEAS1_UNITS}
+    {$(P):MEAS2_UNITS,   $(P):SI_MEAS2_UNITS}
+    {$(P):MEAS3_UNITS,   $(P):SI_MEAS3_UNITS}
+    {$(P):MEAS4_UNITS,   $(P):SI_MEAS4_UNITS}
 }
 
