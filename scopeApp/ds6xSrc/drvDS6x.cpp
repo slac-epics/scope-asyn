@@ -18,6 +18,7 @@
 #include <epicsTypes.h>
 #include <epicsTime.h>
 #include <epicsExport.h>
+#include <errlog.h>
 #include <initHooks.h>
 #include <iocsh.h>
 

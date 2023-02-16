@@ -13,6 +13,7 @@
 #include <cantProceed.h>
 #include <epicsTypes.h>
 #include <epicsThread.h>
+#include <errlog.h>
 #include <asynOctetSyncIO.h>
 
 #include "drvScope.h"

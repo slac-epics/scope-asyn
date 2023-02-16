@@ -1,3 +1,6 @@
+#ifndef DRVSCOPE_H
+#define DRVSCOPE_H
+
 /* drvScope.h
  * A base class implementation derived from asynPortDriver.  Drivers for
  * specific oscilloscopes are derived from this base class.  The base class
@@ -5,13 +8,10 @@
  * This implementation works with asyn R4.26 and higher.
  * Started on 05/14/2015, zms
  *---------------------------------------------------------------------------*/
-#ifndef _drvScope_h
-#define _drvScope_h
 
 #include <epicsMessageQueue.h>
 #include <epicsTimer.h>
 #include "asynPortDriver.h"
-#include "errlog.h"
 
 #ifndef SIZE
 #define SIZE(x)         (sizeof(x)/sizeof(x[0]))
@@ -304,5 +304,5 @@ private:
     int           _pollCount;
 };
 
-#endif    // _drvScope_h
+#endif    // DRVSCOPE_H
 
