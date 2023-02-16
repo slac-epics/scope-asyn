@@ -14,13 +14,13 @@
 #include "asynPortDriver.h"
 
 #ifndef SIZE
-#define SIZE(x)         (sizeof(x)/sizeof(x[0]))
+#define SIZE(x)   (sizeof(x)/sizeof(x[0]))
 #endif
 #ifndef MIN
-#define MIN(a,b)        (((a)<(b))?(a):(b))
+#define MIN(a,b)  (((a)<(b))?(a):(b))
 #endif
 #ifndef MAX
-#define MAX(a,b)        (((a)>(b))?(a):(b))
+#define MAX(a,b)  (((a)>(b))?(a):(b))
 #endif
 
 #define MAX_ADDR    4
@@ -40,7 +40,7 @@ typedef unsigned int   uint;
 typedef enum {enTMNone, enTMASync, enTMSync} tracem_e;
 typedef enum {enPutInt, enPutFlt, enQuery} ctype_e;
 
-typedef struct{
+typedef struct {
     int type,           // one of ctype_e (type of command processing)
         ix,             // parameter library index
         addr,           // channel or address
@@ -139,7 +139,7 @@ class myTimer: public epicsTimerNotify {
 public:
     myTimer(const char* nm, epicsTimerQueueActive& queue)
             :name(nm), timer(queue.createTimer()) {}
-    virtual ~myTimer(){timer.destroy();}
+    virtual ~myTimer() {timer.destroy();}
     void start(double delay) {timer.start(*this, delay);}
     virtual expireStatus expire(const epicsTime& currTime) {
         _expired(currTime);
@@ -166,12 +166,12 @@ public:
     virtual asynStatus writeFloat64(asynUser* pau,epicsFloat64 v);
     void    pollerThread();
     void    afterInit();
-    virtual const char*  getCommand(int ix)=0;
-    virtual const char** getCmndList(int cix,uint* ni);
+    virtual const char*  getCommand(int ix) = 0;
+    virtual const char** getCmndList(int cix, uint* ni);
     virtual void         getWaveform(int ch);
-    virtual void         getHSParams(double hs,int* x0,int* np);
+    virtual void         getHSParams(double hs, int* x0, int* np);
     virtual void         getChanPos(int addr);
-    virtual void         setChanPos(int addr,double v);
+    virtual void         setChanPos(int addr, double v);
     virtual void         saveConfig();
     virtual void         restoreConfig();
     virtual bool         isTriggered() {return true;}
@@ -209,43 +209,43 @@ protected:
          ixBoErUpdt,   ixWfFPath,    ixBoRestore,  ixBoRdTraces, ixAiWfTime,
          ixAiWfTMin,   ixAiWfTMax,   ixAiWfPeriod, ixAiWfRate,   ixBoMeasEnabled};
 
-    virtual asynStatus putFltCmnds(int ix,int addr,float v);
-    virtual asynStatus putIntCmnds(int ix,int addr,int v);
-    virtual asynStatus getCmnds(int ix,int addr);
+    virtual asynStatus putFltCmnds(int ix, int addr, float v);
+    virtual asynStatus putIntCmnds(int ix, int addr, int v);
+    virtual asynStatus getCmnds(int ix, int addr);
     virtual void setTimePerDiv(double v);
     virtual void getChanScl(int ch);
     virtual void getTrigLevl();
     virtual void setTrigLevl(int v);
-    virtual void timeDelayStr(int m,int uix);
+    virtual void timeDelayStr(int m, int uix);
     virtual void updateUser();
     virtual void getMeasurements(int pollCount) {};
 
-    void          putInMessgQ(int tp,int ix,int addr,int iv,float fv=0.0);
+    void          putInMessgQ(int tp, int ix, int addr, int iv, float fv=0.0);
     void          message(const char* m);
-    asynStatus    writeRd(int cix,int ch,char* buf,int blen);
-    asynStatus    writeRd(const char* cmnd,char* buf,int blen);
+    asynStatus    writeRd(int cix, int ch, char* buf, int blen);
+    asynStatus    writeRd(const char* cmnd, char* buf, int blen);
     asynStatus    command(const char* cmnd);
-    asynStatus    command(const char* cmnd,char* prd,int len);
-    asynStatus    getInt(int cix,int pix);
-    asynStatus    getInt(const char* cmnd,int pix);
-    asynStatus    getFloat(int cix,int pix);
-    asynStatus    getFloat(const char* cmnd,int pix);
-    asynStatus    getBinary(int cix,int pix);
-    asynStatus    getBinary(const char* cmnd,int pix, const char** list,int ni);
-    asynStatus    getString(int cix,int pix);
-    asynStatus    getString(const char* cmnd,int pix);
-    asynStatus    getIntCh(int cix,int ch,int pix);
-    asynStatus    getIntCh(const char* cmnd,int ch,int pix);
-    asynStatus    getFloatCh(int cix,int ch,int pix);
-    asynStatus    getFloatCh(const char* cmnd,int ch,int pix);
-    asynStatus    getBinaryCh(int cix,int ch,int pix);
-    asynStatus    getBinaryCh(const char* cmnd,int ch,int pix, const char** list,int ni);
-    void          setBinaryCh(int ix,int ch,int cix);
-    void          setBinaryCh(int ix,int ch, const char* cmnd,const char** list,int ni);
-    void          setBinary(int ix,int cix);
-    void          setBinary(int ix,const char* cmnd,const char** list,int ni);
-    void          setInt(int cix,int v,int pix=0);
-    void          setInt(int cix,const char* cmnd,int v,int pix=0);
+    asynStatus    command(const char* cmnd, char* prd, int len);
+    asynStatus    getInt(int cix, int pix);
+    asynStatus    getInt(const char* cmnd, int pix);
+    asynStatus    getFloat(int cix, int pix);
+    asynStatus    getFloat(const char* cmnd, int pix);
+    asynStatus    getBinary(int cix, int pix);
+    asynStatus    getBinary(const char* cmnd, int pix,  const char** list, int ni);
+    asynStatus    getString(int cix, int pix);
+    asynStatus    getString(const char* cmnd, int pix);
+    asynStatus    getIntCh(int cix, int ch, int pix);
+    asynStatus    getIntCh(const char* cmnd, int ch, int pix);
+    asynStatus    getFloatCh(int cix, int ch, int pix);
+    asynStatus    getFloatCh(const char* cmnd, int ch, int pix);
+    asynStatus    getBinaryCh(int cix, int ch, int pix);
+    asynStatus    getBinaryCh(const char* cmnd, int ch, int pix,  const char** list, int ni);
+    void          setBinaryCh(int ix, int ch, int cix);
+    void          setBinaryCh(int ix, int ch,  const char* cmnd, const char** list, int ni);
+    void          setBinary(int ix, int cix);
+    void          setBinary(int ix, const char* cmnd, const char** list, int ni);
+    void          setInt(int cix, int v, int pix=0);
+    void          setInt(int cix, const char* cmnd, int v, int pix=0);
     void          timeDelayStr(float td);
     void          update();
 
@@ -261,8 +261,8 @@ private:
     epicsMessageQueue* _pmq;
     myTimer*      _chPosTimer;
     void          _evMessage();
-    asynStatus    _write(const char* pw,size_t nw);
-    asynStatus    _wtrd(const char* pw,size_t nw,char* pr,size_t nr);
+    asynStatus    _write(const char* pw, size_t nw);
+    asynStatus    _wtrd(const char* pw, size_t nw, char* pr, size_t nr);
     int           _opc();
     char*         _makeQuery(const char* cmnd);
     const char*   _getCmnd(int pix);
@@ -270,7 +270,7 @@ private:
     void          _getIpAddr();
     void          _setTimeDelayStr(float v);
     void          _getTraces();
-    int           _find(const char* item,const char** list,int n);
+    int           _find(const char* item, const char** list, int n);
     void          _errUpdate();
     void          _getChanOn(int ch);
     void          _setPosSlider(double v);
@@ -298,8 +298,11 @@ private:
     int           _tracemode;        // 0 async, 1 sync
     int           _rdtraces;        // read traces flag
     int           _posInProg;        // when true position slider moving
-    double        _wfTime, _wfTMin, _wfTMax;
-    double        _wfPeriod, _wfRate;
+    double        _wfTime;
+    double        _wfTMin;
+    double        _wfTMax;
+    double        _wfPeriod;
+    double        _wfRate;
     int           _measEnabled;
     int           _pollCount;
 };
