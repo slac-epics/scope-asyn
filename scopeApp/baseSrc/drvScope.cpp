@@ -361,13 +361,7 @@ asynStatus drvScope::_wtrd(const char* pw, size_t nw, char* pr, size_t nr) {
 }
 
 
-/*--- virtual methods -------------------------------------------------------*/
-void drvScope::getWaveform(int ch) {
-/*-----------------------------------------------------------------------------
- * Virtual function to be supplied by device specific class.
- *---------------------------------------------------------------------------*/
-}
-
+/*--- Virtual methods -------------------------------------------------------*/
 
 void drvScope::getChanPos(int addr) {
 /*-----------------------------------------------------------------------------
@@ -396,21 +390,21 @@ void drvScope::setChanPos(int addr, double v) {
 }
 
 
-void drvScope::timeDelayStr(int m,int uix){}
-void drvScope::setTimePerDiv(double v){}
-void drvScope::getChanScl(int ch){}
-void drvScope::getTrigLevl(){}
-void drvScope::setTrigLevl(int v){}
-const char* drvScope::getCommand(int ix){return(NULL);}
+//void drvScope::timeDelayStr(int m,int uix){}
+//void drvScope::setTimePerDiv(double v){}
+//void drvScope::getChanScl(int ch){}
+//void drvScope::getTrigLevl(){}
+//void drvScope::setTrigLevl(int v){}
+//const char* drvScope::getCommand(int ix){return(NULL);}
 
-const char** drvScope::getCmndList(int cix,uint* ni){
-    *ni=0;
-    return(NULL);
-}
+//const char** drvScope::getCmndList(int cix,uint* ni){
+//    *ni=0;
+//    return(NULL);
+//}
 
-void drvScope::getHSParams(double hs,int* x0,int* np){
-    *x0=0; *np=500;
-}
+//void drvScope::getHSParams(double hs,int* x0,int* np){
+//    *x0=0; *np=500;
+//}
 
 
 void drvScope::saveConfig() {
@@ -473,6 +467,272 @@ void drvScope::restoreConfig() {
         update();
     }
 }
+
+
+asynStatus drvScope::putFltCmnds(int ix, int addr, float v) {
+/*-----------------------------------------------------------------------------
+ * This routine is called from the pollerThread routine, when it receives
+ * a message on the message queue.
+ * ix is the index into parameter library (or the reason)
+ * addr is channel or address
+ * v is a possible integer set value.
+ *---------------------------------------------------------------------------*/
+    asynStatus status = asynSuccess;
+    char cmnd[32];
+    int jx = ix-_firstix;
+    const char* pcmd = getCommand(jx);
+
+    switch(jx) {
+        case ixAoChPos:
+            _posInProg = 0;
+            setChanPos(addr, v);
+            if (addr == _chSel) _setPosSlider(v);
+            setDoubleParam(addr, ix, v);
+            getTrigLevl();
+            break;
+        case ixAoChScl:
+            if (!pcmd) break;
+            sprintf(cmnd, pcmd, addr+1);
+            sprintf(cmnd, "%s %f", cmnd, v);
+            command(cmnd);
+            setDoubleParam(addr, ix, v);
+            break;
+        case ixAoTimDly:
+            _setTimeDelayStr(v);
+            break;
+        case ixAoTrPos:
+            if (!pcmd) break;
+            sprintf(cmnd, "%s %d", pcmd, (int)v);
+            command(cmnd);
+            break;
+        case ixAoTrLev:
+            if (!pcmd) break;
+            sprintf(cmnd, "%s %f", pcmd, v);
+            command(cmnd);
+            setDoubleParam(addr, ix, v);
+            getTrigLevl();
+            break;
+        case ixAoTrHOff:
+            if (!pcmd) break;
+            sprintf(cmnd, "%s %f", pcmd, v);
+            command(cmnd);
+            setDoubleParam(addr, ix, v);
+            break;
+        default:
+            status = asynError;
+            break;
+    }
+
+    callParamCallbacks(addr);
+    return status;
+}
+
+
+asynStatus drvScope::putIntCmnds(int ix, int addr, int v) {
+/*-----------------------------------------------------------------------------
+ * This routine is called from the pollerThread routine, when it receives
+ * a message on the message queue.
+ * ix is the index into parameter library (or the reason)
+ * addr is channel or address
+ * v is a possible integer set value.
+ *---------------------------------------------------------------------------*/
+    asynStatus status = asynSuccess;
+    char cmnd[32]; 
+    const char* pcmd;
+    int jx = ix - _firstix;
+    pcmd = getCommand(jx);
+
+    switch(jx) {
+        case ixBoUpdt:
+            update();
+            break;
+        case ixBoErUpdt:
+            _errUpdate();
+            break;
+        case ixBoSave:
+            if (v) saveConfig();
+            break;
+        case ixBoRestore:
+            if (v) restoreConfig();
+            break;
+        case ixBoChOn:
+            if (!pcmd) break;
+            sprintf(cmnd, pcmd, addr+1);
+            if (v) {
+                strcat(cmnd, " ON");
+            } else {
+                strcat(cmnd, " OFF");
+            }
+            command(cmnd);
+            setIntegerParam(addr, ix, v);
+            _selectChannel();
+            break;
+        case ixBoChImp:
+            setIntegerParam(addr, ix, v);
+            setBinaryCh(v, addr, jx);
+            break;
+        case ixMbboChCpl:
+            setIntegerParam(addr, ix, v);
+            setBinaryCh(v, addr, jx);
+            break;
+        case ixBoTimDlySt:
+            if (!pcmd) break;
+            sprintf(cmnd, "%s %d", pcmd, v);
+            command(cmnd);
+            setIntegerParam(addr, ix, v);
+            break;
+        case ixBoGetWf:
+            getWaveform(addr);
+            break;
+        case ixBoStop:
+        case ixBoRun:
+            if (!pcmd) break;
+            command(pcmd);
+            isRunning();
+            break;
+        case ixBoReset:
+            if (!pcmd) break;
+            command(pcmd);
+            break;
+        case ixBoInit:
+            if (!pcmd) break;
+            command(pcmd);
+            break;
+        case ixLoWfNpts:
+            setInt(jx, v, ix);
+            break;
+        case ixLoWfStart:
+            setInt(jx, v, ix);
+            break;
+        case ixLoWfStop:
+            setInt(jx, v, ix);
+            break;
+        case ixLoEse:
+            setInt(jx, v, ix);
+            break;
+        case ixBoCls:
+            if (!pcmd) break;
+            command(pcmd);
+            break;
+        case ixBoAPed:
+            _doPeds[addr] = 1;
+            break;
+        case ixBoChSel:
+            _selectChan(addr);
+            break;
+        case ixLoChPos:
+            _posInProg = 1;
+            _chPosTimer->start(0.2);
+            _chPos = v/100.0;
+            break;
+        case ixLoTrLev:
+            setTrigLevl(v);
+            break;
+        case ixBoEvMsg:
+            if (v) _evMessage();
+            break;
+        default:
+            status = asynError;
+            break;
+    }
+
+    callParamCallbacks(addr);
+    return status;
+}
+
+
+asynStatus drvScope::getCmnds(int ix, int addr) {
+/*-----------------------------------------------------------------------------
+ * This routine is called from the pollerThread routine, when it receives
+ * a message on the message queue.
+ * ix is the index into parameter library (or the reason)
+ * addr is channel or address
+ *---------------------------------------------------------------------------*/
+    asynStatus status = asynSuccess;
+    int ch = addr + 1;
+    int jx = ix - _firstix;
+    double dv;
+
+    _opc();
+
+    switch(jx) {
+        case ixWfIdn:
+            _getIdn();
+            break;
+        case ixSiIpAddr:
+            _getIpAddr();
+            break;
+        case ixAoTimDly:
+            getFloat(jx, ix);
+            getDoubleParam(ix, &dv);
+            timeDelayStr(dv);
+            break;
+        case ixAiTimDiv:
+            getFloat(jx, ix);
+            getDoubleParam(ix, &dv);
+            setTimePerDiv(dv);
+            break;
+        case ixAoTrPos:
+            getFloat(jx, ix);
+            break;
+        case ixAoTrLev:
+            getFloat(jx, ix);
+            getTrigLevl();
+            break;
+        case ixAoTrHOff:
+            getFloat(jx, ix);
+            break;
+        case ixSiWfFmt:
+            getString(jx, ix);
+            break;
+        case ixBoChOn:
+            _getChanOn(ch);
+            break;
+        case ixAoChPos:
+            getChanPos(addr);
+            getDoubleParam(addr, ix, &dv);
+            if(addr == _chSel) {
+                _setPosSlider(dv);
+            }
+            break;
+        case ixBoChImp:
+            getBinaryCh(jx, ch, ix);
+            break;
+        case ixMbboChCpl:
+            getBinaryCh(jx, ch, ix);
+            break;
+        case ixAoChScl:
+            getFloatCh(jx, ch, ix);
+            break;
+        case ixLoWfNpts:
+            getInt(jx, ix);
+            break;
+        case ixLoWfStart:
+            getInt(jx, ix);
+            break;
+        case ixLoWfStop:
+            getInt(jx, ix);
+            break;
+        case ixLiEsr:
+            getInt(jx, ix);
+            break;
+        case ixLoEse:
+            getInt(jx,ix);
+            break;
+        case ixLiStb:
+            getInt(jx,ix);
+            break;
+        default:
+            status = asynError;
+            break;
+    }
+
+    callParamCallbacks(addr);
+    return status;
+}
+
+
+
 /*--- end virtual methods ---------------------------------------------------*/
 
 
@@ -1149,97 +1409,6 @@ void drvScope::_selectChannel() {
 }
 
 
-asynStatus drvScope::getCmnds(int ix, int addr) {
-/*-----------------------------------------------------------------------------
- * This routine is called from the pollerThread routine, when it receives
- * a message on the message queue.
- * ix is the index into parameter library (or the reason)
- * addr is channel or address
- *---------------------------------------------------------------------------*/
-    asynStatus status = asynSuccess;
-    int ch = addr + 1;
-    int jx = ix - _firstix;
-    double dv;
-
-    _opc();
-
-    switch(jx) {
-        case ixWfIdn:
-            _getIdn();
-            break;
-        case ixSiIpAddr:
-            _getIpAddr();
-            break;
-        case ixAoTimDly:
-            getFloat(jx, ix);
-            getDoubleParam(ix, &dv);
-            timeDelayStr(dv);
-            break;
-        case ixAiTimDiv:
-            getFloat(jx, ix);
-            getDoubleParam(ix, &dv);
-            setTimePerDiv(dv);
-            break;
-        case ixAoTrPos:
-            getFloat(jx, ix);
-            break;
-        case ixAoTrLev:
-            getFloat(jx, ix);
-            getTrigLevl();
-            break;
-        case ixAoTrHOff:
-            getFloat(jx, ix);
-            break;
-        case ixSiWfFmt:
-            getString(jx, ix);
-            break;
-        case ixBoChOn:
-            _getChanOn(ch);
-            break;
-        case ixAoChPos:
-            getChanPos(addr);
-            getDoubleParam(addr, ix, &dv);
-            if(addr == _chSel) {
-                _setPosSlider(dv);
-            }
-            break;
-        case ixBoChImp:
-            getBinaryCh(jx, ch, ix);
-            break;
-        case ixMbboChCpl:
-            getBinaryCh(jx, ch, ix);
-            break;
-        case ixAoChScl:
-            getFloatCh(jx, ch, ix);
-            break;
-        case ixLoWfNpts:
-            getInt(jx, ix);
-            break;
-        case ixLoWfStart:
-            getInt(jx, ix);
-            break;
-        case ixLoWfStop:
-            getInt(jx, ix);
-            break;
-        case ixLiEsr:
-            getInt(jx, ix);
-            break;
-        case ixLoEse:
-            getInt(jx,ix);
-            break;
-        case ixLiStb:
-            getInt(jx,ix);
-            break;
-        default:
-            status = asynError;
-            break;
-    }
-
-    callParamCallbacks(addr);
-    return status;
-}
-
-
 asynStatus drvScope::writeOctet(asynUser* pasynUser, const char* v, size_t nc, size_t* nActual) {
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.
@@ -1266,119 +1435,6 @@ asynStatus drvScope::writeOctet(asynUser* pasynUser, const char* v, size_t nc, s
 
     status = asynPortDriver::writeOctet(pasynUser, v, nc, nActual);
     callParamCallbacks();
-    return status;
-}
-
-
-asynStatus drvScope::putIntCmnds(int ix, int addr, int v) {
-/*-----------------------------------------------------------------------------
- * This routine is called from the pollerThread routine, when it receives
- * a message on the message queue.
- * ix is the index into parameter library (or the reason)
- * addr is channel or address
- * v is a possible integer set value.
- *---------------------------------------------------------------------------*/
-    asynStatus status = asynSuccess;
-    char cmnd[32]; 
-    const char* pcmd;
-    int jx = ix - _firstix;
-    pcmd = getCommand(jx);
-
-    switch(jx) {
-        case ixBoUpdt:
-            update();
-            break;
-        case ixBoErUpdt:
-            _errUpdate();
-            break;
-        case ixBoSave:
-            if (v) saveConfig();
-            break;
-        case ixBoRestore:
-            if (v) restoreConfig();
-            break;
-        case ixBoChOn:
-            if (!pcmd) break;
-            sprintf(cmnd, pcmd, addr+1);
-            if (v) {
-                strcat(cmnd, " ON");
-            } else {
-                strcat(cmnd, " OFF");
-            }
-            command(cmnd);
-            setIntegerParam(addr, ix, v);
-            _selectChannel();
-            break;
-        case ixBoChImp:
-            setIntegerParam(addr, ix, v);
-            setBinaryCh(v, addr, jx);
-            break;
-        case ixMbboChCpl:
-            setIntegerParam(addr, ix, v);
-            setBinaryCh(v, addr, jx);
-            break;
-        case ixBoTimDlySt:
-            if (!pcmd) break;
-            sprintf(cmnd, "%s %d", pcmd, v);
-            command(cmnd);
-            setIntegerParam(addr, ix, v);
-            break;
-        case ixBoGetWf:
-            getWaveform(addr);
-            break;
-        case ixBoStop:
-        case ixBoRun:
-            if (!pcmd) break;
-            command(pcmd);
-            isRunning();
-            break;
-        case ixBoReset:
-            if (!pcmd) break;
-            command(pcmd);
-            break;
-        case ixBoInit:
-            if (!pcmd) break;
-            command(pcmd);
-            break;
-        case ixLoWfNpts:
-            setInt(jx, v, ix);
-            break;
-        case ixLoWfStart:
-            setInt(jx, v, ix);
-            break;
-        case ixLoWfStop:
-            setInt(jx, v, ix);
-            break;
-        case ixLoEse:
-            setInt(jx, v, ix);
-            break;
-        case ixBoCls:
-            if (!pcmd) break;
-            command(pcmd);
-            break;
-        case ixBoAPed:
-            _doPeds[addr] = 1;
-            break;
-        case ixBoChSel:
-            _selectChan(addr);
-            break;
-        case ixLoChPos:
-            _posInProg = 1;
-            _chPosTimer->start(0.2);
-            _chPos = v/100.0;
-            break;
-        case ixLoTrLev:
-            setTrigLevl(v);
-            break;
-        case ixBoEvMsg:
-            if (v) _evMessage();
-            break;
-        default:
-            status = asynError;
-            break;
-    }
-
-    callParamCallbacks(addr);
     return status;
 }
 
@@ -1459,65 +1515,6 @@ asynStatus drvScope::writeInt32(asynUser* pau, epicsInt32 v) {
     callParamCallbacks(addr);
     return status;
 }
-
-asynStatus drvScope::putFltCmnds(int ix, int addr, float v) {
-/*-----------------------------------------------------------------------------
- * This routine is called from the pollerThread routine, when it receives
- * a message on the message queue.
- * ix is the index into parameter library (or the reason)
- * addr is channel or address
- * v is a possible integer set value.
- *---------------------------------------------------------------------------*/
-    asynStatus status = asynSuccess;
-    char cmnd[32];
-    int jx = ix-_firstix;
-    const char* pcmd = getCommand(jx);
-
-    switch(jx) {
-        case ixAoChPos:
-            _posInProg = 0;
-            setChanPos(addr, v);
-            if (addr == _chSel) _setPosSlider(v);
-            setDoubleParam(addr, ix, v);
-            getTrigLevl();
-            break;
-        case ixAoChScl:
-            if (!pcmd) break;
-            sprintf(cmnd, pcmd, addr+1);
-            sprintf(cmnd, "%s %f", cmnd, v);
-            command(cmnd);
-            setDoubleParam(addr, ix, v);
-            break;
-        case ixAoTimDly:
-            _setTimeDelayStr(v);
-            break;
-        case ixAoTrPos:
-            if (!pcmd) break;
-            sprintf(cmnd, "%s %d", pcmd, (int)v);
-            command(cmnd);
-            break;
-        case ixAoTrLev:
-            if (!pcmd) break;
-            sprintf(cmnd, "%s %f", pcmd, v);
-            command(cmnd);
-            setDoubleParam(addr, ix, v);
-            getTrigLevl();
-            break;
-        case ixAoTrHOff:
-            if (!pcmd) break;
-            sprintf(cmnd, "%s %f", pcmd, v);
-            command(cmnd);
-            setDoubleParam(addr, ix, v);
-            break;
-        default:
-            status = asynError;
-            break;
-    }
-
-    callParamCallbacks(addr);
-    return status;
-}
-
 
 asynStatus drvScope::writeFloat64(asynUser* pau, epicsFloat64 v) {
 /*-----------------------------------------------------------------------------
@@ -1680,10 +1677,6 @@ void drvScope::update() {
     firsttime = 0;
 }
 
-void drvScope::updateUser() {
-/*----------------------------------------------------------------------------
- *--------------------------------------------------------------------------*/
-}
 
 void drvScope::afterInit() {
 /*----------------------------------------------------------------------------

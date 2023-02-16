@@ -166,17 +166,17 @@ public:
     virtual asynStatus writeFloat64(asynUser* pau,epicsFloat64 v);
     void    pollerThread();
     void    afterInit();
-    virtual const char*  getCommand(int ix) = 0;
-    virtual const char** getCmndList(int cix, uint* ni);
-    virtual void         getWaveform(int ch);
-    virtual void         getHSParams(double hs, int* x0, int* np);
+    void                 setChanPosition();
+    virtual const char*  getCommand(int ix) {return NULL;};
+    virtual const char** getCmndList(int cix, uint* ni) {*ni = 0; return NULL;};
+    virtual void         getWaveform(int ch) = 0;
+    virtual void         getHSParams(double hs, int* x0, int* np) {*x0 = 0; *np = 500;};
     virtual void         getChanPos(int addr);
     virtual void         setChanPos(int addr, double v);
     virtual void         saveConfig();
     virtual void         restoreConfig();
     virtual bool         isTriggered() {return true;}
     virtual bool         isRunning() {return true;}
-    void                 setChanPosition();
 
 protected:
     int _boChOn,     _aoChPos,    _boChImp,    _mbboChCpl,  _aoChScl,
@@ -212,12 +212,12 @@ protected:
     virtual asynStatus putFltCmnds(int ix, int addr, float v);
     virtual asynStatus putIntCmnds(int ix, int addr, int v);
     virtual asynStatus getCmnds(int ix, int addr);
-    virtual void setTimePerDiv(double v);
-    virtual void getChanScl(int ch);
-    virtual void getTrigLevl();
-    virtual void setTrigLevl(int v);
-    virtual void timeDelayStr(int m, int uix);
-    virtual void updateUser();
+    virtual void setTimePerDiv(double v) = 0;
+    virtual void getChanScl(int ch) {};
+    virtual void getTrigLevl() = 0;
+    virtual void setTrigLevl(int v) = 0;
+    virtual void timeDelayStr(int m, int uix) = 0;
+    virtual void updateUser() {};
     virtual void getMeasurements(int pollCount) {};
 
     void          putInMessgQ(int tp, int ix, int addr, int iv, float fv=0.0);
