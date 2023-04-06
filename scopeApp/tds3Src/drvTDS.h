@@ -1,11 +1,12 @@
+#ifndef DRVTDS_H
+#define DRVTDS_H
+
 /* drvTDS.h
  * 
  * Asyn driver that inherits from the drvScope base class.  It is a specific
  * class for the Tekronix TDS 3000 series oscilloscopes.
  * Started on 05/25/2015, zms
  *---------------------------------------------------------------------------*/
-#ifndef _drvTDS_h
-#define _drvTDS_h
 
 #include "drvScope.h"
 
@@ -50,7 +51,7 @@
 #define meas4StateStr   "MEAS4_STATE"   // Measurement state
 
 
-class drvTDS: public drvScope{
+class drvTDS: public drvScope {
 public:
     drvTDS(const char* port, const char* udp);
   
@@ -60,8 +61,8 @@ public:
     //        size_t nElements, size_t *nIn);
     void          getWaveform(int ch);
     const char*   getCommand(int cix);
-    const char**  getCmndList(int cix,uint* ni);
-    void          getHSParams(double hs,int* x0,int* np);
+    const char**  getCmndList(int cix, uint* ni);
+    void          getHSParams(double hs, int* x0, int* np);
     bool          isTriggered();
     bool          isRunning();
     void          postInit();
@@ -83,12 +84,12 @@ protected:
           ixMeas3Type,    ixMeas4Type,    ixMeas1State,   ixMeas2State,  ixMeas3State,
           ixMeas4State};
   
-    asynStatus  putFltCmnds(int ix,int addr,float v);
-    asynStatus  putIntCmnds(int ix,int addr,int v);
-    asynStatus  getCmnds(int ix,int addr);
+    asynStatus  putFltCmnds(int ix, int addr, float v);
+    asynStatus  putIntCmnds(int ix, int addr, int v);
+    asynStatus  getCmnds(int ix, int addr);
     void        setTimePerDiv(double v);
     void        getChanScl(int ch);
-    void        timeDelayStr(int,int);
+    void        timeDelayStr(int, int);
     void        getTrigLevl();
     void        setTrigLevl(int v);
     void        updateUser();
@@ -96,8 +97,9 @@ protected:
     void        getMeasurements(int pollCount);
 
 private:
-    void      _setTimePerDiv(uint vix,uint uix);
-    int       _wfPreamble(char* p,int*,int*,double*,double*,double*);
+    void      _get_hs_params(double hs, int* x0, int* np);
+    void      _setTimePerDiv(uint vix, uint uix);
+    int       _wfPreamble(char* p, int*, int*, double*, double*, double*);
     char      _name[NAME_LEN];
     float     _wfbuf[WF_LEN];
     float     _wfraw[WF_LEN];
@@ -106,5 +108,5 @@ private:
     const int _num_meas;
 };
 
-#endif    // _drvTDS_h
+#endif    // DRVTDS_H
 
