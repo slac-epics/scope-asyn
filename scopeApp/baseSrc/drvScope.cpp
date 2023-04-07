@@ -18,19 +18,18 @@
 
 #include "drvScope.h"
 
+namespace {
+const std::string driverName = "drvScope";
 static drvScope* _this;
-static const char *dname = "drvScope";
 
-static const int debug = 0;
-
-extern "C" {
-static void pollerThreadC(void* pPvt){
+static void pollerThreadC(void* pPvt) {
     drvScope* _this = (drvScope*)pPvt;
     _this->pollerThread();
 }
 }
 
-void myTimer::_expired(const epicsTime&){
+
+void myTimer::_expired(const epicsTime&) {
 /*-----------------------------------------------------------------------------
  * Invoked when timer expires.
  *---------------------------------------------------------------------------*/
@@ -81,11 +80,11 @@ drvScope::drvScope(const char* port, const char* udp):
 
     status = pasynOctetSyncIO->connect(udp, 0, &pasynUser, 0);
 
-    if(status != asynSuccess) {
-        printf("%s::%s:connect: failed to connect to port %s\n",
-            dname, dname, udp);
+    if (status != asynSuccess) {
+        errlogPrintf("%s::%s:connect: failed to connect to port %s\n",
+            driverName.c_str(), driverName.c_str(), udp);
     } else {
-        printf("%s::%s:connect: connected to port %s\n", dname, dname, udp);
+        epicsPrintf("%s::%s: connected to port %s\n", driverName.c_str(), driverName.c_str(), udp);
         conn = true;
     }
 
@@ -171,7 +170,7 @@ drvScope::drvScope(const char* port, const char* udp):
 
     _firstix = _boChOn;
 
-    setStringParam(_siName, dname);
+    setStringParam(_siName, driverName);
     setIntegerParam(_biState, conn);
     setIntegerParam(_boRdTraces, _rdtraces);
     setIntegerParam(_boMeasEnabled, _measEnabled);
@@ -181,7 +180,7 @@ drvScope::drvScope(const char* port, const char* udp):
 
     _pmq = new epicsMessageQueue(NMSGQ, MSGQNB);
 
-    epicsThreadCreate(dname,epicsThreadPriorityHigh,
+    epicsThreadCreate(driverName.c_str(),epicsThreadPriorityHigh,
                     epicsThreadGetStackSize(epicsThreadStackMedium),
                     (EPICSTHREADFUNC)pollerThreadC,this);
 
@@ -237,7 +236,7 @@ void drvScope::_evMessage(){
     asynStatus status = command(pcmd);
 
     if(status != asynSuccess){
-        errlogPrintf("%s::_efMessage:command: failed\n", dname);
+        errlogPrintf("%s::_efMessage:command: failed\n", driverName.c_str());
         return;
     }
 
@@ -277,9 +276,12 @@ void drvScope::putInMessgQ(int tp, int ix, int addr, int iv, float fv) {
 /*-----------------------------------------------------------------------------
  * Construct a message and put in the message queue.
  *---------------------------------------------------------------------------*/
-    if (debug) printf("%s: putInMessgQ: ix=%d\n", dname, ix);
+    const std::string functionName = "putInMessgQ";
     int status; 
     msgq_t messg;
+
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: ix=%d\n", 
+            driverName.c_str(), functionName.c_str(), ix);
 
     messg.type = tp;
     messg.ix = ix;
@@ -419,18 +421,18 @@ void drvScope::saveConfig() {
 
     status = command(pcmd);
     if (status != asynSuccess) {
-        errlogPrintf("%s::saveConfig:command: failed\n", dname);
+        errlogPrintf("%s::saveConfig:command: failed\n", driverName.c_str());
         return;
     }
 
     FILE* fd = fopen(_fname, "w");
     if (!fd) {
-        errlogPrintf("%s::saveConfig:fopen: failed to open %s\n", dname, _fname);
+        errlogPrintf("%s::saveConfig:fopen: failed to open %s\n", driverName.c_str(), _fname);
         return;
     }
 
     int st = fputs(_rbuf, fd);
-    if (st == EOF) errlogPrintf("%s::saveConfig:fputs: failed\n",dname);
+    if (st == EOF) errlogPrintf("%s::saveConfig:fputs: failed\n",driverName.c_str());
     fclose(fd);
 }
 
@@ -443,19 +445,19 @@ void drvScope::restoreConfig() {
  *---------------------------------------------------------------------------*/
     FILE* fd = fopen(_fname,"r");
     if (!fd) {
-        errlogPrintf("%s::restoreConfig:fopen: failed to open %s\n", dname, _fname);
+        errlogPrintf("%s::restoreConfig:fopen: failed to open %s\n", driverName.c_str(), _fname);
         return;
     }
 
     char* p = fgets(_rbuf, DBUF_LEN, fd);
     if (!p) {
-        errlogPrintf("%s::restoreConfig:fgets: failed\n", dname);
+        errlogPrintf("%s::restoreConfig:fgets: failed\n", driverName.c_str());
         return;
     }
 
     asynStatus status = _write(_rbuf, strlen(_rbuf));
     if (status != asynSuccess){
-        errlogPrintf("%s::restoreConfig: failed to write instrument\n", dname);
+        errlogPrintf("%s::restoreConfig: failed to write instrument\n", driverName.c_str());
         return;
     }
 
@@ -463,7 +465,7 @@ void drvScope::restoreConfig() {
     if (pcmd) {
         status = command(pcmd);
         if (status != asynSuccess)
-        errlogPrintf("%s::restoreConfig: failed to initialize\n", dname);
+        errlogPrintf("%s::restoreConfig: failed to initialize\n", driverName.c_str());
         update();
     }
 }
@@ -764,7 +766,7 @@ int drvScope::_opc() {
             }
             epicsThreadSleep(0.01);
         }  else if ((++tries) > 1) {
-            errlogPrintf("%s::_opc: failed in _wtrd after %d tries\n", dname, tries);
+            errlogPrintf("%s::_opc: failed in _wtrd after %d tries\n", driverName.c_str(), tries);
             break;
         }
     }
@@ -1072,6 +1074,7 @@ asynStatus drvScope::getBinary(int cix, int pix) {
  * parameter library at index pix.  The reply is a string and a numeric
  * value is the index in a list of strings.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "getBinary";
     const char* cmnd = getCommand(cix);
     if (!cmnd) return asynError;
 
@@ -1079,7 +1082,9 @@ asynStatus drvScope::getBinary(int cix, int pix) {
     const char** list = getCmndList(cix, &ni);
     if (!list) return asynError;
 
-    if (debug) printf("%s: getBinary: pix=%d, cmnd=%s\n", dname, pix, cmnd);
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: pix=%d, cmnd=%s\n",
+            driverName.c_str(), functionName.c_str(), pix, cmnd);
+
     
     return getBinary(cmnd, pix, list, ni);
 }
@@ -1329,11 +1334,13 @@ void drvScope::setInt(int cix, const char* cmnd, int v, int pix) {
 /*-----------------------------------------------------------------------------
  * Constructs a string command to set an integer value and sends it.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "setInt";
     char str[32];
 
     sprintf(str, "%s %d", cmnd, v);
 
-    if (debug) printf("drvScope::setInt: str=%s, cix=%d, pix=%d\n", str, cix, pix);
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: str=%s, cix=%d, pix=%d\n", 
+            driverName.c_str(), functionName.c_str(), str, cix, pix);
 
     command(str);
 

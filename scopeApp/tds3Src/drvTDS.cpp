@@ -17,7 +17,8 @@
 #include "drvTDS.h"
 
 namespace {
-const int debug = 0;
+const std::string driverName = "drvTDS";
+static drvTDS* _this;
 
 const char* ChOnCmnd       = "SEL:CH%d";
 const char* ChPosCmnd      = "CH%d:POS";
@@ -121,10 +122,6 @@ const int hsc[] = {  1,   2,   4,  10};
 const int hsx[] = {225, 200, 150,   0};
 const int hnp[] = { 51, 101, 201, 500};
 
-
-const char *dname = "drvTDS";
-static drvTDS* _this;
-
 }  // End anonymous namespace
 
 
@@ -179,9 +176,9 @@ drvTDS::drvTDS(const char* port, const char* udp):
 
     _firstix=_mbboWfWid;
 
-    setStringParam(_siName,dname);
-    setIntegerParam(_loStore,1);
-    setIntegerParam(_loRecall,1);
+    setStringParam(_siName, driverName);
+    setIntegerParam(_loStore, 1);
+    setIntegerParam(_loRecall, 1);
     for (int i=0; i<_num_meas; i++) {
         setDoubleParam(_meas1+i, 0);
         setStringParam(_meas1Units+i, "");
@@ -193,8 +190,10 @@ drvTDS::drvTDS(const char* port, const char* udp):
 }
 
 
-static void inithooks(initHookState state){
-/*--------------------------------------------------------------------------*/
+static void inithooks(initHookState state) {
+/*-----------------------------------------------------------------------------
+ * Inithook function
+ *---------------------------------------------------------------------------*/
     switch (state) {
         case initHookAtEnd:
             _this->postInit();
@@ -209,7 +208,10 @@ void drvTDS::postInit() {
 /*-----------------------------------------------------------------------------
  * After IOC init.
  *---------------------------------------------------------------------------*/
-    if (debug) printf("%s: postInit\n", dname);
+    const std::string functionName = "postInit";
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s\n",
+            driverName.c_str(), functionName.c_str());
+
     putInMessgQ(enQuery, _mbboTrSou,0,0);
     putInMessgQ(enQuery, _boTrSlo,0,0);
     putInMessgQ(enQuery, _mbbiTrSta,0,0);
@@ -274,13 +276,15 @@ bool drvTDS::isTriggered() {
 /*-----------------------------------------------------------------------------
  * Returns true if scope is in a triggered state, returns false otherwise.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "isTriggered";
     asynStatus stat;
     int trst;
 
     stat = trigState();
 
     if (stat != asynSuccess) {
-        if (debug) printf("%s::isTriggered: failed in trigState\n", dname);
+        asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: failed in trigState\n",
+                driverName.c_str(), functionName.c_str());
         return false;
     }
 
@@ -295,6 +299,7 @@ bool drvTDS::isRunning() {
 /*-----------------------------------------------------------------------------
  * Returns true if scope is in the run state, returns false otherwise.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "isRunning";
     asynStatus status;
     int runState;
 
@@ -302,7 +307,8 @@ bool drvTDS::isRunning() {
     callParamCallbacks();
 
     if (status != asynSuccess) {
-        if (debug) printf("%s::isRunning: failed to get run state\n", dname);
+        asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: failed to get run state\n",
+                driverName.c_str(), functionName.c_str());
         return false;
     }
     
@@ -658,11 +664,13 @@ asynStatus drvTDS::getCmnds(int ix, int addr){
  * ix is the index into parameter library (or the reason)
  * addr is channel or address
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "getCmnds";
     asynStatus stat = asynSuccess;
     char cmnd[32];
     int jx = ix - _firstix;
 
-    if (debug) printf("%s: getCmnds: ix=%d\n", dname, ix);
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: ix=%d\n",
+            driverName.c_str(), functionName.c_str(), ix);
   
     switch(jx){
         case ixBoTrMode:    getBinary(TrigModeCmnd, ix, trgMode, 2); break;
@@ -919,7 +927,7 @@ static void initCallFunc(const iocshArgBuf *args){
   drvTDSConfigure(args[0].sval, args[1].sval);
 }
 
-void drvTDSRegister(void){
+void drvTDSRegister(void) {
   iocshRegister(&initFuncDef, initCallFunc);
   initHookRegister(&inithooks);
 }

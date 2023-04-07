@@ -249,6 +249,7 @@ protected:
     void          timeDelayStr(float td);
     void          update();
 
+    asynUser*     pasynUser;
     int           _analize[NCHAN];    // analysis on/off flags
     int           _doPeds[NCHAN];        // flag to do pedestals
     double        _area[NCHAN];        // integrated value
@@ -279,7 +280,6 @@ private:
     void          _getTrigLevel();
     void          _setTrigLevel(int v);
 
-    asynUser*     pasynUser;
     const char*   _port;
     const char*   _udpp;
     int           _ncmnds;
