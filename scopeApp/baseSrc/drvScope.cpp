@@ -190,7 +190,7 @@ drvScope::~drvScope() {
     _chPosTimer->destroy();
     _timerQueue->release();
 
-    asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
+    asynPrint(pasynUserSelf, ASYN_TRACE_FLOW,
             "%s::%s: Exiting...\n", driverName.c_str(), functionName.c_str());
 }
 
@@ -213,7 +213,7 @@ void drvScope::pollerThread() {
     // Run post-init commands
     afterInit();
 
-    asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
+    asynPrint(pasynUserSelf, ASYN_TRACE_FLOW,
             "%s::%s: Starting polling loop...\n", driverName.c_str(), functionName.c_str());
 
     // Poll forever
@@ -246,13 +246,15 @@ void drvScope::_evMessage() {
 /*-----------------------------------------------------------------------------
  * Gets next event message from the instrument and posts it in a db record.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "_evMessage"; 
     const char* pcmd = getCommand(ixBoEvMsg);
 
     if (!pcmd) return;
     asynStatus status = command(pcmd);
 
     if(status != asynSuccess){
-        errlogPrintf("%s::_efMessage:command: failed\n", driverName.c_str());
+        asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: command failed\n", 
+                driverName.c_str(), functionName.c_str());
         return;
     }
 
@@ -408,28 +410,12 @@ void drvScope::setChanPos(int addr, double v) {
 }
 
 
-//void drvScope::timeDelayStr(int m,int uix){}
-//void drvScope::setTimePerDiv(double v){}
-//void drvScope::getChanScl(int ch){}
-//void drvScope::getTrigLevl(){}
-//void drvScope::setTrigLevl(int v){}
-//const char* drvScope::getCommand(int ix){return(NULL);}
-
-//const char** drvScope::getCmndList(int cix,uint* ni){
-//    *ni=0;
-//    return(NULL);
-//}
-
-//void drvScope::getHSParams(double hs,int* x0,int* np){
-//    *x0=0; *np=500;
-//}
-
-
 void drvScope::saveConfig() {
 /*-----------------------------------------------------------------------------
  * This virtual function is reimplemented in a derived class as needed.  It
  * gets an instrument configuration string and writes it to a disk file.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "saveConfig"; 
     const char* pcmd = getCommand(ixBoSave);
     asynStatus status;
 
@@ -437,18 +423,24 @@ void drvScope::saveConfig() {
 
     status = command(pcmd);
     if (status != asynSuccess) {
-        errlogPrintf("%s::saveConfig:command: failed\n", driverName.c_str());
+        asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: command failed\n", 
+                driverName.c_str(), functionName.c_str());
         return;
     }
 
     FILE* fd = fopen(_fname, "w");
     if (!fd) {
-        errlogPrintf("%s::saveConfig:fopen: failed to open %s\n", driverName.c_str(), _fname);
+        asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: fopen failed to open %s\n",
+                driverName.c_str(), functionName.c_str(), _fname);
         return;
     }
 
     int st = fputs(_rbuf, fd);
-    if (st == EOF) errlogPrintf("%s::saveConfig:fputs: failed\n",driverName.c_str());
+    if (st == EOF) {
+        asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: fputs failed\n", 
+                driverName.c_str(), functionName.c_str());
+    }
+
     fclose(fd);
 }
 
@@ -459,29 +451,36 @@ void drvScope::restoreConfig() {
  * gets instrument configuration string from a disk file and sends it to
  * the instrument.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "restoreConfig"; 
     FILE* fd = fopen(_fname,"r");
+
     if (!fd) {
-        errlogPrintf("%s::restoreConfig:fopen: failed to open %s\n", driverName.c_str(), _fname);
+        asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: fopen failed to open %s\n", 
+                driverName.c_str(), functionName.c_str(), _fname);
         return;
     }
 
     char* p = fgets(_rbuf, DBUF_LEN, fd);
     if (!p) {
-        errlogPrintf("%s::restoreConfig:fgets: failed\n", driverName.c_str());
+        asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: fgets failed\n",
+                driverName.c_str(), functionName.c_str());
         return;
     }
 
     asynStatus status = _write(_rbuf, strlen(_rbuf));
     if (status != asynSuccess){
-        errlogPrintf("%s::restoreConfig: failed to write instrument\n", driverName.c_str());
+        asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: failed to write instrument settings\n",
+                driverName.c_str(), functionName.c_str());
         return;
     }
 
     const char* pcmd = getCommand(ixBoInit);
     if (pcmd) {
         status = command(pcmd);
-        if (status != asynSuccess)
-        errlogPrintf("%s::restoreConfig: failed to initialize\n", driverName.c_str());
+        if (status != asynSuccess) {
+            asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: failed to initialize\n",
+                    driverName.c_str(), functionName.c_str());
+        }
         update();
     }
 }
@@ -759,6 +758,7 @@ int drvScope::_opc() {
 /*-----------------------------------------------------------------------------
  * OPC query and returns as a function value result returned.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "_opc"; 
     asynStatus status = asynSuccess;
     int count = 0, tries = 0, value = 0;
     char* p;
@@ -783,7 +783,8 @@ int drvScope::_opc() {
             }
             epicsThreadSleep(0.01);
         }  else if ((++tries) > 1) {
-            errlogPrintf("%s::_opc: failed in _wtrd after %d tries\n", driverName.c_str(), tries);
+            asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: failed in _wtrd after %d tries\n", 
+                    driverName.c_str(), functionName.c_str(), tries);
             break;
         }
     }
@@ -1706,7 +1707,7 @@ void drvScope::afterInit() {
 /*----------------------------------------------------------------------------
  *--------------------------------------------------------------------------*/
     const std::string functionName = "afterInit";
-    asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s\n",
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s\n",
             driverName.c_str(), functionName.c_str());
 
     const char* pcmd = getCommand(ixBoInit);

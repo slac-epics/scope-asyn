@@ -194,7 +194,7 @@ void drvTDS::afterInit() {
  * After IOC init.
  *---------------------------------------------------------------------------*/
     const std::string functionName = "afterInit";
-    asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s\n",
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s\n",
             driverName.c_str(), functionName.c_str());
 
     putInMessgQ(enQuery, _mbboTrSou,0,0);
@@ -337,6 +337,7 @@ int drvTDS::_wfPreamble(char* p, int* ln, int* nb, double* ym, double* yz, doubl
  * Unpacks the waveform preamble string.  Returns the length of the preamble
  * as a function value.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "_wfPreamble";
     int i=0, j, n, wd; 
     int nbyt, nbit, len, ptof, chn; 
     char chs[16], enc[20], bfmt[20], bord[20], ids[80], ptfm[20], xunt[20], yunt[20];
@@ -349,13 +350,16 @@ int drvTDS::_wfPreamble(char* p, int* ln, int* nb, double* ym, double* yz, doubl
 
     if (n != 16) {
         if (n != 5) {
-            printf("_wfPreamble: n=%d, failed to unpack preamble\n",n); return(-1);
+            asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: failed to unpack preamble, n=%d\n",
+                    driverName.c_str(), functionName.c_str(), n);
+            return -1;
         }
         return 0;
     }
 
     if ((n = sscanf(&p[i], "#%1d", &wd)) != 1) {
-        printf("_wfPreamble: n=%d, failed to get width\n",n);
+        asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: failed to get width, n=%d\n",
+                driverName.c_str(), functionName.c_str(), n);
         return -1;
     }
 
@@ -386,6 +390,7 @@ void drvTDS::getWaveform(int ch) {
  * Requests waveform data for channel ch (0..3).  This gets waveform preamble
  * and waveform data.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "getWaveform";
     asynStatus stat = asynSuccess;
     int i, j, chon, len, n, nbyte, x0, np=0;
     double hs, pos, vdiv, ymult, yzr, yof;
@@ -399,7 +404,8 @@ void drvTDS::getWaveform(int ch) {
     if (chon) {
         stat = writeRd(ixWfTrace, ch+1, _rbuf, DBUF_LEN);
         if (stat != asynSuccess) {
-            //printf("getWaveform: ch=%d, stat=%d, rbuf=%s\n", ch, stat, _rbuf);
+            asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: ch=%d, stat=%d, rbuf=%s\n",
+                    driverName.c_str(), functionName.c_str(), ch, stat, _rbuf);
             return;
         }
         getDoubleParam(ch, _aoChPos, &pos);
@@ -447,7 +453,8 @@ void drvTDS::getWaveform(int ch) {
             callParamCallbacks(ch);
         }
     } else {
-        //printf("getWaveform: ch=%d not on\n");
+        asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: ch=%d not on\n",
+                driverName.c_str(), functionName.c_str(), ch);
         for (i=0; i<WF_LEN; i++,pwf++) {
             *pwf = 1000.0;
         }
