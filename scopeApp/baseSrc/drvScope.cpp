@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <math.h>
 
+#include <dbAccess.h>
 #include <cantProceed.h>
 #include <epicsTypes.h>
 #include <epicsThread.h>
@@ -20,20 +21,11 @@
 
 namespace {
 const std::string driverName = "drvScope";
-static drvScope* _this;
 
 static void pollerThreadC(void* pPvt) {
-    drvScope* _this = (drvScope*)pPvt;
-    _this->pollerThread();
+    drvScope* pdrvScope = (drvScope*)pPvt;
+    pdrvScope->pollerThread();
 }
-}
-
-
-void myTimer::_expired(const epicsTime&) {
-/*-----------------------------------------------------------------------------
- * Invoked when timer expires.
- *---------------------------------------------------------------------------*/
-    _this->setChanPosition();
 }
 
 
@@ -51,7 +43,8 @@ drvScope::drvScope(const char* port, const char* udp):
                 _rdtraces(1),
                 _posInProg(0),
                 _measEnabled(0),
-                _pollCount(0) {
+                _pollCount(0),
+                _timerQueue(&epicsTimerQueueActive::allocate(true)) {
 /*------------------------------------------------------------------------------
  * Constructor for the drvScope class. Calls constructor for the asynPortDriver
  * base class. Where
@@ -70,8 +63,6 @@ drvScope::drvScope(const char* port, const char* udp):
  *---------------------------------------------------------------------------*/
     int status = asynSuccess;
     bool conn = false;
-
-    _this = this;
 
     for (int i=0; i<NCHAN; i++) {
         _analize[i] = _mix1[i] = _mix2[i] = 0;
@@ -184,24 +175,49 @@ drvScope::drvScope(const char* port, const char* udp):
                     epicsThreadGetStackSize(epicsThreadStackMedium),
                     (EPICSTHREADFUNC)pollerThreadC,this);
 
-    epicsTimerQueueActive& _tmq = epicsTimerQueueActive::allocate(true);
-
-    _chPosTimer = new myTimer("chPosTimer", _tmq);
+    _chPosTimer = &_timerQueue->createTimer();
 
 }
 
 
-void drvScope::pollerThread(){
+drvScope::~drvScope() {
+/*-----------------------------------------------------------------------------
+ * Destructor.
+// TODO: Add an exit handler in derived classes so that this actually runs
+ *---------------------------------------------------------------------------*/
+    const std::string functionName = "~drvScope";    
+
+    _chPosTimer->destroy();
+    _timerQueue->release();
+
+    asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
+            "%s::%s: Exiting...\n", driverName.c_str(), functionName.c_str());
+}
+
+
+void drvScope::pollerThread() {
 /*-----------------------------------------------------------------------------
  * This function runs in a separate thread.  It waits for the poll time.
  * Reads a list of registers and it does callbacks to all
  * clients that have registered with registerDevCallback
  *---------------------------------------------------------------------------*/
-    //static const char* iam = "pollerThread"; 
+    const std::string functionName = "pollerThread"; 
     msgq_t msgq;
     int status;
 
-    while(1){
+    // Wait until iocInit is finished
+    while (!interruptAccept) {
+        epicsThreadSleep(0.2);
+    }
+
+    // Run post-init commands
+    afterInit();
+
+    asynPrint(pasynUserSelf, ASYN_TRACE_ERROR,
+            "%s::%s: Starting polling loop...\n", driverName.c_str(), functionName.c_str());
+
+    // Poll forever
+    while(1) {
         status = _pmq->tryReceive(&msgq,sizeof(msgq));
         if (status == -1) {
             if (_rdtraces) {
@@ -226,7 +242,7 @@ void drvScope::pollerThread(){
 }
 
 
-void drvScope::_evMessage(){
+void drvScope::_evMessage() {
 /*-----------------------------------------------------------------------------
  * Gets next event message from the instrument and posts it in a db record.
  *---------------------------------------------------------------------------*/
@@ -247,7 +263,7 @@ void drvScope::_evMessage(){
 }
 
 
-void drvScope::message(const char* m){
+void drvScope::message(const char* m) {
 /*-----------------------------------------------------------------------------
  * Constructs and posts a message.
  *---------------------------------------------------------------------------*/
@@ -624,7 +640,8 @@ asynStatus drvScope::putIntCmnds(int ix, int addr, int v) {
             break;
         case ixLoChPos:
             _posInProg = 1;
-            _chPosTimer->start(0.2);
+            _chPosTimer->start(*this, 0.2);
+            //_chPosTimer->show(5);
             _chPos = v/100.0;
             break;
         case ixLoTrLev:
@@ -1402,15 +1419,15 @@ void drvScope::_selectChannel() {
  * The first enabled channel is selected to be controlled by the pos slider
  *---------------------------------------------------------------------------*/
     int i, v; 
-    static int firsttime = 1;
+    static bool firsttime = true;
 
     getIntegerParam(_chSel, _boChOn, &v);
 
     if (v && !firsttime) return;
 
-    firsttime = 0;
+    firsttime = false;
 
-    for(i=0; i<MAX_ADDR; i++) {
+    for (i=0; i<MAX_ADDR; i++) {
         _selectChan(i);
     }
 }
@@ -1448,7 +1465,7 @@ asynStatus drvScope::writeOctet(asynUser* pasynUser, const char* v, size_t nc, s
 
 void drvScope::setChanPosition() {
 /*-----------------------------------------------------------------------------
- * gets called from time expire function at the end of slider move.
+ * Called by epicsTimerNotify::expire() at end of slider move.
  *---------------------------------------------------------------------------*/
     setChanPos(_chSel, _chPos);
     //  getFloatCh(ixAoChPos,_chSel+1,_aoChPos);
@@ -1658,7 +1675,7 @@ void drvScope::update() {
  * changing settings on the instrument.
  *--------------------------------------------------------------------------*/
     int i, ch;
-    static int firsttime = 1;
+    static bool firsttime = true;
     double dv;
 
     getFloat(ixAiTimDiv, _aiTimDiv);
@@ -1681,13 +1698,17 @@ void drvScope::update() {
     getTrigLevl();
     getFloat(ixAoTrHOff, _aoTrHOff);
     callParamCallbacks(0);
-    firsttime = 0;
+    firsttime = false;
 }
 
 
 void drvScope::afterInit() {
 /*----------------------------------------------------------------------------
  *--------------------------------------------------------------------------*/
+    const std::string functionName = "afterInit";
+    asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s\n",
+            driverName.c_str(), functionName.c_str());
+
     const char* pcmd = getCommand(ixBoInit);
 
     if (pcmd) command(pcmd);

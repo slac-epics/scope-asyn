@@ -24,13 +24,16 @@
 
 #include "drvDS1x.h"
 
+namespace {
+const char *dname="drvDS1x";
+
 const char* NullCmnd	 ="";
 // channel
 const char* ChCplCmnd    =":CHAN%d:COUP";
 const char* ChOnCmnd     =":CHAN%d:DISP";
 const char* ChPosCmnd    =":CHAN%d:OFFS";
 const char* ChSclCmnd    =":CHAN%d:SCAL";
-const char* ChUnitCmnd   =":CHAN%d:UNIT";
+//const char* ChUnitCmnd   =":CHAN%d:UNIT";
 // Waveform
 const char* WfDatCmnd    =":WAV:SOUR CHAN%d; :WAV:DATA?";
 const char* WfPreCmnd    =":WAV:SOUR CHAN%d; :WAV:PRE?";
@@ -42,7 +45,7 @@ const char* TmSclCmnd    =":TIM:SCAL";
 const char* TmOfstCmnd   =":TIM:OFFS";
 const char* TmDlyOfsCmnd =":TIM:DEL:OFFS";
 const char* TmDlySclCmnd =":TIM:DEL:SCAL";
-const char* TmFormCmnd   =":TIM:FORM";
+//const char* TmFormCmnd   =":TIM:FORM";
 // Trigger
 const char* TrigModeCmnd =":TRIG:MODE";
 const char* TrigSouCmnd  =":TRIG:EDGE:SOUR";
@@ -55,14 +58,14 @@ const char* TrigSloCmnd  =":TRIG:EDGE:SLOP";
 // General
 const char* IdnCmnd      ="*IDN?";
 const char* ResetCmnd    ="*RST";
-const char* LearnCmnd    ="*LRN?";
+//const char* LearnCmnd    ="*LRN?";
 const char* OpcCmnd      ="*OPC?";
 // System
 const char* RunCmnd      =":RUN";
 const char* StopCmnd     =":STOP";
 const char* AutoCmnd     =":AUTO";
 const char* ErrMsgCmnd   =":SYST:ERR?";
-const char* SetupCmnd    =":SYST:SET";
+//const char* SetupCmnd    =":SYST:SET";
 // Acquire
 const char* AcqTypeCmnd  =":ACQ:TYPE";
 const char* AcqModeCmnd  =":ACQ:MODE";
@@ -75,7 +78,7 @@ const char* InitCmnd     =":WAV:POIN 600;";
 // The order is important and must agree with the order of enumerated names
 // defined in drvScope.h header file, where the first item is ixBoChOn and
 // which corresponds here with the command "SEL:CH%d".
-static const char* cmnds[]={
+const char* cmnds[]={
   ChOnCmnd,    ChPosCmnd,   NullCmnd,   ChCplCmnd,  ChSclCmnd,
   WfDatCmnd,   WfNptCmnd,   NullCmnd,   NullCmnd,   WfFormCmnd,
   TmDlyOfsCmnd,NullCmnd,    TmSclCmnd,  NullCmnd,   TrigLevCmnd,
@@ -85,24 +88,24 @@ static const char* cmnds[]={
 
 // some of the commands listed above return or require specific keywords.  What
 // follows are lists of these keywords for some of the commands.
-static const char* chanCpl[] ={"DC","AC","GND"};
-static const char* wfForm[]  ={"BYTE","WORD","ASC"};
-static const char* trgSwee[] ={"AUTO","NORMAL","SINGLE"};
-static const char* trigSou[] ={"CHANNEL1","CHANNEL2","CHANNEL3","CHANNEL4",
+const char* chanCpl[] ={"DC","AC","GND"};
+const char* wfForm[]  ={"BYTE","WORD","ASC"};
+const char* trgSwee[] ={"AUTO","NORMAL","SINGLE"};
+const char* trigSou[] ={"CHANNEL1","CHANNEL2","CHANNEL3","CHANNEL4",
 				 "EXT",  "EXT5", "ACLINE" };
-static const char* trigSlo[] ={"POSITIVE","NEGATIVE","ALTTERNATION"};
-static const char* timDivU[] ={"ns","us","ms","s"};
-static const char* trigCpl[] ={"AC","DC","LF"};
-static const char* trgMode[] ={"EDGE","PULS","VIDEO"};
+const char* trigSlo[] ={"POSITIVE","NEGATIVE","ALTTERNATION"};
+const char* timDivU[] ={"ns","us","ms","s"};
+const char* trigCpl[] ={"AC","DC","LF"};
+const char* trgMode[] ={"EDGE","PULS","VIDEO"};
 
-static const char* tmMode[]  ={"MAIN","DELAYED"};
-static const char* acqType[] ={"NORMAL","AVERAGE","PEAKDETECT"};
-static const char* acqMode[] ={"RTIME","ETIME"};
+const char* tmMode[]  ={"MAIN","DELAYED"};
+const char* acqType[] ={"NORMAL","AVERAGE","PEAKDETECT"};
+const char* acqMode[] ={"RTIME","ETIME"};
 
 // here we construct a list of lists.  Again the order is important.  The total
 // number of items in this list must agree with the number of commands above.
 // Zero is entered for the command, which does not use list of keywords.
-static const char** listIx[]={
+const char** listIx[]={
         0,0,0,chanCpl,0,
         0,0,0,0,wfForm,
 	0,0,0,0,0,
@@ -111,21 +114,55 @@ static const char** listIx[]={
         0,0,0,0,0};
 // finally, we construct a list of number of keywords in each list.  Again,
 // order is important
-static int itemSz[]={
+const int itemSz[]={
         0,0,0,3,0,  0,0,0,0,3,  0,0,0,0,0,  0,0,0,0,0,
         0,0,0,0,0,  0,0,0,0,0};
 
-static drvDS1x*	_this;
-static const char *dname="drvDS1x";
+}  // End anonymous namespace
 
-static void inithooks( initHookState state){
-/*--------------------------------------------------------------------------*/
-  switch(state){
-    case initHookAtEnd: _this->postInit(); break;
-    default:            break;
-  }
+
+drvDS1x::drvDS1x(const char* port, const char* udp):
+			drvScope(port, udp) {
+/*------------------------------------------------------------------------------
+ * Constructor for the drvDS1x class. Calls constructor for the asynPortDriver
+ * base class. Where
+ *   portName The name of the asyn port driver to be created.
+ *   udpPort is the actual device port name.
+ *   np is the total number of items in the parameter library.
+ *---------------------------------------------------------------------------*/
+  createParam( mbboTrModeStr,	asynParamInt32,		&_mbboTrMode);
+  createParam( mbboTrSouStr,	asynParamInt32,		&_mbboTrSou);
+  createParam( mbboTrCplStr,	asynParamInt32,		&_mbboTrCpl);
+  createParam( mbboTrSloStr,	asynParamInt32,		&_mbboTrSlo);
+  createParam( mbboTrSweStr,	asynParamInt32,		&_mbboTrSwe);
+
+  createParam( siTrStaStr,	asynParamOctet,		&_siTrSta);
+  createParam( loTimDivVStr,	asynParamInt32,		&_loTimDivV);
+  createParam( mbboTimDivUStr,	asynParamInt32,		&_mbboTimDivU);
+  createParam( boTmModeStr,	asynParamInt32,		&_boTmMode);
+  createParam( aoTimDivStr,	asynParamFloat64,	&_aoTimDiv);
+
+  createParam( aoTmOfstStr,	asynParamFloat64,	&_aoTmOfst);
+  createParam( aoTmDlyOfsStr,	asynParamFloat64,	&_aoTmDlyOfs);
+  createParam( aoTmDlySclStr,	asynParamFloat64,	&_aoTmDlyScl);
+  createParam( siSRateStr,	asynParamOctet,		&_siSRate);
+  createParam( boAutoSclStr,	asynParamInt32,		&_boAutoScl);
+
+  createParam( loAcqAveStr,	asynParamInt32,		&_loAcqAve);
+  createParam( mbboAcqTpStr,	asynParamInt32,		&_mbboAcqTp);
+  createParam( boAcqModeStr,	asynParamInt32,		&_boAcqMode);
+  createParam( mbboWfFmtStr,	asynParamInt32,		&_mbboWfFmt);
+  createParam( boDumpStr,	asynParamInt32,		&_boDump);
+
+  _firstix=_mbboTrMode;
+
+  setStringParam( _siName,dname);
+  message( "Constructor drvDS1x: success");
+  callParamCallbacks();
 }
-void drvDS1x::postInit(){
+
+
+void drvDS1x::afterInit(){
 /*-----------------------------------------------------------------------------
  * After IOC init initialization of records from the instrument.
  *---------------------------------------------------------------------------*/
@@ -145,6 +182,8 @@ void drvDS1x::postInit(){
   putInMessgQ( enQuery,_mbboWfFmt,0,0);
   drvScope::afterInit();
 }
+
+
 /*--- reimplemented virtual functions ---------------------------------------*/
 void drvDS1x::updateUser(){
 /*-----------------------------------------------------------------------------
@@ -155,6 +194,8 @@ void drvDS1x::updateUser(){
   getBinary( TrigModeCmnd,_mbboTrMode,trgMode,SIZE(trgMode));
   getBinary( TrigSweCmnd,_mbboTrSwe,trgSwee,SIZE(trgSwee));
 }
+
+
 void drvDS1x::getChanPos( int addr){
 /*-----------------------------------------------------------------------------
  * Channel trace position on the screen is controlled from GUI controls and
@@ -180,6 +221,8 @@ void drvDS1x::getChanPos( int addr){
   setDoubleParam( addr,_aoChPos,v);
   callParamCallbacks(addr);
 }
+
+
 void drvDS1x::setChanPos( int addr,double v){
 /*-----------------------------------------------------------------------------
  * v is the trace position in units of grid division in the graph.  Rigol
@@ -199,6 +242,8 @@ void drvDS1x::setChanPos( int addr,double v){
   sprintf( cmnd,"%s %f",cmnd,pos);
   command(cmnd);
 }
+
+
 const char** drvDS1x::getCmndList( int cix,uint* ni){
 /*-----------------------------------------------------------------------------
  * Overides the empty virtual function in the base class.  It returns a pointer
@@ -211,6 +256,8 @@ const char** drvDS1x::getCmndList( int cix,uint* ni){
   if(listIx[cix]) *ni=itemSz[cix];
   return(listIx[cix]);
 }
+
+
 const char* drvDS1x::getCommand( int cix){
 /*-----------------------------------------------------------------------------
  * Overrides the virtual function in the base class.  This function returns
@@ -222,6 +269,7 @@ const char* drvDS1x::getCommand( int cix){
   if(!strlen(cmnds[ix])) return(NULL);
   return(cmnds[ix]);
 }
+
 
 void drvDS1x::setTimePerDiv( double v){
 /*-----------------------------------------------------------------------------
@@ -244,6 +292,8 @@ void drvDS1x::setTimePerDiv( double v){
   setStringParam( _siTimDiv,str);
   setDoubleParam( _aoTimDiv,v);
 }
+
+
 void drvDS1x::_setTimePerDiv( uint uix){
 /*-----------------------------------------------------------------------------
  * Either of the two time base records changed.  Here we recalculate the time
@@ -265,6 +315,8 @@ void drvDS1x::_setTimePerDiv( uint uix){
   command( cmnd);
   setTimePerDiv(v);
 }
+
+
 int drvDS1x::_wfPreamble( char* p,int* ln,int* nb,
 			double* yinc,double* yorg,int* yref){
 /*-----------------------------------------------------------------------------
@@ -297,13 +349,16 @@ int drvDS1x::_wfPreamble( char* p,int* ln,int* nb,
   *ln=npts; *nb=fmt;
   return(i);
 }
+
+
 void drvDS1x::getWaveform( int ch){
 /*-----------------------------------------------------------------------------
  * Requests waveform data for channel ch (0..3).  This gets waveform preamble
  * and waveform data.  It gets called from the base class via the virtual
  * function mechanism.
  *---------------------------------------------------------------------------*/
-  static const char* iam="getWaveform"; static int ctst=0; int ctstmx=20;
+  const char* iam="getWaveform";
+  static int ctst=0; int ctstmx=20;
   asynStatus stat=asynSuccess; int i,chon,len,n=0,nb,nbyte,yref;
   double vdiv,yinc,yorg; word* pwr=_wfraw; char str[32]; char* pc=_rbuf;
   byte* pb; word* pw; word wtmp; float* pwf=_wfbuf; 
@@ -368,6 +423,8 @@ void drvDS1x::getWaveform( int ch){
   doCallbacksFloat32Array( _wfbuf,n,_wfTrace,ch);
   if((!ch)&&(!((ctst++)%ctstmx))) getString( TrigStCmnd,_siTrSta);
 }
+
+
 void drvDS1x::_printWF( int nbyte,int len,int n,char* pbuf){
 /*-----------------------------------------------------------------------------
  * prints the first 100 data points of a waveform in p.
@@ -377,6 +434,8 @@ void drvDS1x::_printWF( int nbyte,int len,int n,char* pbuf){
   printf("%s, nbyte=%d, len=%d\n",str,nbyte,len);
   _printWFData();
 }
+
+
 void drvDS1x::_printWFData(){
 /*-----------------------------------------------------------------------------
  * prints the first 100 data points of a waveform in p.
@@ -392,6 +451,8 @@ void drvDS1x::_printWFData(){
   }
   printf("\n");
 }
+
+
 void drvDS1x::timeDelayStr( int m,int uix){
 /*-----------------------------------------------------------------------------
  * This routine is a re-implementation of a virtual in base class.  Here we
@@ -402,6 +463,8 @@ void drvDS1x::timeDelayStr( int m,int uix){
   sprintf( str,"%d %s",m,timDivU[ix]);
   setStringParam( _siTimDly,str);
 }
+
+
 void drvDS1x::getTrigLevl(){
 /*-----------------------------------------------------------------------------
  * Setup slider for the trigger level value.
@@ -421,6 +484,8 @@ void drvDS1x::getTrigLevl(){
   stat=setIntegerParam( 0,_loTrLev,sv);
   callParamCallbacks();
 }
+
+
 void drvDS1x::setTrigLevl( int v){
 /*-----------------------------------------------------------------------------
  * trigger level request from a slider.  v is slider value.
@@ -436,6 +501,8 @@ void drvDS1x::setTrigLevl( int v){
   command( cmnd);
   setDoubleParam( 0,_aoTrLev,levl);
 }
+
+
 void drvDS1x::saveConfig(){
 /*-----------------------------------------------------------------------------
  * A prearranged list of scope parameters is saved in a disk file.  The list
@@ -443,7 +510,8 @@ void drvDS1x::saveConfig(){
  * a new line.  This list is used to restore the scope to a state which was
  * saved in the file.  See restoreConfig() method for details.
  *---------------------------------------------------------------------------*/
-  static const char* iam="saveConfig"; int i; FILE* fs; char* pcmnd; int st;
+  const char* iam="saveConfig";
+  int i; FILE* fs; char* pcmnd; int st;
 
   fs=fopen( _fname,"w");
   if(!fs){
@@ -499,6 +567,8 @@ void drvDS1x::saveConfig(){
   }
   fclose(fs);
 }
+
+
 char* drvDS1x::_getChanCmnds( int ch){
 /*-----------------------------------------------------------------------------
  * Constructs a string of channel commands for save restore.
@@ -524,6 +594,8 @@ char* drvDS1x::_getChanCmnds( int ch){
   }
   return(pcmnd);
 }
+
+
 char* drvDS1x::_getAcquCmnds(){
 /*-----------------------------------------------------------------------------
  * Constructs a string of acquire commands for save restore.
@@ -539,6 +611,8 @@ char* drvDS1x::_getAcquCmnds(){
   }
   return(pcmnd);
 }
+
+
 char* drvDS1x::_getTimeCmnds(){
 /*-----------------------------------------------------------------------------
  * Constructs a string of time base commands for save restore.
@@ -557,6 +631,8 @@ char* drvDS1x::_getTimeCmnds(){
   }
   return(pcmnd);
 }
+
+
 char* drvDS1x::_getTrigCmnds(){
 /*-----------------------------------------------------------------------------
  * Constructs a string of trigger commands for save restore.
@@ -584,13 +660,16 @@ char* drvDS1x::_getTrigCmnds(){
   }
   return(pcmnd);
 }
+
+
 char* drvDS1x::_getOneCmnd( const char* cmnd){
 /*-----------------------------------------------------------------------------
  * Constructs a query command, writes the query to the scope.  Constructs a
  * set command using the reply to the query.  Returns a pointer to the set
  * command as a function value.
  *---------------------------------------------------------------------------*/
-  static char str[32]; char* p;
+  static char str[32];
+  char* p;
   sprintf( str,"%s?",cmnd);
   if(command( str,_rbuf,DBUF_LEN)!=asynSuccess){
     errlogPrintf( "%s::_getOneCmnd: command %s failed\n",dname,str);
@@ -603,6 +682,8 @@ char* drvDS1x::_getOneCmnd( const char* cmnd){
   if(p) *p=0;
   return(str);
 }
+
+
 void drvDS1x::restoreConfig(){
 /*-----------------------------------------------------------------------------
  * Reads a set of setup commands from a disk file, file path and name is in
@@ -613,7 +694,7 @@ void drvDS1x::restoreConfig(){
  * terminated with a new line character.  A whole group is
  * sent to the scope, one at a time.
  *---------------------------------------------------------------------------*/
-  static const char* iam="_restSetup";
+  const char* iam="_restSetup";
   asynStatus stat=asynError; FILE* fs; char* p; int n=0;
   fs=fopen( _fname,"r");
   if(!fs){
@@ -642,6 +723,8 @@ void drvDS1x::restoreConfig(){
 //  _updateCh(2);
 //  _updateCh(3);
 }
+
+
 asynStatus drvDS1x::getCmnds( int ix,int addr){
 /*-----------------------------------------------------------------------------
  * This virtual function reimplements the one in the base class.
@@ -670,6 +753,8 @@ asynStatus drvDS1x::getCmnds( int ix,int addr){
   callParamCallbacks( addr);
   return(stat);
 }
+
+
 asynStatus drvDS1x::putIntCmnds( int ix,int addr,int v){
 /*-----------------------------------------------------------------------------
  * This is a reimplementation of a virtual function in the base class.
@@ -711,6 +796,8 @@ asynStatus drvDS1x::putIntCmnds( int ix,int addr,int v){
   callParamCallbacks(addr);
   return(stat);
 }
+
+
 asynStatus drvDS1x::putFltCmnds( int ix,int addr,float v){
 /*-----------------------------------------------------------------------------
  * This routine is a reimplementation of a virtual function in base class.
@@ -738,6 +825,8 @@ asynStatus drvDS1x::putFltCmnds( int ix,int addr,float v){
   callParamCallbacks(addr);
   return(stat);
 }
+
+
 asynStatus drvDS1x::writeInt32( asynUser* pau,epicsInt32 v){
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.  Here we service
@@ -760,6 +849,8 @@ asynStatus drvDS1x::writeInt32( asynUser* pau,epicsInt32 v){
   callParamCallbacks(addr);
   return(stat);
 }
+
+
 asynStatus drvDS1x::writeFloat64( asynUser* pau,epicsFloat64 v){
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.  Here we service
@@ -778,45 +869,6 @@ asynStatus drvDS1x::writeFloat64( asynUser* pau,epicsFloat64 v){
   }
   return(stat);
 }
-drvDS1x::drvDS1x(const char* port, const char* udp):
-			drvScope(port, udp) {
-/*------------------------------------------------------------------------------
- * Constructor for the drvDS1x class. Calls constructor for the asynPortDriver
- * base class. Where
- *   portName The name of the asyn port driver to be created.
- *   udpPort is the actual device port name.
- *   np is the total number of items in the parameter library.
- *---------------------------------------------------------------------------*/
-  createParam( mbboTrModeStr,	asynParamInt32,		&_mbboTrMode);
-  createParam( mbboTrSouStr,	asynParamInt32,		&_mbboTrSou);
-  createParam( mbboTrCplStr,	asynParamInt32,		&_mbboTrCpl);
-  createParam( mbboTrSloStr,	asynParamInt32,		&_mbboTrSlo);
-  createParam( mbboTrSweStr,	asynParamInt32,		&_mbboTrSwe);
-
-  createParam( siTrStaStr,	asynParamOctet,		&_siTrSta);
-  createParam( loTimDivVStr,	asynParamInt32,		&_loTimDivV);
-  createParam( mbboTimDivUStr,	asynParamInt32,		&_mbboTimDivU);
-  createParam( boTmModeStr,	asynParamInt32,		&_boTmMode);
-  createParam( aoTimDivStr,	asynParamFloat64,	&_aoTimDiv);
-
-  createParam( aoTmOfstStr,	asynParamFloat64,	&_aoTmOfst);
-  createParam( aoTmDlyOfsStr,	asynParamFloat64,	&_aoTmDlyOfs);
-  createParam( aoTmDlySclStr,	asynParamFloat64,	&_aoTmDlyScl);
-  createParam( siSRateStr,	asynParamOctet,		&_siSRate);
-  createParam( boAutoSclStr,	asynParamInt32,		&_boAutoScl);
-
-  createParam( loAcqAveStr,	asynParamInt32,		&_loAcqAve);
-  createParam( mbboAcqTpStr,	asynParamInt32,		&_mbboAcqTp);
-  createParam( boAcqModeStr,	asynParamInt32,		&_boAcqMode);
-  createParam( mbboWfFmtStr,	asynParamInt32,		&_mbboWfFmt);
-  createParam( boDumpStr,	asynParamInt32,		&_boDump);
-
-  _firstix=_mbboTrMode;
-
-  setStringParam( _siName,dname);
-  message( "Constructor drvDS1x: success");
-  callParamCallbacks();
-}
 
 
 // Configuration routines.  Called directly, or from the iocsh function below
@@ -828,8 +880,8 @@ int drvDS1xConfigure(const char* port, const char* udp) {
  *  port The name of the asyn port driver to be created.
  *  udp is the IO port.
  *---------------------------------------------------------------------------*/
-  _this = new drvDS1x(port, udp);
-  return(asynSuccess);
+    new drvDS1x(port, udp);
+    return asynSuccess;
 }
 
 /* EPICS iocsh shell commands */
@@ -839,11 +891,12 @@ static const iocshArg initArg1 = { "udp",iocshArgString};
 static const iocshArg * const initArgs[] = {&initArg0,&initArg1};
 static const iocshFuncDef initFuncDef = {"drvDS1xConfigure",2,initArgs};
 static void initCallFunc(const iocshArgBuf *args){
-  drvDS1xConfigure(args[0].sval, args[1].sval);
+    drvDS1xConfigure(args[0].sval, args[1].sval);
 }
+
 void drvDS1xRegister(void){
-  iocshRegister(&initFuncDef,initCallFunc);
-  initHookRegister(&inithooks);
+    iocshRegister(&initFuncDef,initCallFunc);
 }
 epicsExportRegistrar(drvDS1xRegister);
 }
+

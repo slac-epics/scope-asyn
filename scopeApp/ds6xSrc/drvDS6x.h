@@ -1,10 +1,12 @@
+#ifndef DRVDS6X_H
+#define DRVDS6X_H
+
 /* drvDS6x.h
  * This is a specific class for the Rigol DS4000 and DS6000 series oscilloscopes
  * which is subclassed from the drvScope base class.
  * Started on 05/27/2015, zms
  *---------------------------------------------------------------------------*/
-#ifndef _drvDS6x_h
-#define _drvDS6x_h
+
 #include "drvScope.h"
 
 #define WF_LEN	1500
@@ -42,6 +44,7 @@ public:
 
   virtual asynStatus writeInt32( asynUser* pau,epicsInt32 v);
   virtual asynStatus writeFloat64( asynUser* pau,epicsFloat64 v);
+  virtual void  afterInit();
   void		getWaveform( int ch);
   const char*	getCommand( int cix);
   const char**	getCmndList( int cix,uint* ni);
@@ -49,7 +52,6 @@ public:
   void		restoreConfig();
   void		getChanPos( int addr);
   void		setChanPos( int addr,double v);
-  void		postInit();
 
 protected:
 
@@ -94,4 +96,5 @@ private:
   int		_firstix;		// index of first item in this class
 };
 
-#endif	// _drvDS6x_h
+#endif
+

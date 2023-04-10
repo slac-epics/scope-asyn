@@ -134,49 +134,30 @@ typedef struct{
 #define boMeasEnabledStr  "BO_MEAS_EN"  // when true, read measurements from scope
 
 
-
-class myTimer: public epicsTimerNotify {
-public:
-    myTimer(const char* nm, epicsTimerQueueActive& queue)
-            :name(nm), timer(queue.createTimer()) {}
-    virtual ~myTimer() {timer.destroy();}
-    void start(double delay) {timer.start(*this, delay);}
-    virtual expireStatus expire(const epicsTime& currTime) {
-        _expired(currTime);
-        return(noRestart);
-    }
-
-protected:
-    void _expired(const epicsTime& currTime);
-
-private:
-    const char* name;
-    epicsTimer& timer;
-};
-
-
-class drvScope: public asynPortDriver {
+class drvScope: public asynPortDriver,
+                private epicsTimerNotify {
 public:
     friend class Utils;
     drvScope(const char* port, const char* udp);
-    virtual ~drvScope(){}
+    virtual ~drvScope();
 
     virtual asynStatus writeOctet(asynUser* pau, const char* val, size_t nc, size_t* nActual);
     virtual asynStatus writeInt32(asynUser* pau,epicsInt32 v);
     virtual asynStatus writeFloat64(asynUser* pau,epicsFloat64 v);
     void    pollerThread();
-    void    afterInit();
     void                 setChanPosition();
-    virtual const char*  getCommand(int ix) {return NULL;};
-    virtual const char** getCmndList(int cix, uint* ni) {*ni = 0; return NULL;};
+    virtual const char*  getCommand(int ix) {return NULL;}
+    virtual const char** getCmndList(int cix, uint* ni) {*ni = 0; return NULL;}
+    virtual void         afterInit() = 0;
     virtual void         getWaveform(int ch) = 0;
-    virtual void         getHSParams(double hs, int* x0, int* np) {*x0 = 0; *np = 500;};
+    virtual void         getHSParams(double hs, int* x0, int* np) {*x0 = 0; *np = 500;}
     virtual void         getChanPos(int addr);
     virtual void         setChanPos(int addr, double v);
     virtual void         saveConfig();
     virtual void         restoreConfig();
     virtual bool         isTriggered() {return true;}
     virtual bool         isRunning() {return true;}
+    epicsTimerNotify::expireStatus expire(const epicsTime&) {setChanPosition(); return noRestart;}
 
 protected:
     int _boChOn,     _aoChPos,    _boChImp,    _mbboChCpl,  _aoChScl,
@@ -260,7 +241,6 @@ protected:
 
 private:
     epicsMessageQueue* _pmq;
-    myTimer*      _chPosTimer;
     void          _evMessage();
     asynStatus    _write(const char* pw, size_t nw);
     asynStatus    _wtrd(const char* pw, size_t nw, char* pr, size_t nr);
@@ -305,6 +285,8 @@ private:
     double        _wfRate;
     int           _measEnabled;
     int           _pollCount;
+    epicsTimerQueueActive* _timerQueue;
+    epicsTimer*   _chPosTimer;
 };
 
 #endif    // DRVSCOPE_H

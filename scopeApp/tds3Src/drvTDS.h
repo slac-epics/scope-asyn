@@ -59,13 +59,13 @@ public:
     virtual asynStatus writeFloat64(asynUser* pau,epicsFloat64 v);
     //virtual asynStatus readEnum(asynUser *pau, char *strings[], int values[], int severities[],
     //        size_t nElements, size_t *nIn);
+    virtual void  afterInit();
     void          getWaveform(int ch);
     const char*   getCommand(int cix);
     const char**  getCmndList(int cix, uint* ni);
     void          getHSParams(double hs, int* x0, int* np);
     bool          isTriggered();
     bool          isRunning();
-    void          postInit();
 
 protected:
     int _mbboWfWid,     _boTrMode,      _mbboTrSou,     _boTrSlo,     _mbbiTrSta,
@@ -108,5 +108,5 @@ private:
     const int _num_meas;
 };
 
-#endif    // DRVTDS_H
+#endif
 

@@ -18,7 +18,6 @@
 
 namespace {
 const std::string driverName = "drvTDS";
-static drvTDS* _this;
 
 const char* ChOnCmnd       = "SEL:CH%d";
 const char* ChPosCmnd      = "CH%d:POS";
@@ -190,26 +189,12 @@ drvTDS::drvTDS(const char* port, const char* udp):
 }
 
 
-static void inithooks(initHookState state) {
-/*-----------------------------------------------------------------------------
- * Inithook function
- *---------------------------------------------------------------------------*/
-    switch (state) {
-        case initHookAtEnd:
-            _this->postInit();
-            break;
-        default:
-            break;
-    }
-}
-
-
-void drvTDS::postInit() {
+void drvTDS::afterInit() {
 /*-----------------------------------------------------------------------------
  * After IOC init.
  *---------------------------------------------------------------------------*/
-    const std::string functionName = "postInit";
-    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s\n",
+    const std::string functionName = "afterInit";
+    asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s\n",
             driverName.c_str(), functionName.c_str());
 
     putInMessgQ(enQuery, _mbboTrSou,0,0);
@@ -913,8 +898,9 @@ int drvTDSConfigure(const char* port, const char* udp) {
  *  port The name of the asyn port driver to be created.
  *  udp is the IO port.
  *---------------------------------------------------------------------------*/
-  _this = new drvTDS(port, udp);
-  return asynSuccess;
+//  _this = new drvTDS(port, udp);
+    new drvTDS(port, udp);
+    return asynSuccess;
 }
 
 /* EPICS iocsh shell commands */
@@ -924,12 +910,11 @@ static const iocshArg initArg1 = {"udp", iocshArgString};
 static const iocshArg * const initArgs[] = {&initArg0, &initArg1};
 static const iocshFuncDef initFuncDef = {"drvTDSConfigure", 2, initArgs};
 static void initCallFunc(const iocshArgBuf *args){
-  drvTDSConfigure(args[0].sval, args[1].sval);
+    drvTDSConfigure(args[0].sval, args[1].sval);
 }
 
 void drvTDSRegister(void) {
-  iocshRegister(&initFuncDef, initCallFunc);
-  initHookRegister(&inithooks);
+    iocshRegister(&initFuncDef, initCallFunc);
 }
 
 epicsExportRegistrar(drvTDSRegister);

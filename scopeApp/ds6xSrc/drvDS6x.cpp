@@ -24,6 +24,9 @@
 
 #include "drvDS6x.h"
 
+namespace {
+const char *dname="drvDS6x";
+
 const char* ChOnCmnd     =":CHAN%d:DISP";
 const char* ChPosCmnd    =":CHAN%d:OFFS";
 const char* ChImpCmnd    =":CHAN%d:IMP";
@@ -63,15 +66,15 @@ const char* InitCmnd     ="*CLS; :WAV:POIN 1400; :WAV:STAR 0; :WAV:STOP 1399";
 const char* SysSetCmnd   =":SYST:SET";
 const char* ErrMsgCmnd   =":SYST:ERR?";
 const char* WfPreCmnd    =":WAV:SOUR CHAN%d; :WAV:PRE?";
-const char* SreCmnd      ="*SRE";
+//const char* SreCmnd      ="*SRE";
 const char* TrCplCmnd    =":TRIG:COUP";
 const char* TrSweeCmnd   =":TRIG:SWE";
 const char* TmHrModeCmnd =":TIM:HREF:MODE";
 const char* TmModeCmnd   =":TIM:MODE";
-const char* TmDlySclCmnd =":TIM:DEL:SCAL";
-const char* TmVernCmnd   =":TIM:VERN";
-const char* TmXY1Cmnd    =":TIM:XY1:DISP";
-const char* TmXY2Cmnd    =":TIM:XY2:DISP";
+//const char* TmDlySclCmnd =":TIM:DEL:SCAL";
+//const char* TmVernCmnd   =":TIM:VERN";
+//const char* TmXY1Cmnd    =":TIM:XY1:DISP";
+//const char* TmXY2Cmnd    =":TIM:XY2:DISP";
 const char* TmOfstCmnd   =":TIM:OFFS";
 const char* AcqAvrgCmnd  =":ACQ:AVER";
 const char* AcqTypeCmnd  =":ACQ:TYPE";
@@ -82,7 +85,7 @@ const char* AutoSclCmnd  =":AUT";
 // The order is important and must agree with the order of enumerated names
 // defined in drvScope.h header file, where the first item is ixBoChOn and
 // which corresponds here with the command "SEL:CH%d".
-static const char* cmnds[]={
+const char* cmnds[]={
   ChOnCmnd,    ChPosCmnd,   ChImpCmnd,  ChCplCmnd,  ChSclCmnd,
   WfDatCmnd,   WfNptCmnd,   WfStrtCmnd, WfStopCmnd, WfFormCmnd,
   TmDlyOfsCmnd,TmDlyEnCmnd, TmSclCmnd,  TrigPosCmnd,TrigLevCmnd,
@@ -92,25 +95,25 @@ static const char* cmnds[]={
 
 // some of the commands listed above return or require specific keywords.  What
 // follows are lists of these keywords for some of the commands.
-static const char* chanImp[] ={"FIFT","OMEG"};
-static const char* chanCpl[] ={"DC","AC","GND"};
-static const char* dataFmt[] ={"BYTE","WORD"};
-static const char* trgSwee[] ={"AUTO","NORM","SING"};
-static const char* trigSou[]={"CHAN1","CHAN2","CHAN3","CHAN4",
+const char* chanImp[] ={"FIFT","OMEG"};
+const char* chanCpl[] ={"DC","AC","GND"};
+const char* dataFmt[] ={"BYTE","WORD"};
+const char* trgSwee[] ={"AUTO","NORM","SING"};
+const char* trigSou[]={"CHAN1","CHAN2","CHAN3","CHAN4",
 				 "EXT",  "EXT5", "ACL" };
-static const char* trigSlo[]={"POS","NEG","RFAL"};
-static const char* timDivU[] ={"ns","us","ms","s"};
-static const char* trigCpl[] ={"AC","DC","LFR","HFR"};
-static const char* trgMode[] ={"EDGE","PULS","SLOP"};
+const char* trigSlo[]={"POS","NEG","RFAL"};
+const char* timDivU[] ={"ns","us","ms","s"};
+const char* trigCpl[] ={"AC","DC","LFR","HFR"};
+const char* trgMode[] ={"EDGE","PULS","SLOP"};
 /*
-static const char* tmHrMode[]={"CENT","TPOS","USER"};
-static const char* tmMode[]  ={"MAIN","XY","ROLL"};
-static const char* acqType[] ={"NORM","AVER","PEAK","HRES"};
+const char* tmHrMode[]={"CENT","TPOS","USER"};
+const char* tmMode[]  ={"MAIN","XY","ROLL"};
+const char* acqType[] ={"NORM","AVER","PEAK","HRES"};
 */
 // here we construct a list of lists.  Again the order is important.  The total
 // number of items in this list must agree with the number of commands above.
 // Zero is entered for the command, which does not use list of keywords.
-static const char** listIx[]={
+const char** listIx[]={
         0,0,chanImp,chanCpl,0,
         0,0,0,0,dataFmt,
 	0,0,0,0,0,
@@ -119,21 +122,56 @@ static const char** listIx[]={
         0,0,0,0,0};
 // finally, we construct a list of number of keywords in each list.  Again,
 // order is important
-static int itemSz[]={
+int itemSz[]={
         0,0,2,3,0,  0,0,0,0,2,  0,0,0,0,0,  0,0,0,0,0,
         0,0,0,0,0,  0,0,0,0,0};
 
-static drvDS6x*	_this;
-static const char *dname="drvDS6x";
+}  // End anonymous namespace
 
-static void inithooks( initHookState state){
-/*--------------------------------------------------------------------------*/
-  switch(state){
-    case initHookAtEnd: _this->postInit(); break;
-    default:            break;
-  }
+
+drvDS6x::drvDS6x(const char* port, const char* udp):
+			drvScope(port, udp) {
+/*------------------------------------------------------------------------------
+ * Constructor for the drvDS6x class. Calls constructor for the asynPortDriver
+ * base class. Where
+ *   portName The name of the asyn port driver to be created.
+ *   udpPort is the actual device port name.
+ *   np is the total number of items in the parameter library.
+ *---------------------------------------------------------------------------*/
+  createParam( mbboTrModeStr,	asynParamInt32,		&_mbboTrMode);
+  createParam( mbboTrSouStr,	asynParamInt32,		&_mbboTrSou);
+  createParam( mbboTrCplStr,	asynParamInt32,		&_mbboTrCpl);
+  createParam( mbboTrSloStr,	asynParamInt32,		&_mbboTrSlo);
+  createParam( loTimDivVStr,	asynParamInt32,		&_loTimDivV);
+
+  createParam( mbboTimDivUStr,	asynParamInt32,		&_mbboTimDivU);
+  createParam( loSreStr,	asynParamInt32,		&_loSre);
+  createParam( mbboTrSweStr,	asynParamInt32,		&_mbboTrSwe);
+  createParam( mbboTmHModeStr,	asynParamInt32,		&_mbboTmHMode);
+  createParam( mbboTmModeStr,	asynParamInt32,		&_mbboTmMode);
+
+  createParam( aoTimDivStr,	asynParamFloat64,	&_aoTimDiv);
+  createParam( aoTmOfstStr,	asynParamFloat64,	&_aoTmOfst);
+  createParam( aoTmDlySclStr,	asynParamFloat64,	&_aoTmDlyScl);
+  createParam( boTmXY1Str,	asynParamInt32,		&_boTmXY1);
+  createParam( boTmXY2Str,	asynParamInt32,		&_boTmXY2);
+
+  createParam( siTrStaStr,	asynParamOctet,		&_siTrSta);
+  createParam( siSRateStr,	asynParamOctet,		&_siSRate);
+  createParam( boAutoSclStr,	asynParamInt32,		&_boAutoScl);
+  createParam( boWfFmtStr,	asynParamInt32,		&_boWfFmt);
+  createParam( loAcqAveStr,	asynParamInt32,		&_loAcqAve);
+
+  createParam( mbboAcqTpStr,	asynParamInt32,		&_mbboAcqTp);
+  _firstix=_mbboTrMode;
+
+  setStringParam( _siName,dname);
+  message( "Constructor drvDS6x: success");
+  callParamCallbacks();
 }
-void drvDS6x::postInit(){
+
+
+void drvDS6x::afterInit(){
 /*-----------------------------------------------------------------------------
  * After IOC init initialization of records from the instrument.
  *---------------------------------------------------------------------------*/
@@ -155,6 +193,8 @@ void drvDS6x::postInit(){
   putInMessgQ( enQuery,_boWfFmt,0,0);
   drvScope::afterInit();
 }
+
+
 /*--- reimplemented virtual functions ---------------------------------------*/
 void drvDS6x::updateUser(){
 /*-----------------------------------------------------------------------------
@@ -165,6 +205,8 @@ void drvDS6x::updateUser(){
   getBinary( TrigModeCmnd,_mbboTrMode,trgMode,SIZE(trgMode));
   getBinary( TrSweeCmnd,_mbboTrSwe,trgSwee,SIZE(trgSwee));
 }
+
+
 void drvDS6x::getChanPos( int addr){
 /*-----------------------------------------------------------------------------
  * Channel trace position on the screen is controlled from GUI controls and
@@ -190,6 +232,8 @@ void drvDS6x::getChanPos( int addr){
   setDoubleParam( addr,_aoChPos,v);
   callParamCallbacks(addr);
 }
+
+
 void drvDS6x::setChanPos( int addr,double v){
 /*-----------------------------------------------------------------------------
  * v is the trace position in units of grid divition in the graph.  Rigol
@@ -209,6 +253,8 @@ void drvDS6x::setChanPos( int addr,double v){
   sprintf( cmnd,"%s %f",cmnd,pos);
   command(cmnd);
 }
+
+
 const char** drvDS6x::getCmndList( int cix,uint* ni){
 /*-----------------------------------------------------------------------------
  * Overides the empty virtual function in the base class.  It returns a pointer
@@ -221,6 +267,8 @@ const char** drvDS6x::getCmndList( int cix,uint* ni){
   if(listIx[cix]) *ni=itemSz[cix];
   return(listIx[cix]);
 }
+
+
 const char* drvDS6x::getCommand( int cix){
 /*-----------------------------------------------------------------------------
  * Overrides the virtual function in the base class.  This function returns
@@ -232,6 +280,7 @@ const char* drvDS6x::getCommand( int cix){
   if(!strlen(cmnds[ix])) return(NULL);
   return(cmnds[ix]);
 }
+
 
 void drvDS6x::setTimePerDiv( double v){
 /*-----------------------------------------------------------------------------
@@ -254,6 +303,8 @@ void drvDS6x::setTimePerDiv( double v){
   setStringParam( _siTimDiv,str);
   setDoubleParam( _aoTimDiv,v);
 }
+
+
 void drvDS6x::_setTimePerDiv( uint uix){
 /*-----------------------------------------------------------------------------
  * Either of the two time base records changed.  Here we recalculate the time
@@ -275,6 +326,8 @@ void drvDS6x::_setTimePerDiv( uint uix){
   command( cmnd);
   setTimePerDiv(v);
 }
+
+
 int drvDS6x::_wfPreamble( char* p,int* ln,int* nb){
 /*-----------------------------------------------------------------------------
  * Unpacks the waveform preamble string.  Returns the length of the preamble
@@ -305,13 +358,16 @@ int drvDS6x::_wfPreamble( char* p,int* ln,int* nb){
   *ln=npts; *nb=fmt;
   return(i);
 }
+
+
 void drvDS6x::getWaveform( int ch){
 /*-----------------------------------------------------------------------------
  * Requests waveform data for channel ch (0..3).  This gets waveform preamble
  * and waveform data.  It gets called from the base class via the virtual
  * function mechanism.
  *---------------------------------------------------------------------------*/
-  static const char* iam="_getWaveform"; static int ctst=0; int ctstmx=20;
+  const char* iam="_getWaveform";
+  static int ctst=0; int ctstmx=20;
   asynStatus stat=asynSuccess; int i,j,chon,len,n=0,nb,nbyte;
   word* pwr=_wfraw; char str[32]; char* pc=_rbuf;
   byte* pb; word* pw; word wtmp; float ftmp; float* pwf=_wfbuf; 
@@ -372,6 +428,8 @@ void drvDS6x::getWaveform( int ch){
   doCallbacksFloat32Array( _wfbuf,n,_wfTrace,ch);
   if((!ch)&&(!((ctst++)%ctstmx))) getString( TrigStCmnd,_siTrSta);
 }
+
+
 void drvDS6x::_printWF( int nbyte,int len,int n,char* pbuf,byte* p){
 /*-----------------------------------------------------------------------------
  * prints the first 100 data points of a waveform in p.
@@ -409,6 +467,8 @@ void drvDS6x::_printWF( int nbyte,int len,int n,char* pbuf,byte* p){
   printf(" %d %d %d %d %d %d %d %d %d %d\n",
     pb[0],pb[1],pb[2],pb[3],pb[4],pb[5],pb[6],pb[7],pb[8],pb[9]);
 }
+
+
 void drvDS6x::timeDelayStr( int m,int uix){
 /*-----------------------------------------------------------------------------
  * This routine is a re-implementation of a virtual in base class.  Here we
@@ -419,6 +479,8 @@ void drvDS6x::timeDelayStr( int m,int uix){
   sprintf( str,"%d %s",m,timDivU[ix]);
   setStringParam( _siTimDly,str);
 }
+
+
 void drvDS6x::getTrigLevl(){
 /*-----------------------------------------------------------------------------
  * Setup slider for the trigger level value.
@@ -438,6 +500,8 @@ void drvDS6x::getTrigLevl(){
   stat=setIntegerParam( 0,_loTrLev,sv);
   callParamCallbacks();
 }
+
+
 void drvDS6x::setTrigLevl( int v){
 /*-----------------------------------------------------------------------------
  * trigger level request from a slider.  v is slider value.
@@ -453,6 +517,8 @@ void drvDS6x::setTrigLevl( int v){
   command( cmnd);
   setDoubleParam( 0,_aoTrLev,levl);
 }
+
+
 void drvDS6x::saveConfig(){
 /*-----------------------------------------------------------------------------
  * A prearranged list of scope parameters is saved in a disk file.  The list
@@ -460,7 +526,8 @@ void drvDS6x::saveConfig(){
  * a new line.  This list is used to restore the scope to a state which was
  * saved in the file.  See restoreConfig() method for details.
  *---------------------------------------------------------------------------*/
-  static const char* iam="saveConfig"; int i; FILE* fs; char* pcmnd; int st;
+  const char* iam="saveConfig";
+  int i; FILE* fs; char* pcmnd; int st;
 
   fs=fopen( _fname,"w");
   if(!fs){
@@ -516,6 +583,8 @@ void drvDS6x::saveConfig(){
   }
   fclose(fs);
 }
+
+
 char* drvDS6x::_getChanCmnds( int ch){
 /*-----------------------------------------------------------------------------
  * Constructs a string of channel commands for save restore.
@@ -545,6 +614,8 @@ char* drvDS6x::_getChanCmnds( int ch){
   }
   return(pcmnd);
 }
+
+
 char* drvDS6x::_getAcquCmnds(){
 /*-----------------------------------------------------------------------------
  * Constructs a string of acquire commands for save restore.
@@ -560,6 +631,8 @@ char* drvDS6x::_getAcquCmnds(){
   }
   return(pcmnd);
 }
+
+
 char* drvDS6x::_getTimeCmnds(){
 /*-----------------------------------------------------------------------------
  * Constructs a string of time base commands for save restore.
@@ -584,6 +657,8 @@ char* drvDS6x::_getTimeCmnds(){
   }
   return(pcmnd);
 }
+
+
 char* drvDS6x::_getTrigCmnds(){
 /*-----------------------------------------------------------------------------
  * Constructs a string of trigger commands for save restore.
@@ -611,13 +686,16 @@ char* drvDS6x::_getTrigCmnds(){
   }
   return(pcmnd);
 }
+
+
 char* drvDS6x::_getOneCmnd( const char* cmnd){
 /*-----------------------------------------------------------------------------
  * Constructs a query command, writes the query to the scope.  Constructs a
  * set command using the reply to the query.  Returns a pointer to the set
  * command as a function value.
  *---------------------------------------------------------------------------*/
-  static char str[32]; char* p;
+  static char str[32];
+  char* p;
   sprintf( str,"%s?",cmnd);
   if(command( str,_rbuf,DBUF_LEN)!=asynSuccess){
     errlogPrintf( "%s::_getOneCmnd: command %s failed\n",dname,str);
@@ -630,6 +708,8 @@ char* drvDS6x::_getOneCmnd( const char* cmnd){
   if(p) *p=0;
   return(str);
 }
+
+
 void drvDS6x::restoreConfig(){
 /*-----------------------------------------------------------------------------
  * Reads a set of setup commands from a disk file, file path and name is in
@@ -640,7 +720,7 @@ void drvDS6x::restoreConfig(){
  * terminated with a new line character.  A whole group is
  * sent to the scope, one at a time.
  *---------------------------------------------------------------------------*/
-  static const char* iam="_restSetup";
+  const char* iam="_restSetup";
   asynStatus stat=asynError; FILE* fs; char* p; int n=0;
   fs=fopen( _fname,"r");
   if(!fs){
@@ -669,6 +749,8 @@ void drvDS6x::restoreConfig(){
 //  _updateCh(2);
 //  _updateCh(3);
 }
+
+
 asynStatus drvDS6x::getCmnds( int ix,int addr){
 /*-----------------------------------------------------------------------------
  * This virtual function reimplements the one in the base class.
@@ -692,6 +774,8 @@ asynStatus drvDS6x::getCmnds( int ix,int addr){
   callParamCallbacks( addr);
   return(stat);
 }
+
+
 asynStatus drvDS6x::putIntCmnds( int ix,int addr,int v){
 /*-----------------------------------------------------------------------------
  * This is a reimplementation of a virtual function in the base class.
@@ -727,6 +811,8 @@ asynStatus drvDS6x::putIntCmnds( int ix,int addr,int v){
   callParamCallbacks(addr);
   return(stat);
 }
+
+
 asynStatus drvDS6x::putFltCmnds( int ix,int addr,float v){
 /*-----------------------------------------------------------------------------
  * This routine is a reimplementation of a virtual function in base class.
@@ -750,6 +836,8 @@ asynStatus drvDS6x::putFltCmnds( int ix,int addr,float v){
   callParamCallbacks(addr);
   return(stat);
 }
+
+
 asynStatus drvDS6x::writeInt32( asynUser* pau,epicsInt32 v){
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.  Here we service
@@ -769,6 +857,8 @@ asynStatus drvDS6x::writeInt32( asynUser* pau,epicsInt32 v){
   callParamCallbacks(addr);
   return(stat);
 }
+
+
 asynStatus drvDS6x::writeFloat64( asynUser* pau,epicsFloat64 v){
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.  Here we service
@@ -788,47 +878,6 @@ asynStatus drvDS6x::writeFloat64( asynUser* pau,epicsFloat64 v){
   return(stat);
 }
 
-drvDS6x::drvDS6x(const char* port, const char* udp):
-			drvScope(port, udp) {
-/*------------------------------------------------------------------------------
- * Constructor for the drvDS6x class. Calls constructor for the asynPortDriver
- * base class. Where
- *   portName The name of the asyn port driver to be created.
- *   udpPort is the actual device port name.
- *   np is the total number of items in the parameter library.
- *---------------------------------------------------------------------------*/
-  createParam( mbboTrModeStr,	asynParamInt32,		&_mbboTrMode);
-  createParam( mbboTrSouStr,	asynParamInt32,		&_mbboTrSou);
-  createParam( mbboTrCplStr,	asynParamInt32,		&_mbboTrCpl);
-  createParam( mbboTrSloStr,	asynParamInt32,		&_mbboTrSlo);
-  createParam( loTimDivVStr,	asynParamInt32,		&_loTimDivV);
-
-  createParam( mbboTimDivUStr,	asynParamInt32,		&_mbboTimDivU);
-  createParam( loSreStr,	asynParamInt32,		&_loSre);
-  createParam( mbboTrSweStr,	asynParamInt32,		&_mbboTrSwe);
-  createParam( mbboTmHModeStr,	asynParamInt32,		&_mbboTmHMode);
-  createParam( mbboTmModeStr,	asynParamInt32,		&_mbboTmMode);
-
-  createParam( aoTimDivStr,	asynParamFloat64,	&_aoTimDiv);
-  createParam( aoTmOfstStr,	asynParamFloat64,	&_aoTmOfst);
-  createParam( aoTmDlySclStr,	asynParamFloat64,	&_aoTmDlyScl);
-  createParam( boTmXY1Str,	asynParamInt32,		&_boTmXY1);
-  createParam( boTmXY2Str,	asynParamInt32,		&_boTmXY2);
-
-  createParam( siTrStaStr,	asynParamOctet,		&_siTrSta);
-  createParam( siSRateStr,	asynParamOctet,		&_siSRate);
-  createParam( boAutoSclStr,	asynParamInt32,		&_boAutoScl);
-  createParam( boWfFmtStr,	asynParamInt32,		&_boWfFmt);
-  createParam( loAcqAveStr,	asynParamInt32,		&_loAcqAve);
-
-  createParam( mbboAcqTpStr,	asynParamInt32,		&_mbboAcqTp);
-  _firstix=_mbboTrMode;
-
-  setStringParam( _siName,dname);
-  message( "Constructor drvDS6x: success");
-  callParamCallbacks();
-}
-
 
 // Configuration routines.  Called directly, or from the iocsh function below
 extern "C" {
@@ -839,8 +888,8 @@ int drvDS6xConfigure(const char* port, const char* udp) {
  *  port The name of the asyn port driver to be created.
  *  udp is the IO port.
  *---------------------------------------------------------------------------*/
-  _this = new drvDS6x(port, udp);
-  return(asynSuccess);
+    new drvDS6x(port, udp);
+    return asynSuccess;
 }
 
 /* EPICS iocsh shell commands */
@@ -850,11 +899,12 @@ static const iocshArg initArg1 = { "udp",iocshArgString};
 static const iocshArg * const initArgs[] = {&initArg0,&initArg1};
 static const iocshFuncDef initFuncDef = {"drvDS6xConfigure",2,initArgs};
 static void initCallFunc(const iocshArgBuf *args){
-  drvDS6xConfigure(args[0].sval, args[1].sval);
+    drvDS6xConfigure(args[0].sval, args[1].sval);
 }
+
 void drvDS6xRegister(void){
-  iocshRegister(&initFuncDef,initCallFunc);
-  initHookRegister(&inithooks);
+    iocshRegister(&initFuncDef,initCallFunc);
 }
 epicsExportRegistrar(drvDS6xRegister);
 }
+
