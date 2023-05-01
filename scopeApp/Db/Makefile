@@ -22,6 +22,7 @@ DB += scopeMark.db
 EB += timeDiv.db
 DB += scope.db
 DB += tds.db
+DB += mdo.db
 DB += ds1.db
 DB += ds6.db
 DB += $(ASYN)/db/asynRecord.db
