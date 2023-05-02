@@ -2,13 +2,24 @@ TOP=../..
 
 include $(TOP)/configure/CONFIG
 
-LIBRARY_IOC += templ
+LIBRARY_IOC += scope
+LIBRARY_IOC += tds3x
+LIBRARY_IOC += mdo3x
+LIBRARY_IOC += ds1x
+LIBRARY_IOC += ds6x
 
-DBD += drvTempl.dbd
+DBD += drvTDS.dbd
+DBD += drvMDO.dbd
+DBD += drvDS1x.dbd
+DBD += drvDS6x.dbd
 
-templ_SRCS += drvTempl.cpp
+scope_SRCS += drvScope.cpp
+tds3x_SRCS += drvTDS.cpp
+mdo3x_SRCS += drvMDO.cpp
+ds1x_SRCS  += drvDS1x.cpp
+ds6x_SRCS  += drvDS6x.cpp
 
-templ_LIBS += $(EPICS_BASE_IOC_LIBS)
+LIB_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 include $(TOP)/configure/RULES
 
