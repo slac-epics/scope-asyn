@@ -200,10 +200,10 @@ void drvDS6x::updateUser(){
 /*-----------------------------------------------------------------------------
  * This is a re-implementation of a virtual function in the base class.
  *---------------------------------------------------------------------------*/
-  getBinary( TrigSouCmnd,_mbboTrSou,trigSou,SIZE(trigSou));
-  getBinary( TrigSloCmnd,_mbboTrSlo,trigSlo,SIZE(trigSlo));
-  getBinary( TrigModeCmnd,_mbboTrMode,trgMode,SIZE(trgMode));
-  getBinary( TrSweeCmnd,_mbboTrSwe,trgSwee,SIZE(trgSwee));
+  getEnum( TrigSouCmnd,_mbboTrSou,trigSou,SIZE(trigSou));
+  getEnum( TrigSloCmnd,_mbboTrSlo,trigSlo,SIZE(trigSlo));
+  getEnum( TrigModeCmnd,_mbboTrMode,trgMode,SIZE(trgMode));
+  getEnum( TrSweeCmnd,_mbboTrSwe,trgSwee,SIZE(trgSwee));
 }
 
 
@@ -508,7 +508,7 @@ void drvDS6x::setTrigLevl( int v){
  *---------------------------------------------------------------------------*/
   int ch; double levl,y,scl; char cmnd[32]; const char* pcmd;
   getIntegerParam( 0,_mbboTrSou,&ch);
-  if(ch<0||ch>=MAX_ADDR) return;
+  if(ch<0||ch>=NCHAN) return;
   pcmd=TrigLevCmnd;
   getDoubleParam( ch,_aoChPos,&y);
   getDoubleParam( ch,_aoChScl,&scl);
@@ -761,12 +761,12 @@ asynStatus drvDS6x::getCmnds( int ix,int addr){
  *---------------------------------------------------------------------------*/
   asynStatus stat=asynSuccess; int jx=ix-_firstix;
   switch( jx){
-    case ixMbboTrMode:	getBinary( TrigModeCmnd,ix,trgMode,3); break;
-    case ixMbboTrSou:	getBinary( TrigSouCmnd,ix,trigSou,SIZE(trigSou)); break;
-    case ixMbboTrSlo:	getBinary( TrigSloCmnd,ix,trigSlo,SIZE(trigSlo)); break;
-    case ixMbboTrCpl:	getBinary( TrCplCmnd,ix,trigCpl,SIZE(trigCpl)); break;
-    case ixMbboTrSwe:	getBinary( TrSweeCmnd,ix,trgSwee,SIZE(trgSwee)); break;
-    case ixBoWfFmt:	getBinary( WfFormCmnd,ix,dataFmt,SIZE(dataFmt)); break;
+    case ixMbboTrMode:	getEnum( TrigModeCmnd,ix,trgMode,3); break;
+    case ixMbboTrSou:	getEnum( TrigSouCmnd,ix,trigSou,SIZE(trigSou)); break;
+    case ixMbboTrSlo:	getEnum( TrigSloCmnd,ix,trigSlo,SIZE(trigSlo)); break;
+    case ixMbboTrCpl:	getEnum( TrCplCmnd,ix,trigCpl,SIZE(trigCpl)); break;
+    case ixMbboTrSwe:	getEnum( TrSweeCmnd,ix,trgSwee,SIZE(trgSwee)); break;
+    case ixBoWfFmt:	getEnum( WfFormCmnd,ix,dataFmt,SIZE(dataFmt)); break;
     case ixSiTrSta:	getString( TrigStCmnd,ix); break;
     case ixSiSRate:	getString( AcqSRateCmnd,ix); break;
     default:            stat=drvScope::getCmnds(ix,addr); break;
@@ -788,15 +788,15 @@ asynStatus drvDS6x::putIntCmnds( int ix,int addr,int v){
   asynStatus stat=asynSuccess;
   int jx=ix-_firstix,uix;
   switch( jx){
-    case ixMbboTrMode:	setBinary(v,TrigModeCmnd,trgMode,SIZE(trgMode));
+    case ixMbboTrMode:	setEnum(TrigModeCmnd, v, trgMode, SIZE(trgMode));
 			setIntegerParam( ix,v); break;
-    case ixMbboTrCpl:	setBinary(v,TrCplCmnd,trigCpl,SIZE(trigCpl));
+    case ixMbboTrCpl:	setEnum(TrCplCmnd, v, trigCpl, SIZE(trigCpl));
 			setIntegerParam( ix,v); break;
-    case ixMbboTrSou:	setBinary(v,TrigSouCmnd,trigSou,SIZE(trigSou));
+    case ixMbboTrSou:	setEnum(TrigSouCmnd, v, trigSou, SIZE(trigSou));
 			break;
-    case ixMbboTrSlo:	setBinary(v,TrigSloCmnd,trigSlo,SIZE(trigSlo));
+    case ixMbboTrSlo:	setEnum(TrigSloCmnd, v, trigSlo, SIZE(trigSlo));
 			break;
-    case ixMbboTrSwe:	setBinary(v,TrSweeCmnd,trgSwee,SIZE(trgSwee));
+    case ixMbboTrSwe:	setEnum(TrSweeCmnd, v, trgSwee, SIZE(trgSwee));
 			break;
     case ixLoTimDivV:	setIntegerParam( _loTimDivV,v);
 			getIntegerParam( _mbboTimDivU,&uix);
@@ -804,7 +804,7 @@ asynStatus drvDS6x::putIntCmnds( int ix,int addr,int v){
 			break;
     case ixMbboTimDivU:	_setTimePerDiv( v); break;
     case ixBoAutoScl:	command( AutoSclCmnd); break;
-    case ixBoWfFmt:	setBinary( v,WfFormCmnd,dataFmt,SIZE(dataFmt));
+    case ixBoWfFmt:	setEnum(WfFormCmnd, v, dataFmt, SIZE(dataFmt));
 			break;
     default:		stat=drvScope::putIntCmnds( ix,addr,v); break;
   }

@@ -11,15 +11,15 @@ record( ai, "$(P):AI_CH$(N)_AREA"){
   field( DTYP, "asynFloat64")
   field( INP,  "@asyn($(PORT),$(N),1)AI_AREA")
   field( SCAN, "I/O Intr")
-  field( PREC, "3")
-  field( EGU,  "unit")
+  field( PREC, "2")
+  field( EGU,  "V*s")
 }
 record( ai, "$(P):AI_CH$(N)_PED"){
   field( DESC, "Summed ped:")
   field( DTYP, "asynFloat64")
   field( INP,  "@asyn($(PORT),$(N),1)AI_PED")
   field( SCAN, "I/O Intr")
-  field( PREC, "3")
-  field( EGU,  "unit")
+  field( PREC, "2")
+  field( EGU,  "V*s")
 }
 

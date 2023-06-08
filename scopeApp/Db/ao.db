@@ -1,10 +1,11 @@
 #---- $(DESC) ------------------------------
-record( ao, "$(P):AO_$(ITEM)"){
-  field( DESC, "$(DESC):")
-  info( asyn:READBACK, "1")
-  field( DTYP, "asynFloat64")
-  field( OUT,  "@asyn($(PORT),$(N),1)AO_$(USER)")
-  field( DRVL, "$(DRVL)")
-  field( DRVH, "$(DRVH)")
-  field( PREC, "3")
+record(ao, "$(P):AO_$(ITEM)"){
+    field(DESC, "$(DESC):")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(PORT),$(N),1)AO_$(USER)")
+    field(DRVL, "$(DRVL)")
+    field(DRVH, "$(DRVH)")
+    field(PREC, "3")
+    field(EGU,  "$(EGU="")")
+    info(asyn:READBACK, "1")
 }

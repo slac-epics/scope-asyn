@@ -190,10 +190,10 @@ void drvDS1x::updateUser() {
 /*-----------------------------------------------------------------------------
  * This is a re-implementation of a virtual function in the base class.
  *---------------------------------------------------------------------------*/
-    getBinary(TrigSouCmnd, _mbboTrSou, trigSou, SIZE(trigSou));
-    getBinary(TrigSloCmnd, _mbboTrSlo, trigSlo, SIZE(trigSlo));
-    getBinary(TrigModeCmnd, _mbboTrMode, trgMode, SIZE(trgMode));
-    getBinary(TrigSweCmnd, _mbboTrSwe, trgSwee, SIZE(trgSwee));
+    getEnum(TrigSouCmnd, _mbboTrSou, trigSou, SIZE(trigSou));
+    getEnum(TrigSloCmnd, _mbboTrSlo, trigSlo, SIZE(trigSlo));
+    getEnum(TrigModeCmnd, _mbboTrMode, trgMode, SIZE(trgMode));
+    getEnum(TrigSweCmnd, _mbboTrSwe, trgSwee, SIZE(trgSwee));
 }
 
 
@@ -562,7 +562,7 @@ void drvDS1x::setTrigLevl(int v) {
     const char* pcmd;
 
     getIntegerParam(0, _mbboTrSou, &ch);
-    if (ch < 0 || ch >= MAX_ADDR) return;
+    if (ch < 0 || ch >= NCHAN) return;
     pcmd = TrigLevCmnd;
     getDoubleParam(ch, _aoChPos, &y);
     getDoubleParam(ch, _aoChScl, &scl);
@@ -856,15 +856,15 @@ asynStatus drvDS1x::getCmnds(int ix, int addr) {
     int jx = ix-_firstix;
 
     switch (jx) {
-      case ixBoTmMode:     getBinary(TmModeCmnd, ix, tmMode, SIZE(tmMode)); break;
-      case ixMbboTrMode:   getBinary(TrigModeCmnd, ix, trgMode, 3); break;
-      case ixMbboTrSou:    getBinary(TrigSouCmnd, ix, trigSou, SIZE(trigSou)); break;
-      case ixMbboTrSlo:    getBinary(TrigSloCmnd, ix, trigSlo, SIZE(trigSlo)); break;
-      case ixMbboTrCpl:    getBinary(TrigCplCmnd, ix, trigCpl, SIZE(trigCpl)); break;
-      case ixMbboTrSwe:    getBinary(TrigSweCmnd, ix, trgSwee, SIZE(trgSwee)); break;
-      case ixMbboAcqTp:    getBinary(AcqTypeCmnd, ix, acqType, SIZE(acqType)); break;
-      case ixBoAcqMode:    getBinary(AcqModeCmnd, ix, acqMode, SIZE(acqMode)); break;
-      case ixMbboWfFmt:    getBinary(WfFormCmnd, ix, wfForm, SIZE(wfForm)); break;
+      case ixBoTmMode:     getEnum(TmModeCmnd, ix, tmMode, SIZE(tmMode)); break;
+      case ixMbboTrMode:   getEnum(TrigModeCmnd, ix, trgMode, 3); break;
+      case ixMbboTrSou:    getEnum(TrigSouCmnd, ix, trigSou, SIZE(trigSou)); break;
+      case ixMbboTrSlo:    getEnum(TrigSloCmnd, ix, trigSlo, SIZE(trigSlo)); break;
+      case ixMbboTrCpl:    getEnum(TrigCplCmnd, ix, trigCpl, SIZE(trigCpl)); break;
+      case ixMbboTrSwe:    getEnum(TrigSweCmnd, ix, trgSwee, SIZE(trgSwee)); break;
+      case ixMbboAcqTp:    getEnum(AcqTypeCmnd, ix, acqType, SIZE(acqType)); break;
+      case ixBoAcqMode:    getEnum(AcqModeCmnd, ix, acqMode, SIZE(acqMode)); break;
+      case ixMbboWfFmt:    getEnum(WfFormCmnd, ix, wfForm, SIZE(wfForm)); break;
       case ixAoTmDlyScl:   getFloat(TmDlySclCmnd, ix); break;
       case ixAoTmDlyOfs:   getFloat(TmDlyOfsCmnd, ix); break;
       case ixSiTrSta:      getString(TrigStCmnd, ix); break;
@@ -891,21 +891,21 @@ asynStatus drvDS1x::putIntCmnds(int ix, int addr, int v) {
 
     switch (jx) {
         case ixMbboTrMode:    
-            setBinary(v, TrigModeCmnd, trgMode, SIZE(trgMode));
+            setEnum(TrigModeCmnd, v, trgMode, SIZE(trgMode));
             setIntegerParam(ix, v); 
             break;
         case ixMbboTrCpl:
-            setBinary(v, TrigCplCmnd, trigCpl, SIZE(trigCpl));
+            setEnum(TrigCplCmnd, v, trigCpl, SIZE(trigCpl));
             setIntegerParam(ix, v);
             break;
         case ixMbboTrSou:
-            setBinary(v, TrigSouCmnd, trigSou, SIZE(trigSou));
+            setEnum(TrigSouCmnd, v, trigSou, SIZE(trigSou));
             break;
         case ixMbboTrSlo:
-            setBinary(v, TrigSloCmnd, trigSlo, SIZE(trigSlo));
+            setEnum(TrigSloCmnd, v, trigSlo, SIZE(trigSlo));
             break;
         case ixMbboTrSwe:
-            setBinary(v, TrigSweCmnd, trgSwee, SIZE(trgSwee));
+            setEnum(TrigSweCmnd, v, trgSwee, SIZE(trgSwee));
             break;
         case ixLoTimDivV:
             setIntegerParam(_loTimDivV, v);
@@ -919,16 +919,16 @@ asynStatus drvDS1x::putIntCmnds(int ix, int addr, int v) {
             command(AutoCmnd);
             break;
         case ixMbboAcqTp:
-            setBinary(v, AcqTypeCmnd, acqType, SIZE(acqType));
+            setEnum(AcqTypeCmnd, v, acqType, SIZE(acqType));
             break;
         case ixBoAcqMode:
-            setBinary(v, AcqModeCmnd, acqMode, SIZE(acqMode));
+            setEnum(AcqModeCmnd, v, acqMode, SIZE(acqMode));
             break;
         case ixMbboWfFmt:
-            setBinary(v, WfFormCmnd, wfForm, SIZE(wfForm));
+            setEnum(WfFormCmnd, v, wfForm, SIZE(wfForm));
             break;
         case ixBoTmMode:
-            setBinary(v, TmModeCmnd, tmMode, SIZE(tmMode));
+            setEnum(TmModeCmnd, v, tmMode, SIZE(tmMode));
             break;
         default:
             stat = drvScope::putIntCmnds(ix, addr, v); 

@@ -1,12 +1,9 @@
 #ifndef DRVSCOPE_H
 #define DRVSCOPE_H
 
-/* drvScope.h
- * A base class implementation derived from asynPortDriver.  Drivers for
- * specific oscilloscopes are derived from this base class.  The base class
- * implements common IO functions and methods to communicate with the hardware.
- * This implementation works with asyn R4.26 and higher.
- * Started on 05/14/2015, zms
+/* drvScope.cpp
+ * Base class for oscilloscope drivers.
+ * asynPortDriver --> drvScope
  *---------------------------------------------------------------------------*/
 
 #include <epicsMessageQueue.h>
@@ -23,8 +20,7 @@
 #define MAX(a,b)  (((a)>(b))?(a):(b))
 #endif
 
-#define MAX_ADDR    4
-#define NCHAN       (MAX_ADDR)
+#define NCHAN       4
 #define MSGNB       100
 #define NMSGQ       400
 #define MSGQNB      20
@@ -52,6 +48,11 @@ typedef struct{
     int pix; 
     const char* pcmd;
 } cmnds_t;
+
+struct Command {
+    const char* command;
+    std::vector<std::string> keywords;
+};
 
 #define boChOnStr         "BO_CHON"    // (0) chan on/off
 #define aoChPosStr        "AO_CHPOS"    // cha position
@@ -144,19 +145,20 @@ public:
     virtual asynStatus writeOctet(asynUser* pau, const char* val, size_t nc, size_t* nActual);
     virtual asynStatus writeInt32(asynUser* pau,epicsInt32 v);
     virtual asynStatus writeFloat64(asynUser* pau,epicsFloat64 v);
-    void    pollerThread();
-    void                 setChanPosition();
+    void pollerThread();
+    void setChanPosition();
     virtual const char*  getCommand(int ix) {return NULL;}
     virtual const char** getCmndList(int cix, uint* ni) {*ni = 0; return NULL;}
-    virtual void         afterInit() = 0;
-    virtual void         getWaveform(int ch) = 0;
-    virtual void         getHSParams(double hs, int* x0, int* np) {*x0 = 0; *np = 500;}
-    virtual void         getChanPos(int addr);
-    virtual void         setChanPos(int addr, double v);
-    virtual void         saveConfig();
-    virtual void         restoreConfig();
-    virtual bool         isTriggered() {return true;}
-    virtual bool         isRunning() {return true;}
+    virtual const std::vector<std::string> getKeywordList(int cix) const {return std::vector<std::string>();}
+    virtual void afterInit() = 0;
+    virtual void getWaveform(int ch) = 0;
+    virtual void getHSParams(double hs, int* x0, int* np) {*x0 = 0; *np = 500;}
+    virtual void getChanPos(int addr);
+    virtual void setChanPos(int addr, double v);
+    virtual void saveConfig();
+    virtual void restoreConfig();
+    virtual bool isTriggered() {return true;}
+    virtual bool isRunning() {return true;}
     epicsTimerNotify::expireStatus expire(const epicsTime&) {setChanPosition(); return noRestart;}
 
 protected:
@@ -202,31 +204,25 @@ protected:
     virtual void getMeasurements(int pollCount) {};
 
     void          putInMessgQ(int tp, int ix, int addr, int iv, float fv=0.0);
-    void          message(const char* m);
+    void          message(const std::string msg);
     asynStatus    writeRd(int cix, int ch, char* buf, int blen);
     asynStatus    writeRd(const char* cmnd, char* buf, int blen);
     asynStatus    command(const char* cmnd);
     asynStatus    command(const char* cmnd, char* prd, int len);
-    asynStatus    getInt(int cix, int pix);
-    asynStatus    getInt(const char* cmnd, int pix);
-    asynStatus    getFloat(int cix, int pix);
-    asynStatus    getFloat(const char* cmnd, int pix);
-    asynStatus    getBinary(int cix, int pix);
-    asynStatus    getBinary(const char* cmnd, int pix,  const char** list, int ni);
-    asynStatus    getString(int cix, int pix);
-    asynStatus    getString(const char* cmnd, int pix);
-    asynStatus    getIntCh(int cix, int ch, int pix);
-    asynStatus    getIntCh(const char* cmnd, int ch, int pix);
-    asynStatus    getFloatCh(int cix, int ch, int pix);
-    asynStatus    getFloatCh(const char* cmnd, int ch, int pix);
-    asynStatus    getBinaryCh(int cix, int ch, int pix);
-    asynStatus    getBinaryCh(const char* cmnd, int ch, int pix,  const char** list, int ni);
-    void          setBinaryCh(int ix, int ch, int cix);
-    void          setBinaryCh(int ix, int ch,  const char* cmnd, const char** list, int ni);
-    void          setBinary(int ix, int cix);
-    void          setBinary(int ix, const char* cmnd, const char** list, int ni);
+    asynStatus    getInt(int cix, int pix, int ch=0);
+    asynStatus    getInt(const char* cmnd, int pix, int ch=0);
     void          setInt(int cix, int v, int pix=0);
     void          setInt(int cix, const char* cmnd, int v, int pix=0);
+    asynStatus    getFloat(int cix, int pix, int ch=0);
+    asynStatus    getFloat(const char* cmnd, int pix, int ch=0);
+    virtual asynStatus getEnum(int cix, int pix, int ch=0);
+    virtual asynStatus getEnum(const char* cmnd, int pix, const char** list, int ni, int ch=0);
+    virtual asynStatus getEnum(const char* cmnd, int pix, std::vector<std::string> list, int ch=0);
+    virtual void setEnum(int cix, int val, int ch=0);
+    virtual void setEnum(const char* cmnd, int val, const char** list, int ni, int ch=0);
+    virtual void setEnum(const char* cmnd, int val, std::vector<std::string> list, int ch=0);
+    asynStatus    getString(int cix, int pix);
+    asynStatus    getString(const char* cmnd, int pix);
     void          timeDelayStr(float td);
     void          update();
 
@@ -252,6 +248,7 @@ private:
     void          _setTimeDelayStr(float v);
     void          _getTraces();
     int           _find(const char* item, const char** list, int n);
+    int           _find(const char* item, std::vector<std::string> list);
     void          _errUpdate();
     void          _getChanOn(int ch);
     void          _setPosSlider(double v);
@@ -264,8 +261,6 @@ private:
     const char*   _udpp;
     int           _ncmnds;
     double        _pollT;
-    char          _name[NAME_LEN];
-    char          _mbuf[MSGNB];
     char          _cmnd[CMND_LEN];
     char          _rbuf[DBUF_LEN];
     char          _wbuf[DBUF_LEN];
@@ -285,6 +280,7 @@ private:
     double        _wfRate;
     int           _measEnabled;
     int           _pollCount;
+    long          _err_count;
     epicsTimerQueueActive* _timerQueue;
     epicsTimer*   _chPosTimer;
 };

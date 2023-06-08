@@ -2,7 +2,7 @@
 file bo.db
 {
 pattern    
-    {                 DESC,         ITEM, N,     ZNAM,    ONAM,    USER, AUTOSAVE, PINI}
+    {                 DESC,         ITEM, N,     ZNAM,    ONAM,    USER, AUTOSAVE, PINI,      SCAN}
     {             "Ch0 On",       CH0_ON, 0,      Off,      On,    CHON, }
     {             "Ch1 On",       CH1_ON, 1,      Off,      On,    CHON, }
     {             "Ch2 On",       CH2_ON, 2,      Off,      On,    CHON, }
@@ -30,7 +30,7 @@ pattern
     {      "Get Ch2 Trace",    CH2_GETWF, 2,      off,      on,   GETWF, }
     {      "Get Ch3 Trace",    CH3_GETWF, 3,      off,      on,   GETWF, }
     {         "Get Traces",   GET_WF_ALL, 0,      off,      on,GETWFALL, }
-    {             "Update",       UPDATE, 0       off,      on,    UPDT, SCAN,       1}
+    {             "Update",       UPDATE, 0       off,      on,    UPDT, SCAN,       1, "5 second"}
     {         "Err Update",   ERR_UPDATE, 0       off,      on,   EUPDT, }
     {       "Ch0 Pedestal", CH0_ANAL_PED, 0,      off,      on,     PED, }
     {       "Ch1 Pedestal", CH1_ANAL_PED, 1,      off,      on,     PED, }
@@ -45,13 +45,15 @@ pattern
 
 file bi.db
 {
-pattern    {           DESC,        ITEM, N,     ZNAM,    ONAM,    USER}
+pattern    
+    {           DESC,        ITEM, N,     ZNAM,    ONAM,    USER}
     { "Driver state",       STATE, 0,      Bad,    Good,   STATE}
 }
 
 file ao.db
 {
-pattern    {             DESC,     ITEM, N,  DRVL, DRVH, EGU,   USER}
+pattern    
+    {             DESC,     ITEM, N,  DRVL, DRVH, EGU,   USER}
     {   "Ch0 Position",   CH0_POS, 0,   -4,    4, div,  CHPOS}
     {   "Ch1 Position",   CH1_POS, 1,   -4,    4, div,  CHPOS}
     {   "Ch2 Position",   CH2_POS, 2,   -4,    4, div,  CHPOS}
@@ -69,39 +71,42 @@ pattern    {             DESC,     ITEM, N,  DRVL, DRVH, EGU,   USER}
 
 file ai.db
 {
-pattern    {             DESC,     ITEM, N,  EGU,   USER}
-    { "Time Divisions", TIME_DIV, 0,s/div, TIMDIV}
-    {       "Ch0 Area", CH0_AREA, 0,   "",   AREA}
-    {       "Ch1 Area", CH1_AREA, 1,   "",   AREA}
-    {       "Ch2 Area", CH2_AREA, 2,   "",   AREA}
-    {       "Ch3 Area", CH3_AREA, 3,   "",   AREA}
-    {        "Ch0 Ped",  CH0_PED, 0,   "",    PED}
-    {        "Ch1 Ped",  CH1_PED, 1,   "",    PED}
-    {        "Ch2 Ped",  CH2_PED, 2,   "",    PED}
-    {        "Ch3 Ped",  CH3_PED, 3,   "",    PED}
-    {        "WF Time",  WF_TIME, 0,    s, WFTIME}
-    {    "WF Time Min",WF_TM_MIN, 0,    s, WFTMIN}
-    {    "WF Time Max",WF_TM_MAX, 0,    s, WFTMAX}
-    {      "WF Period",WF_PERIOD, 0,    s,  WFPER}
-    {        "WF Rate",  WF_RATE, 0,    s, WFRATE}
+pattern    
+    {             DESC,     ITEM, N, PREC,   EGU,   USER}
+    { "Time Divisions", TIME_DIV, 0,    3, s/div, TIMDIV}
+    {       "Ch0 Area", CH0_AREA, 0,    2, "V*s",   AREA}
+    {       "Ch1 Area", CH1_AREA, 1,    2, "V*s",   AREA}
+    {       "Ch2 Area", CH2_AREA, 2,    2, "V*s",   AREA}
+    {       "Ch3 Area", CH3_AREA, 3,    2, "V*s",   AREA}
+    {        "Ch0 Ped",  CH0_PED, 0,    2, "V*s",    PED}
+    {        "Ch1 Ped",  CH1_PED, 1,    2, "V*s",    PED}
+    {        "Ch2 Ped",  CH2_PED, 2,    2, "V*s",    PED}
+    {        "Ch3 Ped",  CH3_PED, 3,    2, "V*s",    PED}
+    {        "WF Time",  WF_TIME, 0,    3,     s, WFTIME}
+    {    "WF Time Min",WF_TM_MIN, 0,    3,     s, WFTMIN}
+    {    "WF Time Max",WF_TM_MAX, 0,    3,     s, WFTMAX}
+    {      "WF Period",WF_PERIOD, 0,    3,     s,  WFPER}
+    {        "WF Rate",  WF_RATE, 0,    3,    Hz, WFRATE}
 }
 
 file lo.db
 {
-pattern    {              DESC,        ITEM, LOPR, HOPR,      USER}
+pattern    
+    {              DESC,        ITEM, LOPR, HOPR,      USER}
     {   "N data points",    DATA_LEN,    0,    0,    WFNPTS}
     {      "data start",  DATA_START,    0,    0,   WFSTART}
     {       "data stop",   DATA_STOP,    0,    0,    WFSTOP}
     {    "ESE register",         ESE,    0,    0,       ESE}
-    {  "Marker 1 index",      MARK_1,    0,  500,     MARK1}
-    {  "Marker 2 index",      MARK_2,    0,  500,     MARK2}
+#    {  "Marker 1 index",      MARK_1,    0,  500,     MARK1}
+#    {  "Marker 2 index",      MARK_2,    0,  500,     MARK2}
     {  "Trace Position",      CH_POS, -400,  400,     CHPOS}
     {   "Trigger Level",   TRIG_LEVL, -400,  400,     TRLEV}
 }
 
 file li.db
 {
-pattern    {              DESC,        ITEM,      USER}
+pattern    
+    {              DESC,        ITEM,      USER}
     {    "ESR Register",         ESR,       ESR}
     {     "Status Byte",         STB,       STB}
     {    "MSGQ Success",    MQ_SUCCS,     MSGQS}
@@ -111,7 +116,8 @@ pattern    {              DESC,        ITEM,      USER}
 
 file si.db
 {
-pattern    {           DESC,       ITEM, N,    USER}
+pattern    
+    {           DESC,       ITEM, N,    USER}
     {  "Data Format",   DATA_FMT, 0,   WFFMT}
     {   "IP Address",    IP_ADDR, 0,  IPADDR}
     {          "OPC",        OPC, 0,     OPC}
@@ -127,16 +133,6 @@ pattern
     {"Ch1 Desc.", CH1_DESC, "Click to edit desc",    "VAL"}
     {"Ch2 Desc.", CH2_DESC, "Click to edit desc",    "VAL"}
     {"Ch3 Desc.", CH3_DESC, "Click to edit desc",    "VAL"}
-}
-
-file mbbo3.db
-{
-pattern    {           DESC,      ITEM, N,  ZRST,   ONST,  TWST,   USER, AUTOSAVE}
-    { "Ch0 Coupling",   CH0_CPL, 0,    DC,     AC,   GND,  CHCPL, }
-    { "Ch1 Coupling",   CH1_CPL, 1,    DC,     AC,   GND,  CHCPL, }
-    { "Ch2 Coupling",   CH2_CPL, 2,    DC,     AC,   GND,  CHCPL, }
-    { "Ch3 Coupling",   CH3_CPL, 3,    DC,     AC,   GND,  CHCPL, }
-    {   "Trace mode",TRACE_MODE, 0,  None,  aSync,  Sync, TRCMOD, VAL}
 }
 
 file scopeCmnd.db{

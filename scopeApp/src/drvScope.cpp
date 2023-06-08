@@ -1,7 +1,6 @@
 /* drvScope.cpp
- * Asyn driver to control Tektronix TDS 3000 series scopes.  This is a
- * subclass of asynPortDriver, which was created by Mark Rivers.
- * Started on 10/28/2011, zms.
+ * Base class for oscilloscope drivers.
+ *  * asynPortDriver --> drvScope
  *---------------------------------------------------------------------------*/
 
 #include <stdlib.h>
@@ -9,12 +8,15 @@
 #include <stdio.h>
 #include <errno.h>
 #include <math.h>
+#include <algorithm>    // std::find
+#include <vector>       // std::vector
 
 #include <dbAccess.h>
 #include <cantProceed.h>
 #include <epicsTypes.h>
 #include <epicsThread.h>
 #include <errlog.h>
+#include <alarm.h>
 #include <asynOctetSyncIO.h>
 
 #include "drvScope.h"
@@ -30,7 +32,7 @@ static void pollerThreadC(void* pPvt) {
 
 
 drvScope::drvScope(const char* port, const char* udp):
-        asynPortDriver(port, MAX_ADDR,
+        asynPortDriver(port, NCHAN,
                 asynInt32Mask | asynFloat64Mask | asynFloat32ArrayMask |
                 asynOctetMask | asynDrvUserMask,
                 asynInt32Mask | asynFloat64Mask | asynFloat32ArrayMask | asynOctetMask,
@@ -44,22 +46,13 @@ drvScope::drvScope(const char* port, const char* udp):
                 _posInProg(0),
                 _measEnabled(0),
                 _pollCount(0),
+                _err_count(0),
                 _timerQueue(&epicsTimerQueueActive::allocate(true)) {
 /*------------------------------------------------------------------------------
  * Constructor for the drvScope class. Calls constructor for the asynPortDriver
- * base class. Where
- *   portName The name of the asyn port driver to be created.
- *   udpPort is the actual device port name.
- * Parameters passed to the asynPortDriver constructor:
- *  port name
- *  max address
- *  parameter table size
- *  interface mask
- *  interrupt mask,
- *  asyn flags,
- *  auto connect
- *  priority
- *  stack size
+ * base class.
+ *  port The name of the asyn port driver to be created.
+ *  udp  The I/O port.
  *---------------------------------------------------------------------------*/
     int status = asynSuccess;
     bool conn = false;
@@ -171,9 +164,9 @@ drvScope::drvScope(const char* port, const char* udp):
 
     _pmq = new epicsMessageQueue(NMSGQ, MSGQNB);
 
-    epicsThreadCreate(driverName.c_str(),epicsThreadPriorityHigh,
+    epicsThreadCreate(driverName.c_str(), epicsThreadPriorityHigh,
                     epicsThreadGetStackSize(epicsThreadStackMedium),
-                    (EPICSTHREADFUNC)pollerThreadC,this);
+                    (EPICSTHREADFUNC)pollerThreadC, this);
 
     _chPosTimer = &_timerQueue->createTimer();
 
@@ -190,7 +183,7 @@ drvScope::~drvScope() {
     _chPosTimer->destroy();
     _timerQueue->release();
 
-    asynPrint(pasynUserSelf, ASYN_TRACE_FLOW,
+    asynPrint(pasynUser, ASYN_TRACE_FLOW,
             "%s::%s: Exiting...\n", driverName.c_str(), functionName.c_str());
 }
 
@@ -213,7 +206,7 @@ void drvScope::pollerThread() {
     // Run post-init commands
     afterInit();
 
-    asynPrint(pasynUserSelf, ASYN_TRACE_FLOW,
+    asynPrint(pasynUser, ASYN_TRACE_FLOW,
             "%s::%s: Starting polling loop...\n", driverName.c_str(), functionName.c_str());
 
     // Poll forever
@@ -229,6 +222,9 @@ void drvScope::pollerThread() {
             _pollCount = (_pollCount >= 99)?(_pollCount = 0):(_pollCount + 1);
             epicsThreadSleep(_pollT);
         } else {
+            asynPrint(pasynUser, ASYN_TRACE_FLOW,
+                    "%s::%s: msgq.type=%d, msgq.ix=%d, msgq.addr=%d\n", driverName.c_str(), functionName.c_str(),
+                    msgq.type, msgq.ix, msgq.addr);
             switch(msgq.type){
                 case enPutInt: putIntCmnds(msgq.ix,msgq.addr,msgq.ival);
                                break;
@@ -252,8 +248,8 @@ void drvScope::_evMessage() {
     if (!pcmd) return;
     asynStatus status = command(pcmd);
 
-    if(status != asynSuccess){
-        asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: command failed\n", 
+    if (status != asynSuccess){
+        asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: command failed\n", 
                 driverName.c_str(), functionName.c_str());
         return;
     }
@@ -265,27 +261,19 @@ void drvScope::_evMessage() {
 }
 
 
-void drvScope::message(const char* m) {
+void drvScope::message(const std::string msg) {
 /*-----------------------------------------------------------------------------
  * Constructs and posts a message.
  *---------------------------------------------------------------------------*/
-    int len;
-    char _time[64];
+    char timestamp[64];
     epicsTimeStamp etime;
 
     epicsTimeGetCurrent(&etime);
-    epicsTimeToStrftime(_time, sizeof(_time), "%Y-%m-%d %H:%M:%S", &etime);
-    strncpy(_mbuf, _time, MSGNB);
-    _mbuf[MSGNB-1] = 0;
+    epicsTimeToStrftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", &etime);
+    
+    std::string msg_full(timestamp + std::string(": ") + msg);
 
-    if (strlen(_mbuf) < (MSGNB-20)) {
-        strcat(_mbuf, " ");
-        len = strlen(_mbuf);
-        strncat(_mbuf, m, MSGNB-len-1);
-        _mbuf[MSGNB-1] = 0;
-    }
-
-    setStringParam(_wfMessg, _mbuf);
+    setStringParam(_wfMessg, msg_full);
     callParamCallbacks();
 }
 
@@ -298,8 +286,8 @@ void drvScope::putInMessgQ(int tp, int ix, int addr, int iv, float fv) {
     int status; 
     msgq_t messg;
 
-    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: ix=%d\n", 
-            driverName.c_str(), functionName.c_str(), ix);
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: addr=%d, ix=%d\n", 
+            driverName.c_str(), functionName.c_str(), addr, ix);
 
     messg.type = tp;
     messg.ix = ix;
@@ -330,7 +318,7 @@ asynStatus drvScope::writeRd(int cix, int ch, char* buf, int blen) {
     const char* pcmd = getCommand(cix);
     char cmnd[32];
 
-    if (!pcmd) return(asynError);
+    if (!pcmd) return asynError;
 
     sprintf(cmnd, pcmd, ch);
 
@@ -354,11 +342,23 @@ asynStatus drvScope::_write(const char* pw, size_t nw) {
  *  pw  buffer that has data to be written,
  *  nw  number of bytes of data in pwb,
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "_write";
     asynStatus status = asynSuccess;
     size_t nbw;
 
-    status = pasynOctetSyncIO->flush(pasynUser);
+    pasynOctetSyncIO->flush(pasynUser);
     status = pasynOctetSyncIO->write(pasynUser, pw, nw, 1, &nbw);
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: status=%d, pw=%s\n",
+            driverName.c_str(), functionName.c_str(), status, pw);
+    if (status) {
+        // Print an error message if this is the first error        
+        if (!_err_count) {
+            asynPrint(pasynUser, ASYN_TRACE_ERROR,
+              "%s::%s: ERROR: status=%d, pw=%s, nbw=%zu\n",
+              driverName.c_str(), functionName.c_str(), status, pw, nbw);
+        }
+        _err_count++;
+    }
     return status;
 }
 
@@ -371,17 +371,71 @@ asynStatus drvScope::_wtrd(const char* pw, size_t nw, char* pr, size_t nr) {
  *  pr  buffer into which data will be read in,
  *  nr  size of read buffer in bytes,
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "_wtrd";
     asynStatus status = asynSuccess;
-    int eom;
+    int eom, nParams;
     size_t nbw, nbr;
 
-    status = pasynOctetSyncIO->flush(pasynUser);
+    pasynOctetSyncIO->flush(pasynUser);
     status = pasynOctetSyncIO->writeRead(pasynUser, pw, nw, pr, nr, 1, &nbw, &nbr, &eom);
+
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: status=%d, pw=%s\n",
+            driverName.c_str(), functionName.c_str(), status, pw);
+
+    if ((status != asynSuccess) || !nbr || (nbr > nr)) {
+        if (_err_count > 5) {
+            // Allow 5 errors, then set error mode, print a message, set alarm stat/sevr
+            setIntegerParam(_biState, false);
+            callParamCallbacks();
+            asynPrint(pasynUser, ASYN_TRACE_ERROR,
+                    "%s::%s: ERROR: status=%d, pw=%s, nbw=%zu, nbr=%zu\n",
+                    driverName.c_str(), functionName.c_str(), status, pw, nbw, nbr);
+            // Set alarm stat/sevr
+            status = getNumParams(&nParams);
+            if (status != asynSuccess) {
+                asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: getNumParams failed\n", 
+                          driverName.c_str(), functionName.c_str());
+            }
+            for (int param = 0; param < nParams; param++) {
+                for (int addr = 0; addr < NCHAN; addr++) {
+                    if (param != _biState) {
+                        setParamAlarmStatus(addr, param, COMM_ALARM);
+                        setParamAlarmSeverity(addr, param, INVALID_ALARM);
+                    }
+                    callParamCallbacks(addr);
+                }
+            }
+        }
+        _err_count++;
+    } else {
+        if (_err_count) {
+            // Reset error status
+            setIntegerParam(_biState, true);
+            callParamCallbacks();
+            asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: Status OK after %ld error(s)\n",
+                    driverName.c_str(), functionName.c_str(), _err_count);
+            _err_count = 0;
+            // Clear alarm stat/sevr
+            status = getNumParams(&nParams);
+            if (status != asynSuccess) {
+                asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: getNumParams failed\n", 
+                          driverName.c_str(), functionName.c_str());
+            }
+            for (int param = 0; param < nParams; param++) {
+                for (int addr = 0; addr < NCHAN; addr++) {
+                    if (param != _biState) {
+                        setParamAlarmStatus(addr, param, NO_ALARM);
+                        setParamAlarmSeverity(addr, param, NO_ALARM);
+                    }
+                    callParamCallbacks(addr);
+                }
+            }
+        }
+    }
+
     return status;
 }
 
-
-/*--- Virtual methods -------------------------------------------------------*/
 
 void drvScope::getChanPos(int addr) {
 /*-----------------------------------------------------------------------------
@@ -389,7 +443,7 @@ void drvScope::getChanPos(int addr) {
  * needs to be reimplemented for other scope types, e.g. Rigol.
  * addr is parameter library index or addr+1 channel
  *---------------------------------------------------------------------------*/
-    getFloatCh(ixAoChPos, addr+1, _aoChPos);
+    getFloat(ixAoChPos, _aoChPos, addr+1);
 }
 
 
@@ -494,10 +548,14 @@ asynStatus drvScope::putFltCmnds(int ix, int addr, float v) {
  * addr is channel or address
  * v is a possible integer set value.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "putFltCmnds";
     asynStatus status = asynSuccess;
     char cmnd[32];
-    int jx = ix-_firstix;
+    int jx = ix - _firstix;
     const char* pcmd = getCommand(jx);
+
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: jx=%d, pcmd=%s\n",
+            driverName.c_str(), functionName.c_str(), jx, pcmd);
 
     switch(jx) {
         case ixAoChPos:
@@ -553,11 +611,15 @@ asynStatus drvScope::putIntCmnds(int ix, int addr, int v) {
  * addr is channel or address
  * v is a possible integer set value.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "putIntCmnds";
     asynStatus status = asynSuccess;
     char cmnd[32]; 
-    const char* pcmd;
+    int ch = addr + 1;
     int jx = ix - _firstix;
-    pcmd = getCommand(jx);
+    const char* pcmd = getCommand(jx);
+    
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: jx=%d, addr=%d, pcmd=%s, val=%d\n",
+            driverName.c_str(), functionName.c_str(), jx, addr, pcmd, v);
 
     switch(jx) {
         case ixBoUpdt:
@@ -586,11 +648,11 @@ asynStatus drvScope::putIntCmnds(int ix, int addr, int v) {
             break;
         case ixBoChImp:
             setIntegerParam(addr, ix, v);
-            setBinaryCh(v, addr, jx);
+            setEnum(jx, v, ch);
             break;
         case ixMbboChCpl:
             setIntegerParam(addr, ix, v);
-            setBinaryCh(v, addr, jx);
+            setEnum(jx, v, ch);
             break;
         case ixBoTimDlySt:
             if (!pcmd) break;
@@ -714,13 +776,13 @@ asynStatus drvScope::getCmnds(int ix, int addr) {
             }
             break;
         case ixBoChImp:
-            getBinaryCh(jx, ch, ix);
+            getEnum(jx, ix, ch);
             break;
         case ixMbboChCpl:
-            getBinaryCh(jx, ch, ix);
+            getEnum(jx, ix, ch);
             break;
         case ixAoChScl:
-            getFloatCh(jx, ch, ix);
+            getFloat(jx, ix, ch);
             break;
         case ixLoWfNpts:
             getInt(jx, ix);
@@ -748,10 +810,6 @@ asynStatus drvScope::getCmnds(int ix, int addr) {
     callParamCallbacks(addr);
     return status;
 }
-
-
-
-/*--- end virtual methods ---------------------------------------------------*/
 
 
 int drvScope::_opc() {
@@ -783,7 +841,7 @@ int drvScope::_opc() {
             }
             epicsThreadSleep(0.01);
         }  else if ((++tries) > 1) {
-            asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: failed in _wtrd after %d tries\n", 
+            asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: failed in _wtrd after %d tries\n", 
                     driverName.c_str(), functionName.c_str(), tries);
             break;
         }
@@ -900,56 +958,16 @@ char* drvScope::_makeQuery(const char* cmnd) {
 }
 
 
-asynStatus drvScope::getString(int cix, int pix) {
-/*-----------------------------------------------------------------------------
- * Issues a query for a string value and puts the obtained value in
- * parameter library at index pix.
- *---------------------------------------------------------------------------*/
-    const char* cmnd = getCommand(cix);
-    if (!cmnd) return(asynError);
-
-    char str[32]; 
-    int len = strlen(cmnd);
-
-    if (len > 30) return(asynError);
-
-    strcpy(str, cmnd);
-    return getString(str, pix);
-}
-
-
-asynStatus drvScope::getString(const char* cmnd, int pix) {
-/*-----------------------------------------------------------------------------
- * Issues a query for a string value and puts the obtained value in
- * parameter library at index pix.
- *---------------------------------------------------------------------------*/
-    asynStatus status = asynSuccess;
-    char str[32];
-
-    strcpy(str,cmnd);
-
-    if (!strchr(str,'?')) {
-        strcat(str,"?");
-    }
-
-    status = _wtrd(str, strlen(str), _rbuf, DBUF_LEN);
-
-    if (status == asynSuccess) {
-        char* p = strchr(_rbuf, '\n');
-        if (p) *p = 0;
-        status = setStringParam(pix, _rbuf);
-    }
-
-    return status;
-}
-
-
 asynStatus drvScope::command(const char* cmnd) {
 /*-----------------------------------------------------------------------------
  * Issues a command and puts the reply string, if any, in parameter library.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "command"; 
     asynStatus status = asynSuccess;
     char* p;
+    
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: cmnd=%s\n",
+            driverName.c_str(), functionName.c_str(), cmnd);
 
     if (!cmnd) return(asynError);
 
@@ -997,344 +1015,54 @@ asynStatus drvScope::command(const char* cmnd, char* prd, int n) {
 }
 
 
-asynStatus drvScope::getInt(int cix, int pix) {
+asynStatus drvScope::getInt(int cix, int pix, int ch) {
 /*-----------------------------------------------------------------------------
  * Issues a query for an integer value and puts the obtained value in
  * parameter library at index pix.
  *---------------------------------------------------------------------------*/
     asynStatus status = asynSuccess;
-    const char* cmnd = getCommand(cix);
-
-    status = getInt(cmnd, pix);
-
-    return status;
-}
-
-
-asynStatus drvScope::getInt(const char* cmnd, int pix) {
-/*-----------------------------------------------------------------------------
- * Issues a query for an integer value and puts the obtained value in
- * parameter library at index pix.
- *---------------------------------------------------------------------------*/
-    asynStatus status = asynSuccess;
-    int val;
-
-    status = command(_makeQuery(cmnd));
-    if(status == asynSuccess) {
-        val = atoi(_rbuf);
-        status = setIntegerParam(pix, val);
-    }
-
-    return status;
-}
-
-
-asynStatus drvScope::getFloat(int cix, int pix) {
-/*-----------------------------------------------------------------------------
- * Issues a query for an integer value and puts the obtained value in
- * parameter library at index pix.
- *---------------------------------------------------------------------------*/
-    const char* cmnd = getCommand(cix);
-    if(!cmnd) return(asynError);
-    return getFloat(cmnd, pix);
-}
-
-
-asynStatus drvScope::getFloat(const char* cmnd, int pix) {
-/*-----------------------------------------------------------------------------
- * Issues a query for an integer value and puts the obtained value in
- * parameter library at index pix.
- *---------------------------------------------------------------------------*/
-    asynStatus status = asynSuccess;
-    double val;
-    char str[32];
-    int len = strlen(cmnd);
-
-    if (len > 30) return(asynError);
-
-    strcpy(str, cmnd);
-
-    if (!strchr(str, '?')) {
-        strcat(str, "?");
-    }
-
-    status = _wtrd(str, strlen(str), _rbuf, DBUF_LEN);
-    if(status == asynSuccess) {
-        val = atof(_rbuf);
-        status = setDoubleParam(pix, val);
-    }
-
-    return status;
-}
-
-
-int drvScope::_find(const char* item, const char** list, int n) {
-/*-----------------------------------------------------------------------------
- * Returns an index in list where item matches an element in the list.
- * If no match is found, returns -1.
- *---------------------------------------------------------------------------*/
-    int i = 0, m = strlen(item);
-    char* p = (char*)strchr(item, '\n');
-
-    if (p) *p = 0;
-
-    while(strncmp(item, list[i], m)) {
-        if ((++i) >= n) return -1;
-    }
-
-    return i;
-}
-
-
-asynStatus drvScope::getBinary(int cix, int pix) {
-/*-----------------------------------------------------------------------------
- * Issues a query for an integer value and puts the obtained value in
- * parameter library at index pix.  The reply is a string and a numeric
- * value is the index in a list of strings.
- *---------------------------------------------------------------------------*/
-    const std::string functionName = "getBinary";
     const char* cmnd = getCommand(cix);
     if (!cmnd) return asynError;
 
-    uint ni;
-    const char** list = getCmndList(cix, &ni);
-    if (!list) return asynError;
-
-    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: pix=%d, cmnd=%s\n",
-            driverName.c_str(), functionName.c_str(), pix, cmnd);
-
-    
-    return getBinary(cmnd, pix, list, ni);
+    status = getInt(cmnd, pix, ch);
+    return status;
 }
 
 
-asynStatus drvScope::getBinary(const char* cmnd, int pix, const char** list, int ni) {
+asynStatus drvScope::getInt(const char* cmnd, int pix, int ch) {
 /*-----------------------------------------------------------------------------
  * Issues a query for an integer value and puts the obtained value in
- * parameter library at index pix.  The reply is a string and a numeric
- * value is the index in a list of strings.
+ * parameter library at index pix.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "getInt";
     asynStatus status = asynSuccess;
-    int val;
+    int val = 0, addr = 0;
     char str[32];
     int len = strlen(cmnd);
 
-    if (len > 30) return(asynError);
-    strcpy(str, cmnd);
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: cmnd=%s, pix=%d, ch=%d\n",
+            driverName.c_str(), functionName.c_str(), cmnd, pix, ch);
+
+    if ((len > 30) || (ch < 0) || (ch > NCHAN)) return asynError;
+
+    if (ch > 0) {
+        addr = ch - 1;
+        sprintf(str, cmnd, ch);
+    } else {
+        sprintf(str, cmnd);
+    }
 
     if (!strchr(str, '?')) {
-        strcat(str,"?");
-    }
-
-    status = _wtrd(str, strlen(str), _rbuf, DBUF_LEN);
-    if (status != asynSuccess) return(status);
-
-    val = _find(_rbuf, list, ni);
-    status = setIntegerParam(pix, val);
-    
-    return status;
-}
-
-
-asynStatus drvScope::getIntCh(int cix, int i, int pix) {
-/*-----------------------------------------------------------------------------
- * Issues a query for an integer value for channel i and puts the obtained
- * value in parameter library at index pix.
- *---------------------------------------------------------------------------*/
-    const char* cmnd = getCommand(cix);
-    if (!cmnd) return(asynError);
-    return getIntCh(cmnd, i, pix);
-}
-
-
-asynStatus drvScope::getIntCh(const char* cmnd, int i, int pix) {
-/*-----------------------------------------------------------------------------
- * Issues a query for an integer value for channel i and puts the obtained
- * value in parameter library at index pix.
- *---------------------------------------------------------------------------*/
-    asynStatus status = asynSuccess;
-    int val;
-    char str[32];
-    int len = strlen(cmnd);
-
-    if ((len > 30) || (i < 1) || (i > 4)) return(asynError);
-
-    sprintf(str, cmnd, i);
-
-    if (!strchr(str, '?')) {
-        strcat(str,"?");
-    }
-
-    status = _wtrd(str, strlen(str), _rbuf, DBUF_LEN);
-    if (status == asynSuccess){
-        val = atoi(_rbuf);
-        status = setIntegerParam(i-1 ,pix, val);
-    }
-
-    return status;
-}
-
-
-asynStatus drvScope::getFloatCh(int cix, int i, int pix) {
-/*-----------------------------------------------------------------------------
- * Issues a query for an float value for channel i and puts the obtained
- * value in parameter library at index pix.
- *---------------------------------------------------------------------------*/
-    const char* cmnd = getCommand(cix);
-    if (!cmnd) return asynError;
-    return getFloatCh(cmnd, i, pix);
-}
-
-
-asynStatus drvScope::getFloatCh(const char* cmnd, int i, int pix) {
-/*-----------------------------------------------------------------------------
- * Issues a query for an float value for channel i and puts the obtained
- * value in parameter library at index pix.
- *---------------------------------------------------------------------------*/
-    asynStatus status = asynSuccess;
-    double val;
-    char str[32];
-    int len = strlen(cmnd);
-
-    if ((len > 30) || (i < 1) || (i > 4)) {
-        return asynError;
-    }
-
-    sprintf(str, cmnd, i);
-
-    if (!strchr(str,'?')) {
         strcat(str,"?");
     }
 
     status = _wtrd(str, strlen(str), _rbuf, DBUF_LEN);
     if (status == asynSuccess) {
-        val = atof(_rbuf);
-        status = setDoubleParam(i-1, pix, val);
-        callParamCallbacks(i-1);
+        val = atoi(_rbuf);
+        status = setIntegerParam(addr, pix, val);
     }
 
     return status;
-}
-
-
-asynStatus drvScope::getBinaryCh(int cix, int i, int pix) {
-/*-----------------------------------------------------------------------------
- * Issues a query for an integer value for channel i and puts the obtained
- * value in parameter library at index pix.  The reply is a string and a numeric
- * value is the index in a list of strings.
- *---------------------------------------------------------------------------*/
-    const char* cmnd = getCommand(cix);
-    if (!cmnd) return asynError;
-
-    uint ni;
-    const char** list = getCmndList(cix, &ni);
-
-    if (!list) return(asynError);
-
-    return getBinaryCh(cmnd, i, pix, list, ni);
-}
-
-
-asynStatus drvScope::getBinaryCh(const char* cmnd, int i, int pix, const char** list, int ni) {
-/*-----------------------------------------------------------------------------
- * Issues a query for an integer value for channel i and puts the obtained
- * value in parameter library at index pix.  The reply is a string and a
- * numeric value is the index in a list of strings.
- *---------------------------------------------------------------------------*/
-    asynStatus status = asynSuccess;
-    int val = 0;
-    char str[32];
-    int len = strlen(cmnd);
-
-    if ((len > 30) || (i < 1) || (i > 4)) { 
-        return asynError;
-    }
-
-    sprintf(str, cmnd, i);
-
-    if (!strchr(str, '?')) {
-        strcat(str, "?");
-    }
-
-    status = _wtrd(str, strlen(str), _rbuf, DBUF_LEN);
-    if (status != asynSuccess) return asynError;
-
-    val = _find(_rbuf, list, ni);
-    if (val >= 0) {
-        status = setIntegerParam(i-1, pix, val);
-    }
-
-    return status;
-}
-
-
-void drvScope::setBinaryCh(int ix, int ch, int cix) {
-/*-----------------------------------------------------------------------------
- * ix is a bit position that was selected, this corresponds to an index
- * into list of size ni from which we extract the value needed to construct
- * the command.
- *---------------------------------------------------------------------------*/
-    const char* cmnd = getCommand(cix);
-
-    if (!cmnd) return;
-
-    uint ni;
-    const char** list = getCmndList(cix,&ni);
-
-    if (list) {
-        setBinaryCh(ix, ch, cmnd, list, ni);
-    }
-}
-
-
-void drvScope::setBinaryCh(int ix, int ch, const char* cmnd, const char** list, int ni) {
-/*-----------------------------------------------------------------------------
- * ix is a bit position that was selected, this corresponds to an index
- * into list of size ni from which we extract the value needed to construct
- * the command.
- *---------------------------------------------------------------------------*/
-    char str[32];
-
-    if ((ix < 0) || (ix >= ni)) return;
-
-    sprintf(str, cmnd, ch+1);
-    strcat(str, " ");
-    strcat(str, list[ix]);
-    command(str);
-}
-
-
-void drvScope::setBinary(int ix, int cix){
-/*-----------------------------------------------------------------------------
- * ix is a bit position that was selected, this corresponds to an index
- * into list of size ni from which we extract the value needed to construct
- * the command.
- *---------------------------------------------------------------------------*/
-    const char* cmnd = getCommand(cix);
-
-    if (!cmnd) return;
-
-    uint ni;
-    const char** list = getCmndList(cix, &ni);
-
-    if (list) {
-        setBinary(ix, cmnd, list, ni);
-    }
-}
-
-
-void drvScope::setBinary(int ix, const char* cmnd, const char** list, int ni) {
-/*-----------------------------------------------------------------------------
- * ix is a bit position that was selected, this corresponds to an index
- * into list of size ni from which we extract the value needed to construct
- * the command.
- *---------------------------------------------------------------------------*/
-    char str[32];
-
-    if ((ix < 0) || (ix >= ni)) return;
-
-    sprintf(str, "%s %s", cmnd, list[ix]);
-    command(str);
 }
 
 
@@ -1368,6 +1096,332 @@ void drvScope::setInt(int cix, const char* cmnd, int v, int pix) {
 }
 
 
+asynStatus drvScope::getFloat(int cix, int pix, int ch) {
+/*-----------------------------------------------------------------------------
+ * Issues a query for an integer value and puts the obtained value in
+ * parameter library at index pix.
+ *---------------------------------------------------------------------------*/
+    const char* cmnd = getCommand(cix);
+    if(!cmnd) return asynError;
+    return getFloat(cmnd, pix, ch);
+}
+
+
+asynStatus drvScope::getFloat(const char* cmnd, int pix, int ch) {
+/*-----------------------------------------------------------------------------
+ * Issues a query for an integer value and puts the obtained value in
+ * parameter library at index pix.
+ *---------------------------------------------------------------------------*/
+    const std::string functionName = "getFloat";
+    asynStatus status = asynSuccess;
+    double val = 0.0;
+    int addr = 0;
+    char str[32];
+    int len = strlen(cmnd);
+
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: cmnd=%s, pix=%d, ch=%d\n",
+            driverName.c_str(), functionName.c_str(), cmnd, pix, ch);
+
+    if ((len > 30) || (ch < 0) || (ch > NCHAN)) { 
+        return asynError;
+    }
+
+    if (ch > 0) {
+        addr = ch - 1;
+        sprintf(str, cmnd, ch);
+    } else {
+        sprintf(str, cmnd);
+    }
+
+    if (!strchr(str, '?')) {
+        strcat(str, "?");
+    }
+
+    status = _wtrd(str, strlen(str), _rbuf, DBUF_LEN);
+    if (status == asynSuccess) {
+        val = atof(_rbuf);
+        status = setDoubleParam(addr, pix, val);
+    }
+
+    return status;
+}
+
+
+asynStatus drvScope::getEnum(int cix, int pix, int ch) {
+/*-----------------------------------------------------------------------------
+ * Issues a query for an integer value for channel i and puts the obtained
+ * value in parameter library at index pix.  The reply is a string and a numeric
+ * value is the index in a list of strings.
+ *---------------------------------------------------------------------------*/
+    const std::string functionName = "getEnum";
+
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: cix=%d, pix=%d, ch=%d\n",
+            driverName.c_str(), functionName.c_str(), cix, pix, ch);
+
+    const char* cmnd = getCommand(cix);
+    if (!cmnd) return asynError;
+
+    uint ni;
+    const char** list = getCmndList(cix, &ni);
+    if (!list) return asynError;
+
+    return getEnum(cmnd, pix, list, ni, ch);
+}
+
+
+asynStatus drvScope::getEnum(const char* cmnd, int pix, const char** list, int ni, int ch) {
+/*-----------------------------------------------------------------------------
+ * Issues a query for an integer value for channel i and puts the obtained
+ * value in parameter library at index pix.  The reply is a string and a
+ * numeric value is the index in a list of strings.
+ *---------------------------------------------------------------------------*/
+    const std::string functionName = "getEnum";
+    asynStatus status = asynSuccess;
+    int val = 0, addr = 0;
+    char str[32];
+    int len = strlen(cmnd);
+
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: cmnd=%s, pix=%d, ch=%d\n",
+            driverName.c_str(), functionName.c_str(), cmnd, pix, ch);
+
+    if ((len > 30) || (ch < 0) || (ch > NCHAN)) { 
+        return asynError;
+    }
+
+    if (ch > 0) {
+        addr = ch - 1;
+        sprintf(str, cmnd, ch);
+    } else {
+        sprintf(str, cmnd);
+    }
+
+    if (!strchr(str, '?')) {
+        strcat(str, "?");
+    }
+
+    status = _wtrd(str, strlen(str), _rbuf, DBUF_LEN);
+    if (status != asynSuccess) return asynError;
+
+    val = _find(_rbuf, list, ni);
+    if (val >= 0) {
+        status = setIntegerParam(addr, pix, val);
+    }
+
+    return status;
+}
+
+
+asynStatus drvScope::getEnum(const char* cmnd, int pix, std::vector<std::string> list, int ch) {
+/*-----------------------------------------------------------------------------
+ * Issues a query for an integer value for channel i and puts the obtained
+ * value in parameter library at index pix.  The reply is a string and a
+ * numeric value is the index in a list of strings.
+ *---------------------------------------------------------------------------*/
+    const std::string functionName = "getEnum";
+    asynStatus status = asynSuccess;
+    int val = 0, addr = 0;
+    char str[32];
+    int len = strlen(cmnd);
+
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: cmnd=%s, pix=%d, ch=%d\n",
+            driverName.c_str(), functionName.c_str(), cmnd, pix, ch);
+
+    if ((len > 30) || (ch < 0) || (ch > NCHAN)) { 
+        return asynError;
+    }
+
+    if (ch > 0) {
+        addr = ch - 1;
+        sprintf(str, cmnd, ch);
+    } else {
+        sprintf(str, cmnd);
+    }
+
+    if (!strchr(str, '?')) {
+        strcat(str, "?");
+    }
+
+    status = _wtrd(str, strlen(str), _rbuf, DBUF_LEN);
+    if (status != asynSuccess) return asynError;
+
+    val = _find(_rbuf, list);
+    if (val == -1) {
+        asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: _find failed for cmnd=%s, pix=%d, ch=%d\n",
+                driverName.c_str(), functionName.c_str(), cmnd, pix, ch);
+        status = asynError;
+    } else if (val >= 0) {
+        status = setIntegerParam(addr, pix, val);
+    }
+
+    return status;
+}
+
+
+void drvScope::setEnum(int cix, int val, int ch) {
+/*-----------------------------------------------------------------------------
+ * ix is a bit position that was selected, this corresponds to an index
+ * into list of size ni from which we extract the value needed to construct
+ * the command.
+ *---------------------------------------------------------------------------*/
+    const std::string functionName = "setEnum";
+
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: cix=%d, val=%d, ch=%d\n",
+            driverName.c_str(), functionName.c_str(), cix, val, ch);
+
+    const char* cmnd = getCommand(cix);
+    if (!cmnd) {
+        asynPrint(pasynUser, ASYN_TRACE_FLOW,
+                "%s::%s: Command not found\n", driverName.c_str(), functionName.c_str());
+        return;
+    }
+
+    uint ni;
+    const char** list = getCmndList(cix, &ni);
+    if (list) {
+        setEnum(cmnd, val, list, ni, ch);
+    }
+}
+
+void drvScope::setEnum(const char* cmnd, int val, const char** list, int ni, int ch) {
+/*-----------------------------------------------------------------------------
+ * ix is a bit position that was selected, this corresponds to an index
+ * into list of size ni from which we extract the value needed to construct
+ * the command.
+ *---------------------------------------------------------------------------*/
+    const std::string functionName = "setEnum";
+    char str[32];
+
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: cmnd=%s, val=%d, ch=%d\n",
+            driverName.c_str(), functionName.c_str(), cmnd, val, ch);
+
+    if ((val < 0) || (val >= ni)) return;
+
+    if (ch > 0) {
+        sprintf(str, cmnd, ch);
+    } else {
+        sprintf(str, cmnd);
+    }
+    strcat(str, " ");
+    strcat(str, list[val]);
+    command(str);
+}
+
+
+void drvScope::setEnum(const char* cmnd, int val, const std::vector<std::string> list, int ch) {
+/*-----------------------------------------------------------------------------
+ * ix is a bit position that was selected, this corresponds to an index
+ * into list of size ni from which we extract the value needed to construct
+ * the command.
+ *---------------------------------------------------------------------------*/
+    std::string functionName = "setEnum";
+    char str[32];
+        
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: cmnd=%s, val=%d, ch=%d\n",
+            driverName.c_str(), functionName.c_str(), cmnd, val, ch);
+
+    if ((val < 0) || (val >= int(list.size()))) return;
+
+    if (ch > 0) {
+        sprintf(str, cmnd, ch);
+    } else {
+        sprintf(str, cmnd);
+    }
+
+    strcat(str, " ");
+    strcat(str, list[val].c_str());
+    command(str);
+}
+
+
+asynStatus drvScope::getString(int cix, int pix) {
+/*-----------------------------------------------------------------------------
+ * Issues a query for a string value and puts the obtained value in
+ * parameter library at index pix.
+ *---------------------------------------------------------------------------*/
+    const char* cmnd = getCommand(cix);
+    if (!cmnd) return asynError;
+
+    char str[32]; 
+    int len = strlen(cmnd);
+
+    if (len > 30) return asynError;
+
+    strcpy(str, cmnd);
+    return getString(str, pix);
+}
+
+
+asynStatus drvScope::getString(const char* cmnd, int pix) {
+/*-----------------------------------------------------------------------------
+ * Issues a query for a string value and puts the obtained value in
+ * parameter library at index pix.
+ *---------------------------------------------------------------------------*/
+    asynStatus status = asynSuccess;
+    char str[32];
+
+    strcpy(str,cmnd);
+
+    if (!strchr(str,'?')) {
+        strcat(str,"?");
+    }
+
+    status = _wtrd(str, strlen(str), _rbuf, DBUF_LEN);
+
+    if (status == asynSuccess) {
+        char* p = strchr(_rbuf, '\n');
+        if (p) *p = 0;
+        status = setStringParam(pix, _rbuf);
+    }
+
+    return status;
+}
+
+
+int drvScope::_find(const char* item, const char** list, int n) {
+/*-----------------------------------------------------------------------------
+ * Returns an index in list where item matches an element in the list.
+ * If no match is found, returns -1.
+ *---------------------------------------------------------------------------*/
+    int i = 0, m = strlen(item);
+    char* p = (char*)strchr(item, '\n');
+
+    if (p) *p = 0;
+
+    while(strncmp(item, list[i], m)) {
+        if ((++i) >= n) return -1;
+    }
+
+    return i;
+}
+
+
+int drvScope::_find(const char* item, std::vector<std::string> list) {
+/*-----------------------------------------------------------------------------
+ * Returns an index in list where item matches an element in the list.
+ * If no match is found, returns -1.
+ *---------------------------------------------------------------------------*/
+    const std::string functionName = "_find";
+
+    std::string tstr(item);
+    tstr.erase(std::remove(tstr.begin(), tstr.end(), '\n'), tstr.end());
+
+    auto it = std::find(list.begin(), list.end(), tstr);
+    if (it == list.end()) {
+        asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: Response %s not found in list\n",
+                driverName.c_str(), functionName.c_str(), tstr.c_str());
+        //for (std::vector<std::string>::iterator i = list.begin(); i != list.end(); ++i)
+        //    printf("    -> %s\n", i->c_str());
+        return -1;
+    }
+
+    int index = it - list.begin();
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: item=%s, index=%d\n",
+            driverName.c_str(), functionName.c_str(), tstr.c_str(), index);
+    return index;
+
+}
+
+
 void drvScope::_setPosSlider(double v) {
 /*-----------------------------------------------------------------------------
  * Set slider position to v division.
@@ -1379,39 +1433,39 @@ void drvScope::_setPosSlider(double v) {
 }
 
 
-void drvScope::_selectChan(int ch) {
+void drvScope::_selectChan(int chan) {
 /*-----------------------------------------------------------------------------
- * Select channel ch, used to control channel trace position with a slider.
+ * Select channel chan, used to control channel trace position with a slider.
  *---------------------------------------------------------------------------*/
-    int i, v;
-    double y;
+    int ch_on;
+    double ch_pos;
 
     _posInProg = 0;
 
-    if ((ch < 0) || (ch >= MAX_ADDR)) return;
+    if ((chan < 0) || (chan >= NCHAN)) return;
 
-    getIntegerParam(ch, _boChOn, &v);
+    getIntegerParam(chan, _boChOn, &ch_on);
 
-    if (!v) {
-        setIntegerParam(ch, _boChSel, 1);
-        setIntegerParam(ch, _boChSel, 0);
-        callParamCallbacks(ch);
+    if (!ch_on) {
+        setIntegerParam(chan, _boChSel, 1);
+        setIntegerParam(chan, _boChSel, 0);
+        callParamCallbacks(chan);
         return;
     }
 
-    for(i=0; i<MAX_ADDR; i++) {
-        if (i == ch) {
-            v = 1;
+    for (int ch=0; ch<NCHAN; ch++) {
+        if (ch == chan) {
+            ch_on = 1;
         } else {
-            v = 0;
+            ch_on = 0;
         }
-        setIntegerParam(i, _boChSel, v);
-        callParamCallbacks(i);
+        setIntegerParam(ch, _boChSel, ch_on);
+        callParamCallbacks(ch);
     }
 
-    getDoubleParam(ch, _aoChPos, &y);
-    _setPosSlider(y);
-    _chSel = ch;
+    getDoubleParam(chan, _aoChPos, &ch_pos);
+    _setPosSlider(ch_pos);
+    _chSel = chan;
 }
 
 
@@ -1419,18 +1473,29 @@ void drvScope::_selectChannel() {
 /*-----------------------------------------------------------------------------
  * The first enabled channel is selected to be controlled by the pos slider
  *---------------------------------------------------------------------------*/
-    int i, v; 
+    int ch_on; 
     static bool firsttime = true;
 
-    getIntegerParam(_chSel, _boChOn, &v);
+    getIntegerParam(_chSel, _boChOn, &ch_on);
 
-    if (v && !firsttime) return;
+    if (ch_on && !firsttime) return;
 
     firsttime = false;
 
-    for (i=0; i<MAX_ADDR; i++) {
-        _selectChan(i);
+    for (int ch=0; ch<NCHAN; ch++) {
+        _selectChan(ch);
     }
+}
+
+
+void drvScope::setChanPosition() {
+/*-----------------------------------------------------------------------------
+ * Called by epicsTimerNotify::expire() at end of slider move.
+ *---------------------------------------------------------------------------*/
+    setChanPos(_chSel, _chPos);
+    //getFloat(ixAoChPos, _aoChPos, _chSel+1);
+    getChanPos(_chSel);
+    getTrigLevl();
 }
 
 
@@ -1438,14 +1503,20 @@ asynStatus drvScope::writeOctet(asynUser* pasynUser, const char* v, size_t nc, s
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "writeOctet";
     asynStatus status = asynSuccess;
-    int ix, addr;
+    int ix, jx, addr;
 
     status = getAddress(pasynUser, &addr);
     if(status != asynSuccess) return status;
 
-    ix = pasynUser->reason - _firstix;
-    switch(ix) {
+    ix = pasynUser->reason;
+    jx = ix - _firstix;
+
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: jx=%d, addr=%d, val=%s\n",
+            driverName.c_str(), functionName.c_str(), jx, addr, v);
+
+    switch(jx) {
         case ixSoCmnd:
             status = command(v);
             *nActual = nc;
@@ -1464,34 +1535,27 @@ asynStatus drvScope::writeOctet(asynUser* pasynUser, const char* v, size_t nc, s
 }
 
 
-void drvScope::setChanPosition() {
-/*-----------------------------------------------------------------------------
- * Called by epicsTimerNotify::expire() at end of slider move.
- *---------------------------------------------------------------------------*/
-    setChanPos(_chSel, _chPos);
-    //  getFloatCh(ixAoChPos,_chSel+1,_aoChPos);
-    getChanPos(_chSel);
-    getTrigLevl();
-}
-
-
-asynStatus drvScope::writeInt32(asynUser* pau, epicsInt32 v) {
+asynStatus drvScope::writeInt32(asynUser* pasynUser, epicsInt32 v) {
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.  Here we service
  * all write requests comming from EPICS records.
  * Parameters:
- *  pau         (in) structure containing addr and reason.
+ *  pasynUser         (in) structure containing addr and reason.
  *  v           (in) this is the command index, which together with
- *              pau->reason define the command to be sent.
+ *              pasynUser->reason define the command to be sent.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "writeInt32";
     asynStatus status = asynSuccess;
     int on, ix, jx, addr;
 
-    status = getAddress(pau, &addr);
+    status = getAddress(pasynUser, &addr);
     if (status != asynSuccess) return(status);
 
-    ix = pau->reason;
+    ix = pasynUser->reason;
     jx = ix - _firstix;
+
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: jx=%d, addr=%d, val=%d\n",
+            driverName.c_str(), functionName.c_str(), jx, addr, v);
 
     switch(jx) {
         case ixBoAnal:
@@ -1541,29 +1605,35 @@ asynStatus drvScope::writeInt32(asynUser* pau, epicsInt32 v) {
     return status;
 }
 
-asynStatus drvScope::writeFloat64(asynUser* pau, epicsFloat64 v) {
+asynStatus drvScope::writeFloat64(asynUser* pasynUser, epicsFloat64 v) {
 /*-----------------------------------------------------------------------------
  * This method overrides the virtual method in asynPortDriver.  Here we service
  * all write requests comming from EPICS records.
  * Parameters:
- *  pau         (in) structure containing addr and reason.
+ *  pasynUser         (in) structure containing addr and reason.
  *  v           (in) this is the command index, which together with
- *              pau->reason define the command to be sent.
+ *              pasynUser->reason define the command to be sent.
  *---------------------------------------------------------------------------*/
+    const std::string functionName = "writeFloat64";
     asynStatus status = asynSuccess;
-    int ix, addr;
+    int ix, jx, addr;
     float fv = v;
 
-    status = getAddress(pau,&addr);
-    if (status != asynSuccess) return(status);
+    status = getAddress(pasynUser, &addr);
+    if (status != asynSuccess) return status;
 
-    ix = pau->reason - _firstix;
-    switch(ix) {
+    ix = pasynUser->reason;
+    jx = ix - _firstix;
+    
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: jx=%d, addr=%d, val=%f\n",
+            driverName.c_str(), functionName.c_str(), jx, addr, v);
+
+    switch(jx) {
         case ixAoPTMO:
             _pollT = v;
             break;
         default:
-            putInMessgQ(enPutFlt, ix, addr, 0, fv);
+            putInMessgQ(enPutFlt, jx, addr, 0, fv);
             break;
     }
 
@@ -1579,7 +1649,7 @@ void drvScope::_getTraces() {
  * for the same event.
  *---------------------------------------------------------------------------*/
     static epicsTimeStamp t1,t2,t3; 
-    static int first = 1;
+    static bool first = true;
     int tmode;
     bool istrig = true; 
     const char* pcmd;
@@ -1596,10 +1666,9 @@ void drvScope::_getTraces() {
     }
 
     if (istrig) {
-        getWaveform(0);
-        getWaveform(1);
-        getWaveform(2);
-        getWaveform(3);
+        for (int ch=0; ch<NCHAN; ch++) {
+            getWaveform(ch);
+        }
         if(tmode == enTMSync) {
             if ((pcmd=getCommand(_boRun))) {
                 command(pcmd);
@@ -1620,7 +1689,7 @@ void drvScope::_getTraces() {
         }
     }
 
-    first = 0;
+    first = false;
     setDoubleParam(_aiWfTime, _wfTime);
     setDoubleParam(_aiWfTMin, _wfTMin);
     setDoubleParam(_aiWfTMax, _wfTMax);
@@ -1647,25 +1716,29 @@ void drvScope::_getChanOn(int ch) {
 /*-----------------------------------------------------------------------------
  * Requests read channel on state and other channel parameters as needed.
  *---------------------------------------------------------------------------*/
-    static int first[] = {1,1,1,1};
-    int i = ch-1, v;
-    double dv;
+    const std::string functionName = "_getChanOn";
+    static bool first[] = {true, true, true, true};
+    int addr = ch-1, val;
+    double dval;
 
-    getIntCh(ixBoChOn, ch ,_boChOn);
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s: ch=%d\n",
+            driverName.c_str(), functionName.c_str(), ch);
+
+    getInt(ixBoChOn, _boChOn, ch);
     _selectChannel();
 
-    getIntegerParam(i ,_boChOn, &v);
-    if ((!v) && (!first[i])) return;
-    first[i] = 0;
+    getIntegerParam(addr ,_boChOn, &val);
+    if ((!val) && (!first[addr])) return;
+    first[addr] = false;
 
-    getBinaryCh(ixBoChImp, ch, _boChImp);
-    getBinaryCh(ixMbboChCpl, ch, _mbboChCpl);
-    getFloatCh(ixAoChScl, ch, _aoChScl);
+    getEnum(ixBoChImp, _boChImp, ch);
+    getEnum(ixMbboChCpl, _mbboChCpl, ch);
+    getFloat(ixAoChScl, _aoChScl, ch);
     getChanScl(ch);
-    getChanPos(ch-1);
-    getDoubleParam(i, _aoChPos, &dv);
-    if (i == _chSel) {
-        _setPosSlider(dv);
+    getChanPos(addr);
+    getDoubleParam(addr, _aoChPos, &dval);
+    if (addr == _chSel) {
+        _setPosSlider(dval);
     }
 }
 
@@ -1675,30 +1748,34 @@ void drvScope::update() {
  * This is called at startup and periodically to stay in sync with user
  * changing settings on the instrument.
  *--------------------------------------------------------------------------*/
-    int i, ch;
+    const std::string functionName = "update";
+    int ch;
     static bool firsttime = true;
-    double dv;
+    double dval;
+
+    asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s\n",
+            driverName.c_str(), functionName.c_str());
 
     getFloat(ixAiTimDiv, _aiTimDiv);
-    getDoubleParam(_aiTimDiv, &dv);
-    setTimePerDiv(dv);
+    getDoubleParam(_aiTimDiv, &dval);
+    setTimePerDiv(dval);
     updateUser();
 
-    for (i=0; i<MAX_ADDR; i++) {
+    for (int i=0; i<NCHAN; i++) {
         ch = i+1;
         _getChanOn(ch);
         callParamCallbacks(i);
     }
 
     getFloat(ixAoTimDly, _aoTimDly);
-    getDoubleParam(_aoTimDly, &dv);
-    timeDelayStr(dv);
+    getDoubleParam(_aoTimDly, &dval);
+    timeDelayStr(dval);
     getInt(ixBoTimDlySt, _boTimDlySt);
     getFloat(ixAoTrPos, _aoTrPos);
     getFloat(ixAoTrLev, _aoTrLev);
     getTrigLevl();
     getFloat(ixAoTrHOff, _aoTrHOff);
-    callParamCallbacks(0);
+    callParamCallbacks();
     firsttime = false;
 }
 
@@ -1717,7 +1794,7 @@ void drvScope::afterInit() {
     putInMessgQ(enQuery, _wfIdn, 0, 0);
     putInMessgQ(enQuery, _siIpAddr, 0, 0);
 
-    for (int i=0; i<MAX_ADDR; i++) {
+    for (int i=0; i<NCHAN; i++) {
         putInMessgQ(enQuery, _boChOn, i, 0);
     }
 

@@ -27,12 +27,26 @@ pattern
     {"Data width", DATA_WIDTH, 0,    1,    2,  "1",  "2", WFWIDTH}
 }
 
+file mbbo3.db
+{
+pattern
+    {           DESC,      ITEM, N,  ZRST,   ONST,  TWST,   USER, AUTOSAVE}
+    { "Ch0 Coupling",   CH0_CPL, 0,    DC,     AC, DCREJ,  CHCPL, }
+    { "Ch1 Coupling",   CH1_CPL, 1,    DC,     AC, DCREJ,  CHCPL, }
+    { "Ch2 Coupling",   CH2_CPL, 2,    DC,     AC, DCREJ,  CHCPL, }
+    { "Ch3 Coupling",   CH3_CPL, 3,    DC,     AC, DCREJ,  CHCPL, }
+    {   "Trace mode",TRACE_MODE, 0,  None,  aSync,  Sync, TRCMOD, VAL}
+}
+
 file lo.db
 {
-pattern    {              DESC,        ITEM, LOPR, HOPR,      USER}
-#    {      "data width",  DATA_WIDTH,    0,    0,   WFWIDTH}
+pattern    
+    {              DESC,        ITEM, LOPR, HOPR,      USER}
+    {  "Marker 1 index",      MARK_1,    0, 1000,     MARK1}
+    {  "Marker 2 index",      MARK_2,    0, 1000,     MARK2}
     {            Recall,      RECALL,    1,   10,    RECALL}
     {             Store,       STORE,    1,   10,     STORE}
+#    {      "data width",  DATA_WIDTH,    0,    0,   WFWIDTH}
 }
 
 file li.db

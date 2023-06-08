@@ -7,6 +7,7 @@ record(bo, "$(P):BO_$(ITEM)"){
     field(ZNAM, "$(ZNAM)")
     field(ONAM, "$(ONAM)")
     field(VAL,  "$(VAL=0)")
+    field(SCAN, "$(SCAN=0)")
     field(PINI, "$(PINI=0)")
     info(asyn:READBACK, "1")
     info(autosaveFields, "$(AUTOSAVE=)")
