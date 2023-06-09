@@ -383,7 +383,7 @@ asynStatus drvScope::_wtrd(const char* pw, size_t nw, char* pr, size_t nr) {
             driverName.c_str(), functionName.c_str(), status, pw);
 
     if ((status != asynSuccess) || !nbr || (nbr > nr)) {
-        if (_err_count > 5) {
+        if (_err_count < 5) {
             // Allow 5 errors, then set error mode, print a message, set alarm stat/sevr
             setIntegerParam(_biState, false);
             callParamCallbacks();
