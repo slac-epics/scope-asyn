@@ -171,12 +171,18 @@ int drvTDS::_parseWfPreamble(const char* buf, int* ln, int* nb, double* ym, doub
     //printf("parseWfPreamble: yunt=%s, ymult=%g, yof=%g, yzr=%g, i=%d\n", yunt, ymult, yof, yzr, preamble_len);
 
     if (num_params != NUM_PREAMBLE_PARAMS) {
-        if (num_params != 5) {
+        if (_err_count == 1) {
             asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: failed to unpack preamble, num_params=%d\n",
                     driverName.c_str(), functionName.c_str(), num_params);
-            return -1;
+        } else if (_err_count == 2) {
+            setConnectedState(false);
         }
-        return 0;
+        _err_count++;
+        return -1;
+    } else {
+        if (_err_count) {
+            setConnectedState(true);
+        }
     }
 
     // wd is the width of chars in the waveform length, e.g. for 500, wd = 3
