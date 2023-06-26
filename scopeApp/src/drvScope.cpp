@@ -37,6 +37,7 @@ drvScope::drvScope(const char* port, const char* udp):
                 asynOctetMask | asynDrvUserMask,
                 asynInt32Mask | asynFloat64Mask | asynFloat32ArrayMask | asynOctetMask,
                 ASYN_CANBLOCK | ASYN_MULTIDEVICE,1,0,0),
+                _err_count(0),
                 _ncmnds(0),
                 _pollT(0.1),
                 _markchan(0),
@@ -46,7 +47,6 @@ drvScope::drvScope(const char* port, const char* udp):
                 _posInProg(0),
                 _measEnabled(0),
                 _pollCount(0),
-                _err_count(0),
                 _timerQueue(&epicsTimerQueueActive::allocate(true)) {
 /*------------------------------------------------------------------------------
  * Constructor for the drvScope class. Calls constructor for the asynPortDriver
@@ -373,7 +373,7 @@ asynStatus drvScope::_wtrd(const char* pw, size_t nw, char* pr, size_t nr) {
  *---------------------------------------------------------------------------*/
     const std::string functionName = "_wtrd";
     asynStatus status = asynSuccess;
-    int eom, nParams;
+    int eom;
     size_t nbw, nbr;
 
     pasynOctetSyncIO->flush(pasynUser);
@@ -383,57 +383,65 @@ asynStatus drvScope::_wtrd(const char* pw, size_t nw, char* pr, size_t nr) {
             driverName.c_str(), functionName.c_str(), status, pw);
 
     if ((status != asynSuccess) || !nbr || (nbr > nr)) {
+        // Allow 5 errors, then set connected state
         if (_err_count < 5) {
-            // Allow 5 errors, then set error mode, print a message, set alarm stat/sevr
-            setIntegerParam(_biState, false);
-            callParamCallbacks();
             asynPrint(pasynUser, ASYN_TRACE_ERROR,
                     "%s::%s: ERROR: status=%d, pw=%s, nbw=%zu, nbr=%zu\n",
                     driverName.c_str(), functionName.c_str(), status, pw, nbw, nbr);
-            // Set alarm stat/sevr
-            status = getNumParams(&nParams);
-            if (status != asynSuccess) {
-                asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: getNumParams failed\n", 
-                          driverName.c_str(), functionName.c_str());
-            }
-            for (int param = 0; param < nParams; param++) {
-                for (int addr = 0; addr < NCHAN; addr++) {
-                    if (param != _biState) {
-                        setParamAlarmStatus(addr, param, COMM_ALARM);
-                        setParamAlarmSeverity(addr, param, INVALID_ALARM);
-                    }
-                    callParamCallbacks(addr);
-                }
-            }
+        } else if (_err_count == 5) {
+            setConnectedState(false);
         }
         _err_count++;
     } else {
         if (_err_count) {
-            // Reset error status
-            setIntegerParam(_biState, true);
-            callParamCallbacks();
-            asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: Status OK after %ld error(s)\n",
-                    driverName.c_str(), functionName.c_str(), _err_count);
-            _err_count = 0;
-            // Clear alarm stat/sevr
-            status = getNumParams(&nParams);
-            if (status != asynSuccess) {
-                asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: getNumParams failed\n", 
-                          driverName.c_str(), functionName.c_str());
-            }
-            for (int param = 0; param < nParams; param++) {
-                for (int addr = 0; addr < NCHAN; addr++) {
-                    if (param != _biState) {
-                        setParamAlarmStatus(addr, param, NO_ALARM);
-                        setParamAlarmSeverity(addr, param, NO_ALARM);
-                    }
-                    callParamCallbacks(addr);
-                }
-            }
+            setConnectedState(true);
         }
     }
 
     return status;
+}
+
+
+void drvScope::setConnectedState(int state) {
+/*-----------------------------------------------------------------------------
+ *---------------------------------------------------------------------------*/
+    const std::string functionName = "setConnectedState";
+    asynStatus status = asynSuccess;
+    std::string msg;
+    int stat, sevr, nParams;
+
+    if (state) {
+        asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: Status OK after %ld error(s)\n",
+                driverName.c_str(), functionName.c_str(), _err_count);
+        _err_count = 0;
+        stat = NO_ALARM;
+        sevr = NO_ALARM;
+    } else {
+        asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: Multiple errors, going silent...\n",
+                driverName.c_str(), functionName.c_str());
+        stat = COMM_ALARM;
+        sevr = INVALID_ALARM;
+    }
+
+    // Set error state
+    setIntegerParam(_biState, state);
+    callParamCallbacks();
+
+    // Set alarm stat/sevr
+    status = getNumParams(&nParams);
+    if (status != asynSuccess) {
+        asynPrint(pasynUser, ASYN_TRACE_ERROR, "%s::%s: getNumParams failed\n", 
+                  driverName.c_str(), functionName.c_str());
+    }
+    for (int param = 0; param < nParams; param++) {
+        for (int addr = 0; addr < NCHAN; addr++) {
+            if (param != _biState) {
+                setParamAlarmStatus(addr, param, stat);
+                setParamAlarmSeverity(addr, param, sevr);
+            }
+            callParamCallbacks(addr);
+        }
+    }
 }
 
 

@@ -225,6 +225,7 @@ protected:
     asynStatus    getString(const char* cmnd, int pix);
     void          timeDelayStr(float td);
     void          update();
+    void          setConnectedState(int state);
 
     asynUser*     pasynUser;
     int           _analize[NCHAN];    // analysis on/off flags
@@ -234,6 +235,7 @@ protected:
     int           _mix1[NCHAN];        // marker 1 for integration
     int           _mix2[NCHAN];        // marker 2 for integration
     char          _fname[FNAME];        // file path for save/restore
+    long          _err_count;
 
 private:
     epicsMessageQueue* _pmq;
@@ -280,7 +282,6 @@ private:
     double        _wfRate;
     int           _measEnabled;
     int           _pollCount;
-    long          _err_count;
     epicsTimerQueueActive* _timerQueue;
     epicsTimer*   _chPosTimer;
 };
