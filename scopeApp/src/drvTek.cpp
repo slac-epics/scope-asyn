@@ -121,6 +121,7 @@ void drvTek::updateUser(){
     getEnum(TrigSloCmnd, _boTrSlo, trigSlo);
     getEnum(TrigStaCmnd, _mbbiTrSta, trigSta);
     getEnum(TrigModeCmnd, _boTrMode, trgMode);
+    getInt(AcqStateCmnd, _biAcqStat);
 }
 
 
