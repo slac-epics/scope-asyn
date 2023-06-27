@@ -219,7 +219,7 @@ void drvScope::pollerThread() {
             if (_measEnabled) {
                 getMeasurements(_pollCount);
             }
-            _pollCount = (_pollCount >= 99)?(_pollCount = 0):(_pollCount + 1);
+            _pollCount = (_pollCount >= 99)?0:(_pollCount + 1);
             epicsThreadSleep(_pollT);
         } else {
             asynPrint(pasynUser, ASYN_TRACE_FLOW,
@@ -1758,7 +1758,6 @@ void drvScope::update() {
  *--------------------------------------------------------------------------*/
     const std::string functionName = "update";
     int ch;
-    static bool firsttime = true;
     double dval;
 
     asynPrint(pasynUser, ASYN_TRACE_FLOW, "%s::%s\n",
@@ -1784,7 +1783,6 @@ void drvScope::update() {
     getTrigLevl();
     getFloat(ixAoTrHOff, _aoTrHOff);
     callParamCallbacks();
-    firsttime = false;
 }
 
 

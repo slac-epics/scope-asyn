@@ -333,21 +333,25 @@ int drvDS6x::_wfPreamble( char* p,int* ln,int* nb){
  * Unpacks the waveform preamble string.  Returns the length of the preamble
  * as a function value.
  *---------------------------------------------------------------------------*/
-  int i=0,npts=0,fmt=0,type,cnt,xref,yref; float xinc,xorg,yinc,yorg; char* ps;
+  int i=0,npts=0,fmt=0;
+  //int type,cnt,xref,yref; 
+  //float xinc,xorg,yinc,yorg; 
+  char* ps;
+
   ps=strtok(p,",");
   while(ps){
 //printf( "i=%d, %s\n",i,ps);
     switch(i){
       case 0:	fmt=atoi(ps); break;
-      case 1:	type=atoi(ps); break;
+      case 1:	break; //type=atoi(ps); break;
       case 2:	npts=atoi(ps); break;
-      case 3:	cnt=atoi(ps); break;
-      case 4:	xinc=atof(ps); break;
-      case 5:	xorg=atof(ps); break;
-      case 6:	xref=atoi(ps); break;
-      case 7:	yinc=atof(ps); break;
-      case 8:	yorg=atof(ps); break;
-      case 9:	yref=atoi(ps); break;
+      case 3:	break; //cnt=atoi(ps); break;
+      case 4:	break; //xinc=atof(ps); break;
+      case 5:	break; //xorg=atof(ps); break;
+      case 6:	break; //xref=atoi(ps); break;
+      case 7:	break; //yinc=atof(ps); break;
+      case 8:	break; //yorg=atof(ps); break;
+      case 9:	break; //yref=atoi(ps); break;
       default:	break;
     }
     i++; ps=strtok(0,",");
@@ -485,7 +489,11 @@ void drvDS6x::getTrigLevl(){
 /*-----------------------------------------------------------------------------
  * Setup slider for the trigger level value.
  *---------------------------------------------------------------------------*/
-  int ch,sv,svq,en; double levl,y,scl; asynStatus stat=asynSuccess;
+  int ch,sv,en; 
+  //int svq; 
+  double levl,y,scl; 
+  asynStatus stat=asynSuccess;
+
   if((stat=getIntegerParam( 0,_mbboTrSou,&ch))!=asynSuccess) return;
   if(ch<0||ch>=NCHAN) return;
   if((stat=getIntegerParam( ch,_boChOn,&en))!=asynSuccess) return;
@@ -496,7 +504,7 @@ void drvDS6x::getTrigLevl(){
   if(0.02>scl) scl=0.02;
   sv=(y+levl/scl)*100.0;
   scl=MAX(1.0,scl);
-  svq=128+32*(levl+y)/scl;
+  //svq=128+32*(levl+y)/scl;
   stat=setIntegerParam( 0,_loTrLev,sv);
   callParamCallbacks();
 }
