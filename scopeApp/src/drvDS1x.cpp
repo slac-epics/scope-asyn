@@ -399,7 +399,8 @@ void drvDS1x::getWaveform(int ch) {
     int ctstmx = 20;
     asynStatus stat = asynSuccess;
     int i, chon, len, n = 0, nb, nbyte, yref;
-    double vdiv, yinc, yorg; word* pwr = _wfraw;
+    double yinc, yorg; word* pwr = _wfraw;
+    //double vdiv;
     char str[32]; 
     char* pc = _rbuf;
     byte* pb; word* pw; word wtmp;
@@ -437,7 +438,7 @@ void drvDS1x::getWaveform(int ch) {
         pb = (byte*)(&_rbuf[n+2]);
         pw = (word*)pb;
         n = WF_LEN;
-        vdiv = yinc*25;    // because Rigol gives us yscale in V/25
+        //vdiv = yinc*25;    // because Rigol gives us yscale in V/25
         n = len<n?len:n;
         n = n<0?0:n;
         for (i=0; i<n; i++,pb++,pw++){
@@ -532,7 +533,8 @@ void drvDS1x::getTrigLevl() {
 /*-----------------------------------------------------------------------------
  * Setup slider for the trigger level value.
  *---------------------------------------------------------------------------*/
-    int ch, sv, svq, en;
+    int ch, sv, en;
+    //int svq;
     double levl, y, scl; 
     asynStatus stat = asynSuccess;
 
@@ -546,7 +548,7 @@ void drvDS1x::getTrigLevl() {
     if (0.02 > scl) scl = 0.02;
     sv = (y+levl/scl)*100.0;
     scl = MAX(1.0,scl);
-    svq = 128 + 32*(levl+y)/scl;
+    //svq = 128 + 32*(levl+y)/scl;
     stat = setIntegerParam(0, _loTrLev, sv);
     callParamCallbacks();
 }
