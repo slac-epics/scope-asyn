@@ -31,11 +31,11 @@ file mbbo3.db
 {
 pattern
     {           DESC,      ITEM, N,  ZRST,   ONST,  TWST,   USER, AUTOSAVE}
-    { "Ch0 Coupling",   CH0_CPL, 0,    DC,     AC,   GND,  CHCPL, }
-    { "Ch1 Coupling",   CH1_CPL, 1,    DC,     AC,   GND,  CHCPL, }
-    { "Ch2 Coupling",   CH2_CPL, 2,    DC,     AC,   GND,  CHCPL, }
-    { "Ch3 Coupling",   CH3_CPL, 3,    DC,     AC,   GND,  CHCPL, }
-    {   "Trace mode",TRACE_MODE, 0,  None,  aSync,  Sync, TRCMOD, VAL}
+    { "Ch0 Coupling",   CH0_CPL, 0,    DC,     AC,   GND,  CHCPL}
+    { "Ch1 Coupling",   CH1_CPL, 1,    DC,     AC,   GND,  CHCPL}
+    { "Ch2 Coupling",   CH2_CPL, 2,    DC,     AC,   GND,  CHCPL}
+    { "Ch3 Coupling",   CH3_CPL, 3,    DC,     AC,   GND,  CHCPL}
+    {   "Trace mode",TRACE_MODE, 0,  None,  aSync,  Sync, TRCMOD,      VAL}
 }
 
 file lo.db
